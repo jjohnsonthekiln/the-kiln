@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Great Physician</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1e3a5f;
+      --navy-dark: #0d1b2e;
+      --blue-light: #a8c5e8;
+      --blue-mid: #6a9cbf;
+      --gold: #c9a84c;
+      --white: #f0f4f8;
+      --gray: #8a9bb0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--navy-dark);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(13,27,46,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(168,197,232,0.1);
+    }
+    .nav-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; color: var(--white); text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      color: var(--gray); text-decoration: none;
+      font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--blue-light); }
+
+    .hero {
+      padding: 140px 24px 60px;
+      text-align: center;
+      background: radial-gradient(ellipse at 50% 30%, #1e3a5f 0%, #0a1520 100%);
+      border-bottom: 1px solid rgba(168,197,232,0.08);
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem; letter-spacing: 0.4em;
+      color: var(--gold); text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 300; color: var(--white); margin-bottom: 16px;
+    }
+    .hero-meta {
+      font-size: 0.78rem; color: var(--gray);
+      letter-spacing: 0.1em; line-height: 2;
+    }
+
+    .content {
+      max-width: 780px; margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+
+    .section { margin-bottom: 52px; }
+
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem; font-weight: 300;
+      color: var(--white); margin-bottom: 8px;
+      letter-spacing: 0.3px;
+    }
+    .section-number {
+      font-size: 0.68rem; letter-spacing: 0.4em;
+      color: var(--gold); text-transform: uppercase;
+      margin-bottom: 12px; display: block;
+    }
+    .gold-line {
+      width: 40px; height: 1px; background: var(--gold);
+      margin: 16px 0 20px;
+    }
+
+    h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--blue-light); margin: 28px 0 10px;
+    }
+
+    p {
+      font-size: 0.92rem; line-height: 1.9;
+      color: var(--gray); font-weight: 300;
+      margin-bottom: 16px;
+    }
+
+    ul {
+      list-style: none; margin: 8px 0 16px 0; padding: 0;
+    }
+    ul li {
+      font-size: 0.9rem; line-height: 1.8;
+      color: var(--gray); font-weight: 300;
+      padding: 4px 0 4px 20px; position: relative;
+    }
+    ul li::before {
+      content: '—';
+      position: absolute; left: 0;
+      color: var(--gold); font-size: 0.8rem;
+    }
+
+    .highlight-box {
+      background: rgba(30,58,95,0.3);
+      border-left: 2px solid var(--gold);
+      border-radius: 2px;
+      padding: 20px 24px;
+      margin: 20px 0;
+    }
+    .highlight-box p {
+      margin-bottom: 0;
+      font-style: italic;
+      color: var(--blue-light);
+      font-size: 0.95rem;
+    }
+
+    .contact-block {
+      background: rgba(201,168,76,0.06);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 4px;
+      padding: 28px 32px;
+      margin-top: 16px;
+    }
+    .contact-block p { margin-bottom: 4px; }
+    .contact-block a { color: var(--blue-light); text-decoration: none; }
+    .contact-block a:hover { color: var(--white); }
+
+    .divider {
+      height: 1px;
+      background: rgba(168,197,232,0.08);
+      margin: 52px 0;
+    }
+
+    .footnote {
+      font-size: 0.78rem; color: var(--gray);
+      font-style: italic; opacity: 0.6;
+      border-top: 1px solid rgba(168,197,232,0.08);
+      padding-top: 24px; margin-top: 52px;
+    }
+
+    footer {
+      padding: 48px 24px; text-align: center;
+      border-top: 1px solid rgba(168,197,232,0.08);
+    }
+    footer p { font-size: 0.78rem; color: var(--gray); letter-spacing: 0.1em; line-height: 2; }
+    footer a { color: var(--blue-light); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .content { padding: 60px 20px 80px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand">Great Physician</a>
+  <ul class="nav-links">
+    <li><a href="/#about">About</a></li>
+    <li><a href="/#download">Download</a></li>
+    <li><a href="/#contact">Contact</a></li>
+    <li><a href="/#donate">Give</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <p class="hero-eyebrow">The Kiln Ministries</p>
+  <h1 class="hero-title">Privacy Policy</h1>
+  <p class="hero-meta">
+    Great Physician App<br>
+    Effective Date: March 13, 2026 &nbsp;·&nbsp; Updated: March 24, 2026
+  </p>
+</div>
+
+<div class="content">
+
+  <!-- 1 -->
+  <div class="section">
+    <span class="section-number">Section 1</span>
+    <h2>Introduction</h2>
+    <div class="gold-line"></div>
+    <p>The Kiln Ministries, a nonprofit organization registered in Tennessee, operates the Great Physician app (the "App"). This Privacy Policy describes how we collect, use, and protect information when you use the App. By using the App, you agree to the practices described in this policy.</p>
+    <p>The Great Physician app provides Scripture-based biblical counseling through four AI companions — Barnabas, Ethan, Anna, and Lydia — as well as an Inductive Bible Study feature for group use. We take the privacy and sensitivity of your personal and spiritual information seriously.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 2 -->
+  <div class="section">
+    <span class="section-number">Section 2</span>
+    <h2>Information We Collect</h2>
+    <div class="gold-line"></div>
+
+    <h3>2a. Counseling Conversations</h3>
+    <div class="highlight-box">
+      <p>Your counseling conversations are not stored. They exist only in memory during your session and are permanently discarded when you close the app or start a new session.</p>
+    </div>
+    <p>When you use the counseling or Go Deeper features of the App, your messages are processed in real time to generate a response. Conversation content is not stored in any database, is not logged, and is not retained after your session ends. No one at The Kiln Ministries can read your conversations.</p>
+
+    <h3>2b. Session Identifiers</h3>
+    <p>The App assigns an anonymous session ID to each counseling session to maintain continuity during that session only. This identifier does not identify you personally and is discarded when the session ends. We do not require you to create an account or provide your name or email address to use the counseling features.</p>
+
+    <h3>2c. Inductive Bible Study Feature</h3>
+    <p>If you use the Inductive Bible Study feature, you will be asked to provide:</p>
+    <ul>
+      <li>Your <strong>name</strong> — to identify you to other members of your study group</li>
+      <li>Your <strong>email address</strong> (optional) — for potential study-related notifications</li>
+    </ul>
+    <p>This information is stored in our secure database solely to facilitate the shared study group experience. Your name will be visible to other participants in the same study. Your email address, if provided, will not be shared publicly and will only be used for study-related communication.</p>
+
+    <h3>2d. Device and Usage Data</h3>
+    <p>We may collect standard technical data such as device type, operating system version, and app usage patterns. This data is used solely for maintaining and improving the App and is not linked to any personal information.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 3 -->
+  <div class="section">
+    <span class="section-number">Section 3</span>
+    <h2>How We Use Your Information</h2>
+    <div class="gold-line"></div>
+    <p>We use the information collected to:</p>
+    <ul>
+      <li>Provide the biblical counseling and Bible study experience within the App</li>
+      <li>Maintain and improve the App's performance and reliability</li>
+      <li>Facilitate group Bible study participation</li>
+      <li>Comply with legal obligations if required by law</li>
+    </ul>
+    <p>We do not sell, rent, or share your information with third parties for marketing or commercial purposes.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 4 -->
+  <div class="section">
+    <span class="section-number">Section 4</span>
+    <h2>Counseling Privacy</h2>
+    <div class="gold-line"></div>
+    <p>Your counseling conversations are private. Because conversations are not stored, The Kiln Ministries staff cannot access, review, or monitor your counseling sessions. This is by design — we believe your spiritual conversations should remain between you, God, and the AI companion you have chosen.</p>
+    <p>Please be aware that this App does not provide the legal protections of licensed professional counseling (such as therapist-client privilege). If you require legally protected counseling, please seek a licensed professional counselor or pastor.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 5 -->
+  <div class="section">
+    <span class="section-number">Section 5</span>
+    <h2>Crisis Situations</h2>
+    <div class="gold-line"></div>
+    <p>If you express thoughts of harming yourself or others, the App will direct you to emergency resources. Because conversations are not stored, no session data is transmitted to ministry staff. If you are in crisis, please contact emergency services (911) or the 988 Suicide and Crisis Lifeline immediately.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 6 -->
+  <div class="section">
+    <span class="section-number">Section 6</span>
+    <h2>Third-Party Services</h2>
+    <div class="gold-line"></div>
+    <p>The App uses the following third-party services to operate:</p>
+    <ul>
+      <li><strong>Anthropic (Claude AI)</strong> — powers the AI counseling responses</li>
+      <li><strong>OpenAI</strong> — used for document embedding in our knowledge base</li>
+      <li><strong>Supabase</strong> — secure database storage for Inductive Bible Study data</li>
+      <li><strong>Railway</strong> — cloud hosting infrastructure</li>
+    </ul>
+    <p>Each of these services has its own privacy policy. We encourage you to review them. We have selected these services based on their security standards and do not authorize them to use your data for their own purposes beyond what is necessary to operate the App.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 7 -->
+  <div class="section">
+    <span class="section-number">Section 7</span>
+    <h2>Data Retention</h2>
+    <div class="gold-line"></div>
+    <p>Counseling conversation data is not retained — it exists only in memory during your session and is permanently discarded when the session ends.</p>
+    <p>Inductive Bible Study data (name, optional email, and study responses) is retained for as long as the study exists. You may request deletion of your study data by contacting us at the address below. We will honor deletion requests within 30 days.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 8 -->
+  <div class="section">
+    <span class="section-number">Section 8</span>
+    <h2>Children's Privacy</h2>
+    <div class="gold-line"></div>
+    <p>The Great Physician app is not directed to children under the age of 13. We do not knowingly collect personal information from children under 13. If you believe a child has provided us with personal information, please contact us and we will promptly delete it.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 9 -->
+  <div class="section">
+    <span class="section-number">Section 9</span>
+    <h2>Security</h2>
+    <div class="gold-line"></div>
+    <p>We take reasonable technical and organizational measures to protect your data, including encrypted database storage and restricted access controls. However, no method of transmission over the internet is 100% secure, and we cannot guarantee absolute security.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 10 -->
+  <div class="section">
+    <span class="section-number">Section 10</span>
+    <h2>Changes to This Policy</h2>
+    <div class="gold-line"></div>
+    <p>We may update this Privacy Policy from time to time. We will notify users of significant changes by updating the effective date at the top of this policy. Continued use of the App after changes constitutes acceptance of the updated policy.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 11 -->
+  <div class="section">
+    <span class="section-number">Section 11</span>
+    <h2>Contact Us</h2>
+    <div class="gold-line"></div>
+    <p>If you have questions about this Privacy Policy or would like to request deletion of your data, please contact:</p>
+    <div class="contact-block">
+      <p><strong>The Kiln Ministries</strong></p>
+      <p>Jeff Johnson</p>
+      <p><a href="mailto:jeff@thekiln.org">jeff@thekiln.org</a></p>
+      <p>Jackson, Tennessee</p>
+    </div>
+  </div>
+
+  <p class="footnote">This privacy policy was prepared for The Kiln Ministries and should be reviewed by legal counsel before publication.</p>
+
+</div>
+
+<footer>
+  <p>© 2026 The Kiln Ministries · Jackson, Tennessee</p>
+  <p style="margin-top: 8px;"><a href="/">Great Physician</a> · <a href="mailto:jeff@thekiln.org">jeff@thekiln.org</a></p>
+</footer>
+
+</body>
+</html>
