@@ -864,7 +864,7 @@
 
         document.getElementById('loading-indicator').style.display = 'none';
         buildFilters(allPosts);
-        renderGrid(allPosts);
+        filterBy('Mediterranean Journey');
       } catch (err) {
         document.getElementById('loading-indicator').innerHTML =
           '<p style="color:var(--clay)">Could not load articles. Check that posts.json is in the same directory.</p>';
