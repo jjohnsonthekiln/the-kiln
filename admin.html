@@ -50,6 +50,9 @@ header h1 { font-family: var(--serif); font-weight: 300; font-size: 22px; color:
 .s-date { font-size: 11px; color: var(--cream-dim); }
 .load-more { padding: 14px; text-align: center; cursor: pointer; font-size: 13px; color: var(--gold-dim); }
 .load-more:hover { color: var(--gold); }
+.s-delete { font-size: 11px; color: #d07070; background: none; border: none; cursor: pointer; padding: 2px 6px; border-radius: 4px; opacity: 0; transition: opacity 0.15s; }
+.session-item:hover .s-delete { opacity: 1; }
+.s-delete:hover { background: rgba(192,48,64,0.15); }
 #conversation-view .placeholder { text-align: center; color: var(--gold-dim); font-family: var(--serif); font-size: 18px; margin-top: 60px; }
 .conv-header { margin-bottom: 20px; padding-bottom: 14px; border-bottom: 0.5px solid var(--border); }
 .conv-header h2 { font-family: var(--serif); font-weight: 300; font-size: 20px; color: var(--gold); }
@@ -160,8 +163,9 @@ async function loadSessions(reset=false) {
   const seen=new Set();
   data.filter(r=>{ if(seen.has(r.session_id)) return false; seen.add(r.session_id); return true; }).forEach(s=>{
     const el=document.createElement('div'); el.className='session-item'; el.dataset.id=s.session_id;
-    el.innerHTML=`<div class="s-id">${s.session_id}</div><div class="s-meta"><span class="s-lang">${(s.lang||'').toUpperCase()}</span><span class="s-date">${new Date(s.created_at).toLocaleDateString()}</span></div>`;
+    el.innerHTML=`<div class="s-id">${s.session_id}</div><div class="s-meta"><span class="s-lang">${(s.lang||'').toUpperCase()}</span><span class="s-date">${new Date(s.created_at).toLocaleDateString()}</span><button class="s-delete" title="Delete session">✕</button></div>`;
     el.addEventListener('click',()=>loadMessages(s.session_id,s.lang,s.created_at,el));
+    el.querySelector('.s-delete').addEventListener('click',e=>{ e.stopPropagation(); deleteSession(s.session_id,el); });
     list.appendChild(el);
   });
   if(data.length===LIMIT){ const more=document.createElement('div'); more.className='load-more'; more.textContent='Load more…'; more.addEventListener('click',()=>{more.remove();loadSessions(false);}); list.appendChild(more); }
@@ -174,6 +178,17 @@ async function loadMessages(session_id,lang,date,el) {
   const msgs=await res.json();
   view.innerHTML=`<div class="conv-header"><h2>Session — ${(lang||'').toUpperCase()}</h2><p>${new Date(date).toLocaleString()} · ${msgs.length} turn(s) · ID: ${session_id}</p></div>`;
   msgs.forEach(m=>{ view.innerHTML+=`<div class="message"><div class="msg-label">Visitor</div><div class="msg-bubble user">${escHtml(m.user_message)}</div></div><div class="message"><div class="msg-label">Come to Me</div><div class="msg-bubble ai">${escHtml(m.ai_response)}</div></div>`; });
+}
+async function deleteSession(session_id, el) {
+  if (!confirm(`Delete all messages for this session?\n\n${session_id}`)) return;
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/conversations?session_id=eq.${session_id}`, { method: 'DELETE', headers: SB_HEADERS });
+  if (res.ok) {
+    el.remove();
+    document.getElementById('conversation-view').innerHTML = '<p class="placeholder">Session deleted</p>';
+    loadStats();
+  } else {
+    alert('Delete failed. Check Supabase RLS policies allow delete.');
+  }
 }
 function sbFetch(path,extraHeaders={}) { return fetch(`${SUPABASE_URL}${path}`,{headers:{...SB_HEADERS,...extraHeaders}}); }
 function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
