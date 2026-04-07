@@ -478,6 +478,17 @@
       font-size: 1.15rem;
       color: var(--earth);
     }
+    .article-body h3 {
+      font-family: var(--ff-display);
+      font-size: 1.45rem;
+      font-weight: 400;
+      color: var(--earth);
+      margin-top: 2.4rem;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid rgba(201,168,76,0.25);
+    }
+    .article-body h3 em { font-style: italic; color: var(--clay); }
     .article-scripture-footer {
       margin-top: 3rem;
       padding-top: 2rem;
@@ -650,11 +661,11 @@
   <footer>
     <div class="footer-logo">The <em>Kiln</em></div>
     <p>6688 Nolensville Rd, Ste 108 #2042, Brentwood, TN 37027 &nbsp;·&nbsp;
-       <a href="mailto:jeff@thekiln.org">jeff@thekiln.org</a> &nbsp;·&nbsp; Nashville, TN</p>
+       <a href="/cdn-cgi/l/email-protection#d2b8b7b4b492a6bab7b9bbbebcfcbda0b5"><span class="__cf_email__" data-cfemail="deb4bbb8b89eaab6bbb5b7b2b0f0b1acb9">[email&#160;protected]</span></a> &nbsp;·&nbsp; Nashville, TN</p>
     <p style="margin-top:0.4rem;">&copy; 2025–2026 The Kiln Ministries. All rights reserved.</p>
   </footer>
 
-  <script>
+  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
     /* ── NAV SCROLL ───────────────────────────────────────── */
     const nav = document.getElementById('nav');
     window.addEventListener('scroll', () => {
@@ -806,7 +817,11 @@
       if (!post) return;
 
       const tags = post.tags.map(t => `<span class="tag">${t}</span>`).join('');
-      const body = post.body.map(para => `<p>${para}</p>`).join('');
+      const body = post.body.map(para =>
+        para.startsWith('## ')
+          ? `<h3>${para.slice(3)}</h3>`
+          : `<p>${para}</p>`
+      ).join('');
 
       document.getElementById('article-content').innerHTML = `
         <p class="article-eyebrow">${post.category}</p>
@@ -851,13 +866,4 @@
         buildFilters(allPosts);
         renderGrid(allPosts);
       } catch (err) {
-        document.getElementById('loading-indicator').innerHTML =
-          '<p style="color:var(--clay)">Could not load articles. Check that posts.json is in the same directory.</p>';
-        console.error(err);
-      }
-    }
-
-    loadPosts();
-  </script>
-</body>
-</html>
+        document.getElementById('lo
