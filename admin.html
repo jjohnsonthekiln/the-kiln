@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Come to Me — Admin</title>
+<title>Admin</title>
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -68,8 +68,6 @@ header h1 { font-family: var(--serif); font-weight: 300; font-size: 22px; color:
 <body>
 <div id="login-screen">
   <div class="login-card">
-    <h1>Come to Me</h1>
-    <p>Admin — Conversation Viewer</p>
     <input type="password" id="pw-input" placeholder="Password" />
     <button class="btn" id="login-btn">Sign In</button>
     <div class="err-msg" id="login-err"></div>
@@ -177,7 +175,7 @@ async function loadMessages(session_id,lang,date,el) {
   const res=await sbFetch(`/rest/v1/conversations?session_id=eq.${session_id}&order=turn.asc&select=*`);
   const msgs=await res.json();
   view.innerHTML=`<div class="conv-header"><h2>Session — ${(lang||'').toUpperCase()}</h2><p>${new Date(date).toLocaleString()} · ${msgs.length} turn(s) · ID: ${session_id}</p></div>`;
-  msgs.forEach(m=>{ view.innerHTML+=`<div class="message"><div class="msg-label">Visitor</div><div class="msg-bubble user">${escHtml(m.user_message)}</div></div><div class="message"><div class="msg-label">Come to Me</div><div class="msg-bubble ai">${escHtml(m.ai_response)}</div></div>`; });
+  msgs.forEach(m=>{ view.innerHTML+=`<div class="message"><div class="msg-label">Visitor</div><div class="msg-bubble user">${escHtml(m.user_message)}</div></div><div class="message"><div class="msg-label">AI</div><div class="msg-bubble ai">${escHtml(m.ai_response)}</div></div>`; });
 }
 async function deleteSession(session_id, el) {
   if (!confirm(`Delete all messages for this session?\n\n${session_id}`)) return;
