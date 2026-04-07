@@ -1,95 +1,863 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Blog — Great Physician</title>
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Articles | The Kiln Ministries</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
+
   <style>
-    :root { --cream: #faf8f4; --surface: #f0ebe0; --border: #e0d8cc; --gold: #c9a84c; --gold-dark: #8b5e1a; --text-dark: #2c1a0e; --text-mid: #7a6a58; }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Montserrat', sans-serif; background: var(--cream); color: var(--text-dark); overflow-x: hidden; }
+    /* ── TOKENS ─────────────────────────────────────────── */
+    :root {
+      --cream:   #0d1b2e;
+      --sand:    #a8c5e8;
+      --clay:    #c9a84c;
+      --ember:   #e0ba5f;
+      --ash:     #6a8faf;
+      --earth:   #f0f4f8;
+      --charcoal:#060e18;
+      --white:   #152338;
 
+      --ff-display: 'Cormorant Garamond', Georgia, serif;
+      --ff-body:    'Lora', Georgia, serif;
+      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; font-size: 17px; }
+
+    body {
+      background: var(--cream);
+      color: var(--earth);
+      font-family: var(--ff-body);
+      line-height: 1.75;
+      overflow-x: hidden;
+    }
+
+    /* Grain overlay */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 999;
+      opacity: 0.03;
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+      background-size: 180px;
+    }
+
+    /* ── NAV ─────────────────────────────────────────────── */
     nav {
-      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-      padding: 18px 48px; display: flex; align-items: center; justify-content: space-between;
-      background: rgba(250,248,244,0.97); backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 3rem;
+      transition: background 0.4s var(--ease-out), box-shadow 0.4s;
     }
-    .nav-brand { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--text-dark); text-decoration: none; }
-    .nav-links { display: flex; gap: 32px; list-style: none; }
-    .nav-links a { color: var(--text-mid); text-decoration: none; font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase; transition: color 0.2s; }
-    .nav-links a:hover { color: var(--gold-dark); }
+    nav.scrolled {
+      background: rgba(13, 27, 46, 0.97);
+      backdrop-filter: blur(8px);
+      box-shadow: 0 1px 0 rgba(168,197,232,0.1);
+    }
+    .nav-logo {
+      font-family: var(--ff-display);
+      font-size: 1.6rem;
+      font-weight: 500;
+      color: var(--earth);
+      letter-spacing: 0.02em;
+      text-decoration: none;
+    }
+    .nav-logo span { color: var(--clay); }
+    .nav-links {
+      display: flex;
+      gap: 2.5rem;
+      list-style: none;
+      align-items: center;
+    }
+    .nav-links a {
+      font-family: var(--ff-body);
+      font-size: 0.85rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ash);
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover, .nav-links a.active { color: var(--clay); }
+    .nav-login {
+      padding: 0.35rem 1rem !important;
+      border: 1px solid rgba(201,168,76,0.4) !important;
+      border-radius: 4px !important;
+      color: var(--clay) !important;
+      transition: background 0.2s, color 0.2s !important;
+    }
+    .nav-login:hover {
+      background: var(--clay) !important;
+      color: var(--charcoal) !important;
+    }
 
+    /* ── ANIMATIONS ─────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(22px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .reveal {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
+    }
+    .reveal.visible { opacity: 1; transform: none; }
+
+    /* ── PAGE HERO ──────────────────────────────────────── */
     .page-hero {
-      padding: 140px 24px 80px; text-align: center;
-      background: radial-gradient(ellipse at 50% 30%, #f0ebe0 0%, #faf8f4 100%);
-      border-bottom: 1px solid var(--border);
+      min-height: 44vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 8rem 2rem 4rem;
+      position: relative;
+      overflow: hidden;
     }
-    .page-eyebrow { font-size: 0.7rem; letter-spacing: 0.45em; color: var(--gold-dark); text-transform: uppercase; margin-bottom: 16px; }
-    .page-title { font-family: 'Cormorant Garamond', serif; font-size: clamp(2.5rem, 5vw, 4rem); font-weight: 300; color: var(--text-dark); margin-bottom: 16px; }
-    .page-body { font-size: 0.95rem; color: var(--text-mid); max-width: 560px; margin: 0 auto; line-height: 1.8; font-weight: 300; }
+    .page-hero::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse 90% 60% at 50% 100%, rgba(30,58,95,0.5) 0%, transparent 60%);
+      pointer-events: none;
+    }
+    .embers {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    .ember {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--ember);
+      animation: rise linear infinite;
+    }
+    @keyframes rise {
+      0%   { transform: translateY(0) scale(1); opacity: 0.6; }
+      80%  { opacity: 0.3; }
+      100% { transform: translateY(-80vh) scale(0.2); opacity: 0; }
+    }
+    .hero-eyebrow {
+      font-family: var(--ff-body);
+      font-size: 0.78rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 1.4rem;
+      opacity: 0;
+      animation: fadeUp 0.9s 0.2s var(--ease-out) forwards;
+      position: relative; z-index: 2;
+    }
+    .hero-title {
+      font-family: var(--ff-display);
+      font-size: clamp(2.8rem, 7vw, 5.5rem);
+      font-weight: 300;
+      line-height: 0.95;
+      color: var(--earth);
+      letter-spacing: -0.01em;
+      opacity: 0;
+      animation: fadeUp 1s 0.4s var(--ease-out) forwards;
+      position: relative; z-index: 2;
+    }
+    .hero-title em { font-style: italic; color: var(--clay); }
+    .hero-rule {
+      width: 56px;
+      height: 1.5px;
+      background: var(--ember);
+      margin: 1.8rem auto;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.65s var(--ease-out) forwards;
+      position: relative; z-index: 2;
+    }
+    .hero-tagline {
+      font-family: var(--ff-display);
+      font-size: clamp(1rem, 2vw, 1.35rem);
+      font-style: italic;
+      font-weight: 300;
+      color: var(--ash);
+      max-width: 520px;
+      line-height: 1.55;
+      opacity: 0;
+      animation: fadeUp 0.8s 0.8s var(--ease-out) forwards;
+      position: relative; z-index: 2;
+    }
 
-    .blog-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 24px; max-width: 1100px; margin: 0 auto; padding: 80px 24px; }
-    .blog-card { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 32px; transition: all 0.3s; text-decoration: none; display: block; }
-    .blog-card:hover { border-color: var(--gold); background: var(--cream); transform: translateY(-3px); }
-    .blog-date { font-size: 0.68rem; letter-spacing: 0.25em; color: var(--gold-dark); text-transform: uppercase; margin-bottom: 12px; }
-    .blog-title { font-family: 'Cormorant Garamond', serif; font-size: 1.4rem; color: var(--text-dark); margin-bottom: 12px; line-height: 1.4; }
-    .blog-excerpt { font-size: 0.83rem; line-height: 1.8; color: var(--text-mid); font-weight: 300; }
-    .blog-read-more { font-size: 0.72rem; letter-spacing: 0.2em; color: var(--gold-dark); text-transform: uppercase; margin-top: 16px; display: inline-block; }
+    /* ── FILTER BAR ─────────────────────────────────────── */
+    .filter-bar {
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      padding: 2.5rem 2rem 0;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .filter-btn {
+      font-family: var(--ff-body);
+      font-size: 0.75rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      padding: 0.45rem 1.2rem;
+      border: 1px solid rgba(168,197,232,0.2);
+      background: transparent;
+      color: var(--ash);
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+      border-radius: 2px;
+    }
+    .filter-btn:hover, .filter-btn.active {
+      border-color: var(--clay);
+      color: var(--clay);
+    }
+    .filter-btn.active {
+      background: rgba(201,168,76,0.08);
+    }
 
-    footer { padding: 48px 24px; text-align: center; border-top: 1px solid var(--border); background: var(--surface); }
-    footer p { font-size: 0.78rem; color: var(--text-mid); letter-spacing: 0.1em; line-height: 2; }
-    footer a { color: var(--gold-dark); text-decoration: none; }
+    /* ── BLOG GRID ──────────────────────────────────────── */
+    .blog-section {
+      padding: 4rem 2rem 6rem;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
 
-    @media (max-width: 768px) { nav { padding: 16px 20px; } .nav-links { display: none; } }
+    /* Featured card */
+    .featured-card {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 0;
+      background: #152338;
+      border: 1px solid rgba(168,197,232,0.08);
+      margin-bottom: 3rem;
+      transition: box-shadow 0.3s var(--ease-out);
+      cursor: pointer;
+    }
+    .featured-card:hover {
+      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
+    }
+    .featured-card-accent {
+      background: linear-gradient(160deg, rgba(201,168,76,0.15) 0%, rgba(13,27,46,0) 60%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 3.5rem 3rem;
+      border-right: 1px solid rgba(168,197,232,0.08);
+      position: relative;
+    }
+    .featured-badge {
+      font-family: var(--ff-body);
+      font-size: 0.68rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 1rem;
+    }
+    .featured-card-accent .post-title {
+      font-family: var(--ff-display);
+      font-size: clamp(1.8rem, 3vw, 2.8rem);
+      font-weight: 300;
+      line-height: 1.15;
+      color: var(--earth);
+    }
+    .featured-card-accent .post-title em { font-style: italic; color: var(--clay); }
+    .featured-card-accent .post-subtitle {
+      font-family: var(--ff-display);
+      font-style: italic;
+      color: var(--ash);
+      margin-top: 0.5rem;
+      font-size: 1.05rem;
+    }
+    .featured-card-body {
+      padding: 3.5rem 3rem;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .featured-card-body .post-excerpt {
+      font-family: var(--ff-body);
+      color: var(--ash);
+      font-size: 0.95rem;
+      line-height: 1.8;
+      flex: 1;
+    }
+    .post-meta-row {
+      display: flex;
+      align-items: center;
+      gap: 1.2rem;
+      margin-top: 2rem;
+      flex-wrap: wrap;
+    }
+    .post-category {
+      font-family: var(--ff-body);
+      font-size: 0.68rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--clay);
+      border: 1px solid rgba(201,168,76,0.35);
+      padding: 0.25rem 0.7rem;
+      border-radius: 2px;
+    }
+    .post-date {
+      font-family: var(--ff-body);
+      font-size: 0.75rem;
+      color: var(--ash);
+      opacity: 0.7;
+    }
+    .post-scripture {
+      font-family: var(--ff-display);
+      font-style: italic;
+      font-size: 0.82rem;
+      color: var(--ember);
+      margin-left: auto;
+    }
+    .read-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1.8rem;
+      font-family: var(--ff-body);
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--clay);
+      text-decoration: none;
+      transition: gap 0.2s;
+    }
+    .read-link:hover { gap: 0.85rem; }
+    .read-link::after { content: '→'; }
+
+    /* Divider */
+    .grid-divider {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2.5rem;
+    }
+    .grid-divider::before, .grid-divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: rgba(168,197,232,0.15);
+    }
+    .grid-divider span {
+      color: var(--ember);
+      font-family: var(--ff-display);
+      font-size: 1.2rem;
+    }
+
+    /* Card grid */
+    .posts-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.8rem;
+    }
+    .post-card {
+      background: #152338;
+      border: 1px solid rgba(168,197,232,0.08);
+      border-top: 2px solid transparent;
+      padding: 2rem 2rem 1.6rem;
+      display: flex;
+      flex-direction: column;
+      transition: border-top-color 0.25s, box-shadow 0.25s, transform 0.25s var(--ease-out);
+      cursor: pointer;
+    }
+    .post-card:hover {
+      border-top-color: var(--clay);
+      box-shadow: 0 6px 28px rgba(0,0,0,0.25);
+      transform: translateY(-3px);
+    }
+    .post-card .post-category { margin-bottom: 1rem; align-self: flex-start; }
+    .post-card .post-title {
+      font-family: var(--ff-display);
+      font-size: 1.5rem;
+      font-weight: 400;
+      line-height: 1.2;
+      color: var(--earth);
+      margin-bottom: 0.4rem;
+    }
+    .post-card .post-title em { font-style: italic; color: var(--clay); }
+    .post-card .post-subtitle {
+      font-family: var(--ff-display);
+      font-style: italic;
+      color: var(--ash);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+    .post-card .post-excerpt {
+      font-size: 0.88rem;
+      color: var(--ash);
+      line-height: 1.75;
+      flex: 1;
+    }
+    .post-card .post-meta-row { margin-top: 1.5rem; }
+    .post-card .read-link { margin-top: 1.2rem; }
+
+    /* ── ARTICLE VIEW ────────────────────────────────────── */
+    .article-view {
+      display: none;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 8rem 2rem 6rem;
+    }
+    .article-view.active { display: block; }
+    .article-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-family: var(--ff-body);
+      font-size: 0.78rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--ash);
+      cursor: pointer;
+      border: none;
+      background: none;
+      margin-bottom: 3rem;
+      transition: color 0.2s, gap 0.2s;
+      padding: 0;
+    }
+    .article-back:hover { color: var(--clay); gap: 0.8rem; }
+    .article-back::before { content: '←'; }
+    .article-eyebrow {
+      font-family: var(--ff-body);
+      font-size: 0.75rem;
+      letter-spacing: 0.22em;
+      text-transform: uppercase;
+      color: var(--ember);
+      margin-bottom: 1.2rem;
+    }
+    .article-title {
+      font-family: var(--ff-display);
+      font-size: clamp(2.4rem, 5vw, 4rem);
+      font-weight: 300;
+      line-height: 1.05;
+      color: var(--earth);
+      margin-bottom: 0.6rem;
+    }
+    .article-title em { font-style: italic; color: var(--clay); }
+    .article-subtitle {
+      font-family: var(--ff-display);
+      font-style: italic;
+      font-size: 1.2rem;
+      color: var(--ash);
+      margin-bottom: 2rem;
+    }
+    .article-meta {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      flex-wrap: wrap;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(168,197,232,0.1);
+      margin-bottom: 2.5rem;
+    }
+    .article-rule {
+      width: 56px;
+      height: 1.5px;
+      background: var(--ember);
+      margin-bottom: 2.5rem;
+    }
+    .article-body p {
+      color: var(--ash);
+      font-size: 1.05rem;
+      line-height: 1.85;
+      margin-bottom: 1.6rem;
+    }
+    .article-body p:first-child {
+      font-size: 1.15rem;
+      color: var(--earth);
+    }
+    .article-scripture-footer {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(168,197,232,0.1);
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .article-scripture-footer::before {
+      content: '';
+      width: 32px;
+      height: 1px;
+      background: var(--ember);
+      flex-shrink: 0;
+    }
+    .article-scripture-footer span {
+      font-family: var(--ff-display);
+      font-style: italic;
+      color: var(--ember);
+      font-size: 0.95rem;
+    }
+
+    /* Tags */
+    .tag-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 2.5rem;
+    }
+    .tag {
+      font-family: var(--ff-body);
+      font-size: 0.7rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ash);
+      border: 1px solid rgba(168,197,232,0.2);
+      padding: 0.2rem 0.65rem;
+      border-radius: 2px;
+    }
+
+    /* ── EMPTY STATE ─────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 5rem 2rem;
+      display: none;
+    }
+    .empty-state.active { display: block; }
+    .empty-state p {
+      font-family: var(--ff-display);
+      font-style: italic;
+      color: var(--ash);
+      font-size: 1.2rem;
+    }
+
+    /* ── LOADING ─────────────────────────────────────────── */
+    .loading {
+      text-align: center;
+      padding: 5rem 2rem;
+    }
+    .loading p {
+      font-family: var(--ff-display);
+      font-style: italic;
+      color: var(--ash);
+      font-size: 1.1rem;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.5; }
+      50% { opacity: 1; }
+    }
+
+    /* ── FOOTER ─────────────────────────────────────────── */
+    footer {
+      background: var(--charcoal);
+      color: var(--ash);
+      text-align: center;
+      padding: 3rem 2rem;
+      font-family: var(--ff-body);
+      font-size: 0.82rem;
+      letter-spacing: 0.04em;
+    }
+    .footer-logo {
+      font-family: var(--ff-display);
+      font-size: 1.4rem;
+      font-weight: 300;
+      color: var(--earth);
+      margin-bottom: 0.8rem;
+    }
+    .footer-logo em { color: var(--clay); font-style: italic; }
+    footer p { line-height: 1.9; color: var(--ash); }
+    footer a { color: var(--ash); text-decoration: none; }
+    footer a:hover { color: var(--clay); }
+
+    /* ── RESPONSIVE ──────────────────────────────────────── */
+    @media (max-width: 768px) {
+      nav { padding: 1rem 1.5rem; }
+      .nav-links { gap: 1.5rem; }
+      .featured-card { grid-template-columns: 1fr; }
+      .featured-card-accent { border-right: none; border-bottom: 1px solid rgba(168,197,232,0.08); padding: 2.5rem 1.8rem; }
+      .featured-card-body { padding: 2.5rem 1.8rem; }
+      .posts-grid { grid-template-columns: 1fr; }
+      .article-view { padding: 6rem 1.5rem 4rem; }
+    }
+    @media (max-width: 500px) {
+      .nav-links li:not(:last-child) { display: none; }
+    }
   </style>
 </head>
 <body>
 
-<nav>
-  <a href="/" class="nav-brand">Great Physician</a>
-  <ul class="nav-links">
-    <li><a href="/#about">About</a></li>
-    <li><a href="/">Blog</a></li>
-    <li><a href="/#download">Download</a></li>
-    <li><a href="/#contact">Contact</a></li>
-    <li><a href="/#donate">Give</a></li>
-  </ul>
-</nav>
+  <!-- NAV -->
+  <nav id="nav">
+    <a class="nav-logo" href="index.html">The <span>Kiln</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#about">About</a></li>
+      <li><a href="index.html#services">Services</a></li>
+      <li><a href="index.html#apps">Apps</a></li>
+      <li><a href="blog.html" class="active">Articles</a></li>
+      <li><a href="index.html#contact">Contact</a></li>
+      <li><a href="https://thegreatphysician.ai" target="_blank" class="nav-login">Counseling App</a></li>
+    </ul>
+  </nav>
 
-<div class="page-hero">
-  <p class="page-eyebrow">From the Ministry</p>
-  <h1 class="page-title">Words for the Journey.</h1>
-  <p class="page-body">Articles, reflections, and biblical counsel from The Kiln — written to equip and encourage you on the path of faith.</p>
-</div>
+  <!-- PAGE HERO -->
+  <section class="page-hero" id="blog-hero">
+    <div class="embers" id="embers"></div>
+    <p class="hero-eyebrow">The Kiln Ministries</p>
+    <h1 class="hero-title">Articles &amp; <em>Reflections</em></h1>
+    <div class="hero-rule"></div>
+    <p class="hero-tagline">Biblical counseling, theology, and the grace of God at work in ordinary lives.</p>
+  </section>
 
-<div class="blog-grid">
-  <a class="blog-card" href="Posts/social-media.html">
-    <div class="blog-date">March 14, 2026</div>
-    <div class="blog-title">Help! I'm Spending Too Much Time on Social Media!</div>
-    <p class="blog-excerpt">You didn't plan to spend an hour on TikTok. You never do. But the algorithm is patient. Few passages speak more directly to this than Ephesians 5:8–17.</p>
-    <span class="blog-read-more">Read More →</span>
-  </a>
-  <a class="blog-card" href="Posts/anger.html" target="_blank" rel="noopener">
-    <div class="blog-date">March 14, 2026</div>
-    <div class="blog-title">Conquering Anger by GRACE</div>
-    <p class="blog-excerpt">Sinful anger is an emotion rooted in pride, selfishness, or a desire for revenge. It manifests as outbursts, bitterness, and malice — what Scripture calls "wrath" or "rage."</p>
-    <span class="blog-read-more">Read More →</span>
-  </a>
-  <a class="blog-card" href="Posts/emotions.html" target="_blank" rel="noopener">
-    <div class="blog-date">March 14, 2026</div>
-    <div class="blog-title">Emotions in Biblical Counseling</div>
-    <p class="blog-excerpt">Emotions are a window into a person's heart, enabling a counselor to gauge spiritual maturity, integrity, and the fruit of the Spirit.</p>
-    <span class="blog-read-more">Read More →</span>
-  </a>
-</div>
+  <!-- MAIN CONTENT: Blog list view -->
+  <main id="blog-list">
+    <!-- Filter bar -->
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-btn active" data-category="all">All</button>
+    </div>
 
-<footer>
-  <p>© 2026 The Kiln · Nashville, Tennessee</p>
-  <p style="margin-top: 8px;"><a href="https://thegreatphysician.ai/privacy">Privacy Policy</a> · <a href="mailto:support@thekiln.org">support@thekiln.org</a></p>
-</footer>
+    <section class="blog-section">
+      <div class="loading" id="loading-indicator">
+        <p>Loading articles…</p>
+      </div>
 
+      <!-- Featured post slot -->
+      <div id="featured-slot"></div>
+
+      <!-- Divider before grid -->
+      <div class="grid-divider" id="grid-divider" style="display:none;">
+        <span>✦</span>
+      </div>
+
+      <!-- Card grid -->
+      <div class="posts-grid" id="posts-grid"></div>
+
+      <!-- Empty state -->
+      <div class="empty-state" id="empty-state">
+        <p>No articles found in this category.</p>
+      </div>
+    </section>
+  </main>
+
+  <!-- ARTICLE DETAIL VIEW -->
+  <div class="article-view" id="article-view">
+    <button class="article-back" id="article-back">Back to Articles</button>
+    <div id="article-content"></div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer>
+    <div class="footer-logo">The <em>Kiln</em></div>
+    <p>6688 Nolensville Rd, Ste 108 #2042, Brentwood, TN 37027 &nbsp;·&nbsp;
+       <a href="mailto:jeff@thekiln.org">jeff@thekiln.org</a> &nbsp;·&nbsp; Nashville, TN</p>
+    <p style="margin-top:0.4rem;">&copy; 2025–2026 The Kiln Ministries. All rights reserved.</p>
+  </footer>
+
+  <script>
+    /* ── NAV SCROLL ───────────────────────────────────────── */
+    const nav = document.getElementById('nav');
+    window.addEventListener('scroll', () => {
+      nav.classList.toggle('scrolled', window.scrollY > 40);
+    }, { passive: true });
+
+    /* ── EMBER PARTICLES ──────────────────────────────────── */
+    (function () {
+      const container = document.getElementById('embers');
+      const colors = ['#c9a84c', '#e0ba5f', '#a88830', '#f0d070'];
+      for (let i = 0; i < 14; i++) {
+        const e = document.createElement('div');
+        e.className = 'ember';
+        const size = Math.random() * 4 + 2;
+        e.style.cssText = `
+          width:${size}px; height:${size}px;
+          left:${Math.random() * 100}%;
+          bottom:${Math.random() * 30}%;
+          background:${colors[Math.floor(Math.random() * colors.length)]};
+          animation-duration:${Math.random() * 6 + 5}s;
+          animation-delay:${Math.random() * -8}s;
+          opacity:${Math.random() * 0.5 + 0.2};`;
+        container.appendChild(e);
+      }
+    })();
+
+    /* ── REVEAL ON SCROLL ─────────────────────────────────── */
+    function initReveal() {
+      const els = document.querySelectorAll('.reveal');
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(e => {
+          if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
+        });
+      }, { threshold: 0 });
+      els.forEach(el => io.observe(el));
+    }
+
+    /* ── FORMAT DATE ──────────────────────────────────────── */
+    function formatDate(iso) {
+      const d = new Date(iso + 'T00:00:00');
+      return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    /* ── ITALICIZE COLONS IN TITLES ───────────────────────── */
+    // Wraps text after the last colon in <em> if applicable
+    // We'll rely on JSON for explicit <em> — skip auto-parsing for safety
+
+    /* ── STATE ────────────────────────────────────────────── */
+    let allPosts = [];
+    let activeCategory = 'all';
+
+    /* ── RENDER FEATURED ──────────────────────────────────── */
+    function renderFeatured(post) {
+      const slot = document.getElementById('featured-slot');
+      if (!post) { slot.innerHTML = ''; return; }
+      slot.innerHTML = `
+        <div class="featured-card reveal" onclick="openArticle('${post.id}')">
+          <div class="featured-card-accent">
+            <p class="featured-badge">✦ Featured Article</p>
+            <h2 class="post-title">${post.title}</h2>
+            <p class="post-subtitle">${post.subtitle}</p>
+          </div>
+          <div class="featured-card-body">
+            <p class="post-excerpt">${post.excerpt}</p>
+            <div>
+              <div class="post-meta-row">
+                <span class="post-category">${post.category}</span>
+                <span class="post-date">${formatDate(post.date)}</span>
+                <span class="post-scripture">${post.scripture}</span>
+              </div>
+              <a class="read-link" onclick="event.stopPropagation(); openArticle('${post.id}')">Read Article</a>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    /* ── RENDER CARD ──────────────────────────────────────── */
+    function renderCard(post) {
+      return `
+        <div class="post-card reveal" onclick="openArticle('${post.id}')">
+          <span class="post-category">${post.category}</span>
+          <h3 class="post-title">${post.title}</h3>
+          <p class="post-subtitle">${post.subtitle}</p>
+          <p class="post-excerpt">${post.excerpt}</p>
+          <div class="post-meta-row">
+            <span class="post-date">${formatDate(post.date)}</span>
+            <span class="post-scripture">${post.scripture}</span>
+          </div>
+          <a class="read-link" onclick="event.stopPropagation(); openArticle('${post.id}')">Read</a>
+        </div>`;
+    }
+
+    /* ── RENDER GRID ──────────────────────────────────────── */
+    function renderGrid(posts) {
+      const featured = posts.find(p => p.featured);
+      const rest = posts.filter(p => !p.featured || activeCategory !== 'all');
+
+      // When filtering by category, show all matched posts as cards (no featured layout)
+      const isFiltered = activeCategory !== 'all';
+      const cardsToShow = isFiltered ? posts : rest;
+      const featuredToShow = isFiltered ? null : featured;
+
+      renderFeatured(featuredToShow);
+
+      const divider = document.getElementById('grid-divider');
+      const grid = document.getElementById('posts-grid');
+      const empty = document.getElementById('empty-state');
+
+      if (posts.length === 0) {
+        divider.style.display = 'none';
+        grid.innerHTML = '';
+        empty.classList.add('active');
+        return;
+      }
+
+      empty.classList.remove('active');
+      divider.style.display = cardsToShow.length > 0 ? 'flex' : 'none';
+      grid.innerHTML = cardsToShow.map(renderCard).join('');
+      initReveal();
+    }
+
+    /* ── BUILD FILTERS ────────────────────────────────────── */
+    function buildFilters(posts) {
+      const categories = ['all', ...new Set(posts.map(p => p.category))];
+      const bar = document.getElementById('filter-bar');
+      bar.innerHTML = categories.map(cat => `
+        <button class="filter-btn${cat === 'all' ? ' active' : ''}"
+                data-category="${cat}"
+                onclick="filterBy('${cat}')">
+          ${cat === 'all' ? 'All' : cat}
+        </button>`).join('');
+    }
+
+    /* ── FILTER ───────────────────────────────────────────── */
+    function filterBy(category) {
+      activeCategory = category;
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.category === category);
+      });
+      const filtered = category === 'all'
+        ? allPosts
+        : allPosts.filter(p => p.category === category);
+      renderGrid(filtered);
+    }
+
+    /* ── OPEN ARTICLE ─────────────────────────────────────── */
+    function openArticle(id) {
+      const post = allPosts.find(p => p.id === id);
+      if (!post) return;
+
+      const tags = post.tags.map(t => `<span class="tag">${t}</span>`).join('');
+      const body = post.body.map(para => `<p>${para}</p>`).join('');
+
+      document.getElementById('article-content').innerHTML = `
+        <p class="article-eyebrow">${post.category}</p>
+        <h1 class="article-title">${post.title}</h1>
+        <p class="article-subtitle">${post.subtitle}</p>
+        <div class="article-meta">
+          <span class="post-category">${post.category}</span>
+          <span class="post-date">${formatDate(post.date)}</span>
+          <span class="post-date">By ${post.author}</span>
+        </div>
+        <div class="article-rule"></div>
+        <div class="article-body">${body}</div>
+        <div class="article-scripture-footer">
+          <span>${post.scripture}</span>
+        </div>
+        <div class="tag-list">${tags}</div>`;
+
+      document.getElementById('blog-list').style.display = 'none';
+      const av = document.getElementById('article-view');
+      av.classList.add('active');
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* ── BACK TO LIST ─────────────────────────────────────── */
+    document.getElementById('article-back').addEventListener('click', () => {
+      document.getElementById('article-view').classList.remove('active');
+      document.getElementById('blog-list').style.display = '';
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    });
+
+    /* ── LOAD POSTS ───────────────────────────────────────── */
+    async function loadPosts() {
+      try {
+        const res = await fetch('posts.json');
+        if (!res.ok) throw new Error('Failed to load posts.json');
+        allPosts = await res.json();
+
+        // Sort newest first
+        allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        document.getElementById('loading-indicator').style.display = 'none';
+        buildFilters(allPosts);
+        renderGrid(allPosts);
+      } catch (err) {
+        document.getElementById('loading-indicator').innerHTML =
+          '<p style="color:var(--clay)">Could not load articles. Check that posts.json is in the same directory.</p>';
+        console.error(err);
+      }
+    }
+
+    loadPosts();
+  </script>
 </body>
 </html>
