@@ -783,6 +783,47 @@
       .hero-title { font-size: clamp(3.2rem, 16vw, 5.5rem); }
     }
 
+    .hamburger {
+      display: none;
+      flex-direction: column;
+      gap: 5px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      padding: 4px;
+    }
+    .hamburger span {
+      display: block;
+      width: 24px;
+      height: 2px;
+      background: var(--earth);
+      transition: all 0.3s;
+    }
+    .mobile-menu {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(6,14,24,0.97);
+      z-index: 99;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 2.5rem;
+    }
+    .mobile-menu.open { display: flex; }
+    .mobile-menu a {
+      font-family: var(--ff-display);
+      font-size: 2rem;
+      font-weight: 300;
+      color: var(--earth);
+      text-decoration: none;
+      letter-spacing: 0.05em;
+    }
+    .mobile-menu a:hover { color: var(--clay); }
+    @media (max-width: 768px) {
+      .nav-links { display: none; }
+      .hamburger { display: flex; }
+    }
     @media (max-width: 480px) {
       .nav-links { display: none; }
       .hero-cta { flex-direction: column; align-items: center; }
@@ -825,7 +866,18 @@
       <li><a href="#apps">Our Apps</a></li>
       <li><a href="https://thekiln.org/admin" class="nav-login">Login</a></li>
     </ul>
+    <button class="hamburger" id="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
   </nav>
+
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#about" onclick="closeMobile()">About</a>
+    <a href="/blog.html" onclick="closeMobile()">Articles</a>
+    <a href="#contact" onclick="closeMobile()">Contact</a>
+    <a href="#apps" onclick="closeMobile()">Our Apps</a>
+    <a href="https://thekiln.org/admin" onclick="closeMobile()" style="color:var(--clay)">Login</a>
+  </div>
 
   <!-- HERO -->
   <section id="home">
@@ -1076,6 +1128,12 @@
     window.addEventListener('scroll', () => {
       nav.classList.toggle('scrolled', window.scrollY > 40);
     }, { passive: true });
+
+    /* ── HAMBURGER MENU ───────────────────────────────── */
+    const hamburger = document.getElementById('hamburger');
+    const mobileMenu = document.getElementById('mobile-menu');
+    hamburger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+    function closeMobile() { mobileMenu.classList.remove('open'); }
 
     /* ── REVEAL ON SCROLL ─────────────────────────────── */
     const revealEls = document.querySelectorAll('.reveal');
