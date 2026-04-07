@@ -866,4 +866,13 @@
         buildFilters(allPosts);
         renderGrid(allPosts);
       } catch (err) {
-        document.getElementById('lo
+        document.getElementById('loading-indicator').innerHTML =
+          '<p style="color:var(--clay)">Could not load articles. Check that posts.json is in the same directory.</p>';
+        console.error(err);
+      }
+    }
+
+    loadPosts();
+  </script>
+</body>
+</html>
