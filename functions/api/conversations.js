@@ -26,7 +26,7 @@ export async function onRequestPost(context) {
       });
     }
 
-    if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+    if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
       return new Response(JSON.stringify({ error: 'Supabase not configured' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json', ...CORS },
@@ -35,8 +35,8 @@ export async function onRequestPost(context) {
 
     const headers = {
       'Content-Type': 'application/json',
-      'apikey': env.SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+      'apikey': env.SUPABASE_SERVICE_KEY,
+      'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}`,
     };
 
     if (action === 'sessions') {
