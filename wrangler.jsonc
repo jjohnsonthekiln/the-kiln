@@ -2,13 +2,8 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "the-kiln",
   "compatibility_date": "2026-04-07",
+  "compatibility_flags": ["nodejs_compat"],
   "observability": {
     "enabled": true
-  },
-  "assets": {
-    "directory": "."
-  },
-  "compatibility_flags": [
-    "nodejs_compat"
-  ]
+  }
 }
