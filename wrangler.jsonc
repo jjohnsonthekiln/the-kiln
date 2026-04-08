@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "the-kiln",
+  "pages_build_output_dir": ".",
   "compatibility_date": "2026-04-07",
   "compatibility_flags": ["nodejs_compat"],
   "observability": {
