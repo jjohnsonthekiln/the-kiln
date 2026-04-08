@@ -790,7 +790,11 @@
       cursor: pointer;
       background: none;
       border: none;
-      padding: 4px;
+      padding: 10px;
+      min-width: 44px;
+      min-height: 44px;
+      justify-content: center;
+      align-items: center;
     }
     .hamburger span {
       display: block;
@@ -1132,7 +1136,9 @@
     /* ── HAMBURGER MENU ───────────────────────────────── */
     const hamburger = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobile-menu');
-    hamburger.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+    function toggleMenu(e) { e.preventDefault(); mobileMenu.classList.toggle('open'); }
+    hamburger.addEventListener('click', toggleMenu);
+    hamburger.addEventListener('touchstart', toggleMenu, { passive: false });
     function closeMobile() { mobileMenu.classList.remove('open'); }
 
     /* ── REVEAL ON SCROLL ─────────────────────────────── */
