@@ -85,6 +85,21 @@ export async function onRequestPost(context) {
       });
     }
 
+    if (action === 'delete' && session_id) {
+      const url = `${env.SUPABASE_URL}/rest/v1/conversations?session_id=eq.${session_id}`;
+      const res = await fetch(url, { method: 'DELETE', headers });
+      if (!res.ok) {
+        const err = await res.text();
+        return new Response(JSON.stringify({ error: 'Delete failed: ' + err }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...CORS },
+        });
+      }
+      return new Response(JSON.stringify({ success: true }), {
+        headers: { 'Content-Type': 'application/json', ...CORS },
+      });
+    }
+
     return new Response(JSON.stringify({ error: 'Unknown action' }), {
       status: 400,
       headers: { 'Content-Type': 'application/json', ...CORS },
