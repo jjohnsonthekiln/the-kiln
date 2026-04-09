@@ -26,7 +26,7 @@ export async function onRequestPost(context) {
       });
     }
 
-    if (!env.SUPABASE_URL || !env.SUPABASE_ANON_KEY) {
+    if (!env.SUPABASE_URL || !env.SUPABASE_SERVICE_KEY) {
       return new Response(JSON.stringify({ error: 'Supabase not configured' }), {
         status: 500,
         headers: { 'Content-Type': 'application/json', ...CORS },
@@ -35,8 +35,8 @@ export async function onRequestPost(context) {
 
     const headers = {
       'Content-Type': 'application/json',
-      'apikey': env.SUPABASE_ANON_KEY,
-      'Authorization': `Bearer ${env.SUPABASE_ANON_KEY}`,
+      'apikey': env.SUPABASE_SERVICE_KEY,
+      'Authorization': `Bearer ${env.SUPABASE_SERVICE_KEY}`,
     };
 
     if (action === 'sessions') {
@@ -81,6 +81,21 @@ export async function onRequestPost(context) {
       const langData = await langRes.json();
       const langCounts = langData.reduce((acc, r) => { acc[r.lang] = (acc[r.lang] || 0) + 1; return acc; }, {});
       return new Response(JSON.stringify({ total, langCounts }), {
+        headers: { 'Content-Type': 'application/json', ...CORS },
+      });
+    }
+
+    if (action === 'delete' && session_id) {
+      const url = `${env.SUPABASE_URL}/rest/v1/conversations?session_id=eq.${session_id}`;
+      const res = await fetch(url, { method: 'DELETE', headers });
+      if (!res.ok) {
+        const err = await res.text();
+        return new Response(JSON.stringify({ error: 'Delete failed: ' + err }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...CORS },
+        });
+      }
+      return new Response(JSON.stringify({ success: true }), {
         headers: { 'Content-Type': 'application/json', ...CORS },
       });
     }
