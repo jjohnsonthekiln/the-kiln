@@ -1007,30 +1007,38 @@
           </div>
         </div>
 
-        <!-- Come to Me -->
+       <!-- Come to Me -->
         <div class="app-card">
-			<div class="app-card-icon"><img src="come-to-me.jpg" alt="Come to Me" style="width:88px;height:88px;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,0.5);" /></div>
-			<div class="app-card-body">
+          <div class="app-card-icon"><img src="come-to-me.jpg" alt="Come to Me" style="width:88px;height:88px;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,0.5);" /></div>
+          <div class="app-card-body">
             <span class="app-tag">Evangelism</span>
             <h3 class="app-card-title">Come to <em>Me</em></h3>
             <p class="app-card-desc">A free AI-powered evangelism tool that invites anyone — in 22 languages — into a real conversation about Jesus Christ. Hand someone the card, they scan the QR code, and the gospel meets them where they are.</p>
             <a href="https://cometome.ai" target="_blank" rel="noopener" class="app-card-btn">Visit Site →</a>
           </div>
         </div>
-	 <!-- Always Ready -->
-			<div class="app-card">
-			  <div class="app-card-icon">
-				<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 88 88" style="width:88px;height:88px;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,0.5);background:#0a1628;">
-				  <defs>
-					<linearGradient id="ar-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-					  <stop offset="0%" stop-color="#4caa74"/>
-					  <stop offset="100%" stop-color="#2f7a52"/>
-					</linearGradient>
-				  </defs>
-				  <path d="M44 14 L66 22 L66 44 C66 56 56 66 44 72 C32 66 22 56 22 44 L22 22 Z" fill="url(#ar-grad)" stroke="#4caa74" stroke-width="1.5"/>
-				  <path d="M36 42 L42 50 L54 36" stroke="#0a1628" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-				</svg>
-			  </div>
+
+        <!-- Always Ready -->
+        <div class="app-card">
+          <div class="app-card-icon"><img src="always-ready-icon.jpg" alt="Always Ready" style="width:88px;height:88px;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,0.5);" /></div>
+          <div class="app-card-body">
+            <span class="app-tag">Apologetics</span>
+            <h3 class="app-card-title">Always <em>Ready</em></h3>
+            <p class="app-card-desc">A free presuppositional apologetics app equipping believers to give a reason for the hope within them. Live AI dialogue, a structured case for Christianity, and a library of common objections — grounded in the Van Til and Bahnsen tradition.</p>
+            <a href="https://apologia.thekiln.org" target="_blank" rel="noopener" class="app-card-btn">Visit Site →</a>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+A couple of things to verify:
+
+Filename for Come to Me — when you originally uploaded it earlier in this project, it was named come-to-me-icon.jpg. Check the repo's file list — does the file there match come-to-me-icon.jpg or come-to-me.jpg? Use whichever name actually exists in the repo, but be consistent.
+Three closing divs and one closing section at the bottom — those close apps-grid, the inner max-width container, and finally the section itself. These should already exist; don't add extras.
+
+Commit it and let's see.
+			<div class="app-card-icon"><img src="always-ready-icon.jpg" alt="Always Ready" style="width:88px;height:88px;border-radius:20px;box-shadow:0 4px 20px rgba(0,0,0,0.5);" /></div>
 			  <div class="app-card-body">
 				<span class="app-tag">Apologetics</span>
 				<h3 class="app-card-title">Always <em>Ready</em></h3>
@@ -1041,7 +1049,6 @@
 		  </div>
 		</div>
 	  </section>
-
   <!-- DIVIDER (hidden — apps section flows directly to contact) -->
   <!-- GREAT PHYSICIAN BANNER (hidden — replaced by Our Apps) -->
   <div class="gp-banner reveal" style="display:none;">
