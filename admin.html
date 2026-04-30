@@ -28,6 +28,11 @@ header { background: var(--navy-2); border-bottom: 0.5px solid var(--border); pa
 header h1 { font-family: var(--serif); font-weight: 300; font-size: 22px; color: var(--gold); }
 .logout-btn { background: none; border: 0.5px solid var(--border); border-radius: 6px; color: var(--gold-dim); padding: 6px 12px; font-size: 12px; cursor: pointer; }
 .logout-btn:hover { color: var(--gold); border-color: var(--gold); }
+.header-right { display: flex; align-items: center; gap: 14px; }
+#source-toggle { display: flex; background: var(--navy-3); border: 0.5px solid var(--border); border-radius: 8px; overflow: hidden; }
+.src-btn { background: transparent; border: none; color: var(--gold-dim); padding: 7px 14px; font-family: var(--sans); font-size: 12px; font-weight: 400; cursor: pointer; transition: background 0.15s, color 0.15s; }
+.src-btn.active { background: var(--gold); color: var(--navy); }
+.src-btn:not(.active):hover { color: var(--gold); }
 #stats-bar { display: flex; gap: 16px; padding: 16px 24px; border-bottom: 0.5px solid var(--border); flex-wrap: wrap; }
 .stat { background: var(--navy-2); border: 0.5px solid var(--border); border-radius: 10px; padding: 12px 18px; }
 .stat-val { font-family: var(--serif); font-size: 26px; color: var(--gold); line-height: 1; }
@@ -74,7 +79,13 @@ header h1 { font-family: var(--serif); font-weight: 300; font-size: 22px; color:
 <div id="app">
   <header>
     <h1>Conversation Viewer</h1>
-    <button class="logout-btn" id="logout-btn">Sign Out</button>
+    <div class="header-right">
+      <div id="source-toggle">
+        <button class="src-btn active" data-src="ctm">Come to Me</button>
+        <button class="src-btn" data-src="gp">Great Physician</button>
+      </div>
+      <button class="logout-btn" id="logout-btn">Sign Out</button>
+    </div>
   </header>
   <div id="stats-bar"></div>
   <div id="filters">
@@ -104,11 +115,36 @@ header h1 { font-family: var(--serif); font-weight: 300; font-size: 22px; color:
 <script>
 'use strict';
 const ADMIN_PASSWORD = 'kiln2026';
-const API = '/api/conversations';
+const API_ENDPOINTS = {
+  ctm: '/api/conversations',
+  gp:  '/api/gp-conversations',
+};
+let currentSource = 'ctm';
 let password = '';
 let offset = 0;
 const LIMIT = 30;
 let currentFilters = {};
+
+function apiUrl() { return API_ENDPOINTS[currentSource]; }
+
+// Source toggle
+document.querySelectorAll('.src-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const src = btn.dataset.src;
+    if (src === currentSource) return;
+    currentSource = src;
+    document.querySelectorAll('.src-btn').forEach(b => b.classList.toggle('active', b.dataset.src === src));
+    // Lang filter only applies to Come to Me
+    document.getElementById('lang-filter').style.display = src === 'gp' ? 'none' : '';
+    // Reset filters and reload everything
+    currentFilters = {};
+    document.getElementById('lang-filter').value = '';
+    document.getElementById('date-from').value = '';
+    document.getElementById('date-to').value = '';
+    document.getElementById('conversation-view').innerHTML = '<p class="placeholder">Select a session to view</p>';
+    if (password) { loadStats(); loadSessions(true); }
+  });
+});
 
 document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
 document.getElementById('login-btn').addEventListener('click', login);
@@ -131,7 +167,7 @@ function login() {
 }
 
 async function call(body) {
-  const res = await fetch(API, {
+  const res = await fetch(apiUrl(), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ password, ...body })
@@ -142,10 +178,16 @@ async function call(body) {
 async function loadStats() {
   const data = await call({ action: 'stats' });
   if (data.error) { console.error('Stats error:', data.error); return; }
-  const langs = Object.entries(data.langCounts || {}).sort((a,b) => b[1]-a[1]).slice(0,6).map(([l,c]) => `${l.toUpperCase()}: ${c}`).join(' · ');
-  document.getElementById('stats-bar').innerHTML = `
-    <div class="stat"><div class="stat-val">${data.total}</div><div class="stat-lbl">Total Messages</div></div>
-    <div class="stat"><div class="stat-val" style="font-size:14px;padding-top:6px;">${langs||'—'}</div><div class="stat-lbl">By Language</div></div>`;
+  if (currentSource === 'gp') {
+    document.getElementById('stats-bar').innerHTML = `
+      <div class="stat"><div class="stat-val">${data.total}</div><div class="stat-lbl">Total Messages</div></div>
+      <div class="stat"><div class="stat-val">${data.sessions ?? '—'}</div><div class="stat-lbl">Total Sessions</div></div>`;
+  } else {
+    const langs = Object.entries(data.langCounts || {}).sort((a,b) => b[1]-a[1]).slice(0,6).map(([l,c]) => `${l.toUpperCase()}: ${c}`).join(' · ');
+    document.getElementById('stats-bar').innerHTML = `
+      <div class="stat"><div class="stat-val">${data.total}</div><div class="stat-lbl">Total Messages</div></div>
+      <div class="stat"><div class="stat-val" style="font-size:14px;padding-top:6px;">${langs||'—'}</div><div class="stat-lbl">By Language</div></div>`;
+  }
 }
 
 document.getElementById('apply-filter').addEventListener('click', () => {
@@ -175,7 +217,8 @@ async function loadSessions(reset = false) {
     const el = document.createElement('div');
     el.className = 'session-item';
     el.dataset.id = s.session_id;
-    el.innerHTML = `<div class="s-id">${s.session_id}</div><div class="s-meta"><span class="s-lang">${(s.lang||'').toUpperCase()}</span><span class="s-date">${new Date(s.created_at).toLocaleDateString()}</span><button class="s-delete" title="Delete session">✕</button></div>`;
+    const langBadge = currentSource === 'gp' ? '' : `<span class="s-lang">${(s.lang||'').toUpperCase()}</span>`;
+    el.innerHTML = `<div class="s-id">${s.session_id}</div><div class="s-meta">${langBadge}<span class="s-date">${new Date(s.created_at).toLocaleDateString()}</span><button class="s-delete" title="Delete session">✕</button></div>`;
     el.addEventListener('click', () => loadMessages(s.session_id, s.lang, s.created_at, el));
     el.querySelector('.s-delete').addEventListener('click', e => { e.stopPropagation(); deleteSession(s.session_id, el); });
     list.appendChild(el);
@@ -196,10 +239,23 @@ async function loadMessages(session_id, lang, date, el) {
   view.innerHTML = '<div class="loading">Loading…</div>';
   const data = await call({ action: 'messages', session_id });
   if (data.error) { view.innerHTML = `<div class="loading" style="color:#d07070">${data.error}</div>`; return; }
-  view.innerHTML = `<div class="conv-header"><h2>Session — ${(lang||'').toUpperCase()}</h2><p>${new Date(date).toLocaleString()} · ${data.messages.length} turn(s) · ID: ${session_id}</p></div>`;
-  data.messages.forEach(m => {
-    view.innerHTML += `<div class="message"><div class="msg-label">Visitor</div><div class="msg-bubble user">${escHtml(m.user_message)}</div></div><div class="message"><div class="msg-label">AI</div><div class="msg-bubble ai">${escHtml(m.ai_response)}</div></div>`;
-  });
+
+  if (currentSource === 'gp') {
+    // GP schema: one row per message with role + content
+    view.innerHTML = `<div class="conv-header"><h2>Session</h2><p>${new Date(date).toLocaleString()} · ${data.messages.length} message(s) · ID: ${session_id}</p></div>`;
+    data.messages.forEach(m => {
+      const isUser = (m.role || '').toLowerCase() === 'user';
+      const label = isUser ? 'User' : 'Counselor';
+      const cls   = isUser ? 'user' : 'ai';
+      view.innerHTML += `<div class="message"><div class="msg-label">${label}</div><div class="msg-bubble ${cls}">${escHtml(m.content)}</div></div>`;
+    });
+  } else {
+    // CTM schema: one row per Q&A turn (user_message + ai_response paired)
+    view.innerHTML = `<div class="conv-header"><h2>Session — ${(lang||'').toUpperCase()}</h2><p>${new Date(date).toLocaleString()} · ${data.messages.length} turn(s) · ID: ${session_id}</p></div>`;
+    data.messages.forEach(m => {
+      view.innerHTML += `<div class="message"><div class="msg-label">Visitor</div><div class="msg-bubble user">${escHtml(m.user_message)}</div></div><div class="message"><div class="msg-label">AI</div><div class="msg-bubble ai">${escHtml(m.ai_response)}</div></div>`;
+    });
+  }
 }
 
 async function deleteSession(session_id, el) {
