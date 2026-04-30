@@ -1,0 +1,45 @@
+# The Kiln Ministries - Cloudflare Pages redirects
+# Preserves legacy /posts/*.html URLs.
+# Slug-matched 6 redirects route to specific articles; the 11 retired
+# Mediterranean URLs redirect to /blog as a graceful fallback.
+
+# Articles being kept (slug-matched redirects)
+/posts/grace-in-the-furnace.html                 /post.html?slug=grace-in-the-furnace                 301
+/posts/social-media-and-the-distracted-soul.html /post.html?slug=social-media-and-the-distracted-soul 301
+/posts/come-to-me-all-who-labor.html             /post.html?slug=come-to-me-all-who-labor             301
+/posts/the-counselor-as-barnabas.html            /post.html?slug=the-counselor-as-barnabas            301
+/posts/anxiety-and-the-sovereignty-of-god.html   /post.html?slug=anxiety-and-the-sovereignty-of-god   301
+/posts/there-is-no-seam.html                     /post.html?slug=there-is-no-seam                     301
+
+# Capital-P variants of the same articles (matches existing repo's "Posts/" folder name)
+/Posts/grace-in-the-furnace.html                 /post.html?slug=grace-in-the-furnace                 301
+/Posts/social-media-and-the-distracted-soul.html /post.html?slug=social-media-and-the-distracted-soul 301
+/Posts/come-to-me-all-who-labor.html             /post.html?slug=come-to-me-all-who-labor             301
+/Posts/the-counselor-as-barnabas.html            /post.html?slug=the-counselor-as-barnabas            301
+/Posts/anxiety-and-the-sovereignty-of-god.html   /post.html?slug=anxiety-and-the-sovereignty-of-god   301
+/Posts/there-is-no-seam.html                     /post.html?slug=there-is-no-seam                     301
+
+# Retired Mediterranean Journey articles - redirect to blog index
+/posts/rome-italy.html        /blog  301
+/posts/naples-italy.html      /blog  301
+/posts/crete-greece.html      /blog  301
+/posts/ephesus-turkey.html    /blog  301
+/posts/mykonos-greece.html    /blog  301
+/posts/athens-greece.html     /blog  301
+/posts/santorini-greece.html  /blog  301
+/posts/bar-montenegro.html    /blog  301
+/posts/corfu-greece.html      /blog  301
+/posts/sicily-messina.html    /blog  301
+/posts/barcelona-spain.html   /blog  301
+
+/Posts/rome-italy.html        /blog  301
+/Posts/naples-italy.html      /blog  301
+/Posts/crete-greece.html      /blog  301
+/Posts/ephesus-turkey.html    /blog  301
+/Posts/mykonos-greece.html    /blog  301
+/Posts/athens-greece.html     /blog  301
+/Posts/santorini-greece.html  /blog  301
+/Posts/bar-montenegro.html    /blog  301
+/Posts/corfu-greece.html      /blog  301
+/Posts/sicily-messina.html    /blog  301
+/Posts/barcelona-spain.html   /blog  301

@@ -9,7 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
   <style>
-    
+
 :root {
   --cream:   #0d1b2e;
   --sand:    #a8c5e8;
@@ -122,7 +122,6 @@ footer a:hover { color: var(--clay); }
   .hamburger { display: flex; }
 }
 
-    
 .page-hero {
   min-height: 44vh;
   display: flex; flex-direction: column;
@@ -312,13 +311,17 @@ footer a:hover { color: var(--clay); }
 }
 .post-card .post-meta-row { margin-top: 1.5rem; }
 .post-card .read-link { margin-top: 1.2rem; }
-.empty-state {
-  text-align: center; padding: 5rem 2rem; display: none;
+.empty-state, .error-state {
+  text-align: center; padding: 5rem 2rem;
 }
-.empty-state.active { display: block; }
-.empty-state p {
+.empty-state p, .error-state p {
   font-family: var(--ff-display); font-style: italic;
   color: var(--ash); font-size: 1.2rem;
+}
+.error-state .tech {
+  font-family: var(--ff-body); font-style: normal;
+  font-size: 0.8rem; color: var(--ash); opacity: 0.6;
+  margin-top: 0.8rem;
 }
 @media (max-width: 768px) {
   .featured-card { grid-template-columns: 1fr; }
@@ -365,304 +368,207 @@ footer a:hover { color: var(--clay); }
   </section>
 
   <main id="blog-list">
-    <div class="filter-bar" id="filter-bar">
-      <button class="filter-btn" data-category="all">All</button><button class="filter-btn active" data-category="Biblical Counseling">Biblical Counseling</button><button class="filter-btn" data-category="Gospel &amp; Grace">Gospel &amp; Grace</button><button class="filter-btn" data-category="Mediterranean Journey">Mediterranean Journey</button>
-    </div>
-
+    <div class="filter-bar" id="filter-bar"></div>
     <section class="blog-section">
-      <div id="featured-slot">
-      <a href="posts/grace-in-the-furnace.html" class="featured-card reveal" data-category="Biblical Counseling">
-        <div class="featured-card-accent">
-          <p class="featured-badge">✦ Featured Article</p>
-          <h2 class="post-title">Grace in the Furnace</h2>
-          <p class="post-subtitle">How suffering shapes us into vessels of Christ</p>
-        </div>
-        <div class="featured-card-body">
-          <p class="post-excerpt">The potter does not despise the cracked clay. He sees in every fracture an opportunity — a place where his hands can press deeper, where the fire can do its refining work.</p>
-          <div>
-            <div class="post-meta-row">
-              <span class="post-category">Biblical Counseling</span>
-              <span class="post-date">March 28, 2026</span>
-              <span class="post-scripture">Romans 8:28-29</span>
-            </div>
-            <span class="read-link">Read Article</span>
-          </div>
-        </div>
-      </a>
-      </div>
-
-      <div class="grid-divider" id="grid-divider">
+      <div id="featured-slot"></div>
+      <div class="grid-divider" id="grid-divider" style="display:none;">
         <span>✦</span>
       </div>
-
-      <div class="posts-grid" id="posts-grid">
-      <a href="posts/there-is-no-seam.html" class="post-card reveal" data-category="Gospel &amp; Grace">
-        <span class="post-category">Gospel &amp; Grace</span>
-        <h3 class="post-title">There Is No Seam</h3>
-        <p class="post-subtitle">The Trinitarian beauty of Ephesians 1, and what it means for the trembling believer</p>
-        <p class="post-excerpt">In Greek, it is a single sentence. Twelve verses. Paul builds it like a vault of arches climbing toward heaven — teaching that salvation is Trinitarian from beginning to end, and that there is no seam through which a believer can fall.</p>
-        <div class="post-meta-row">
-          <span class="post-date">April 29, 2026</span>
-          <span class="post-scripture">Ephesians 1:3-14</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/social-media-and-the-distracted-soul.html" class="post-card reveal" data-category="Biblical Counseling">
-        <span class="post-category">Biblical Counseling</span>
-        <h3 class="post-title">Social Media and the Distracted Soul</h3>
-        <p class="post-subtitle">Reclaiming attention as an act of worship</p>
-        <p class="post-excerpt">Attention is not a neutral faculty. Scripture treats it as a worshipful act. What we behold, we become — and the architecture of social media is designed to fragment beholding into an infinite scroll of competing claimants for the soul.</p>
-        <div class="post-meta-row">
-          <span class="post-date">March 10, 2026</span>
-          <span class="post-scripture">Psalm 115:8 - Philippians 4:8</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/rome-italy.html" class="post-card reveal" data-category="Mediterranean Journey">
-        <span class="post-category">Mediterranean Journey</span>
-        <h3 class="post-title">Rome, Italy</h3>
-        <p class="post-subtitle">Scripture and mission at the heart of the ancient world</p>
-        <p class="post-excerpt">Rome stands as perhaps the most significant city in the entire biblical narrative of the early church. Paul addressed his most theologically comprehensive letter to the church here, writing that the gospel is the power of God for salvation to everyone who believes.</p>
-        <div class="post-meta-row">
-          <span class="post-date">March 1, 2026</span>
-          <span class="post-scripture">Romans 1:16 - Acts 28:30-31</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/naples-italy.html" class="post-card reveal" data-category="Mediterranean Journey">
-        <span class="post-category">Mediterranean Journey</span>
-        <h3 class="post-title">Naples, Italy</h3>
-        <p class="post-subtitle">Where Paul disembarked and the gospel preceded him</p>
-        <p class="post-excerpt">While Naples itself is not mentioned by name in Scripture, the region directly figures into Paul's final journey to Rome. Acts 28:13 records that Paul's ship sailed to Puteoli in the Bay of Naples, where he found brothers already there and was invited to stay seven days. The gospel had preceded the Apostle.</p>
-        <div class="post-meta-row">
-          <span class="post-date">March 1, 2026</span>
-          <span class="post-scripture">Acts 28:13-14</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/crete-greece.html" class="post-card reveal" data-category="Mediterranean Journey">
-        <span class="post-category">Mediterranean Journey</span>
-        <h3 class="post-title">Crete (Chania), Greece</h3>
-        <p class="post-subtitle">Titus, elders in every town, and the power of the gospel to transform</p>
-        <p class="post-excerpt">Crete appears at several pivotal moments in the New Testament — from Paul's storm-tossed voyage past its shores to his commission to Titus to appoint elders in every town. Cretans were among the very first recipients of the Holy Spirit at Pentecost, likely carrying the gospel home before Paul ever arrived.</p>
-        <div class="post-meta-row">
-          <span class="post-date">March 1, 2026</span>
-          <span class="post-scripture">Titus 1:5 - Acts 27:10 - Acts 2:11</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/ephesus-turkey.html" class="post-card reveal" data-category="Mediterranean Journey">
-        <span class="post-category">Mediterranean Journey</span>
-        <h3 class="post-title">Ephesus, Turkey</h3>
-        <p class="post-subtitle">The hub of Paul's greatest missionary effort and the church that lost its first love</p>
-        <p class="post-excerpt">Ephesus is arguably the most extensively documented city in the entire New Testament outside of Jerusalem. Paul spent approximately three years here — longer than anywhere else recorded in Acts — and from this hub all the residents of Asia heard the word of the Lord, both Jews and Greeks.</p>
-        <div class="post-meta-row">
-          <span class="post-date">March 1, 2026</span>
-          <span class="post-scripture">Acts 19:10 - Ephesians 2:8-9 - Revelation 2:4</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/mykonos-greece.html" class="post-card reveal" data-category="Mediterranean Journey">
-        <span class="post-category">Mediterranean Journey</span>
-        <h3 class="post-title">Mykonos, Greece</h3>
-        <p class="post-subtitle">Where the nations gather and the gospel still needs to be heard</p>
-        <p class="post-excerpt">Mykonos does not appear by name in Scripture, but it lies in the heart of the Aegean Sea through which Paul repeatedly sailed. Every island in this chain was part of the world Christ was reclaiming through the proclamation of His apostles.</p>
-        <div class="post-meta-row">
-          <span class="post-date">March 1, 2026</span>
-          <span class="post-scripture">Acts 20:15 - Acts 17:28</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/athens-greece.html" class="post-card reveal" data-category="Mediterranean Journey">
-        <span class="post-category">Mediterranean Journey</span>
-        <h3 class="post-title">Athens, Greece</h3>
-        <p class="post-subtitle">Mars Hill, the unknown God, and the gospel in the world's intellectual capital</p>
-        <p class="post-excerpt">Athens occupies a uniquely prominent place in Paul's missionary narrative as the intellectual and cultural capital of the ancient world. Paul's address on the Areopagus is a masterpiece of contextual apologetics — beginning with their altar to the unknown God and ending with the proclamation of resurrection.</p>
-        <div class="post-meta-row">
-          <span class="post-date">March 1, 2026</span>
-          <span class="post-scripture">Acts 17:22-23 - Acts 17:34</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/santorini-greece.html" class="post-card reveal" data-category="Mediterranean Journey">
-        <span class="post-category">Mediterranean Journey</span>
-        <h3 class="post-title">Santorini, Greece</h3>
-        <p class="post-subtitle">Beauty, created glory, and the gospel on the edge of the Aegean</p>
-        <p class="post-excerpt">Santorini — known in antiquity as Thera — does not appear by name in the biblical text, yet it lay squarely within the Aegean maritime world of the New Testament church. The apostolic mission pressed through every natural barrier, and no island in the Aegean lay beyond the reach of the gospel's advance.</p>
-        <div class="post-meta-row">
-          <span class="post-date">March 1, 2026</span>
-          <span class="post-scripture">Romans 1:20 - Acts 27</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/bar-montenegro.html" class="post-card reveal" data-category="Mediterranean Journey">
-        <span class="post-category">Mediterranean Journey</span>
-        <h3 class="post-title">Bar, Montenegro</h3>
-        <p class="post-subtitle">Illyricum — the edge of Paul's apostolic vision</p>
-        <p class="post-excerpt">Bar lies in the ancient region of Illyricum — and Paul's own summary of his missionary career places it at the boundary: from Jerusalem and all the way around to Illyricum I have fulfilled the ministry of the gospel of Christ.</p>
-        <div class="post-meta-row">
-          <span class="post-date">March 1, 2026</span>
-          <span class="post-scripture">Romans 15:19-20 - 2 Timothy 4:10</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/corfu-greece.html" class="post-card reveal" data-category="Mediterranean Journey">
-        <span class="post-category">Mediterranean Journey</span>
-        <h3 class="post-title">Corfu, Greece</h3>
-        <p class="post-subtitle">Gateway to the Adriatic and the apostolic corridor westward</p>
-        <p class="post-excerpt">Corfu (ancient Corcyra) sits on the maritime route between the eastern Mediterranean and the Adriatic Sea — directly on the sea lanes Paul would have used in his journeys to and from Rome. It was the gateway to the Adriatic in ancient navigation.</p>
-        <div class="post-meta-row">
-          <span class="post-date">March 1, 2026</span>
-          <span class="post-scripture">Romans 15:19 - Acts 27-28</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/sicily-messina.html" class="post-card reveal" data-category="Mediterranean Journey">
-        <span class="post-category">Mediterranean Journey</span>
-        <h3 class="post-title">Sicily (Messina), Italy</h3>
-        <p class="post-subtitle">Paul ashore at Syracuse and the gospel at the crossroads of the Mediterranean</p>
-        <p class="post-excerpt">Sicily appears directly in the narrative of Paul's journey to Rome. Acts 28:12 records: And landing at Syracuse, we stayed there for three days. Syracuse was the largest and most important city of ancient Sicily, and Paul's three-day stop there is explicitly recorded by Luke.</p>
-        <div class="post-meta-row">
-          <span class="post-date">March 1, 2026</span>
-          <span class="post-scripture">Acts 28:12-13</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/barcelona-spain.html" class="post-card reveal" data-category="Mediterranean Journey">
-        <span class="post-category">Mediterranean Journey</span>
-        <h3 class="post-title">Barcelona, Spain</h3>
-        <p class="post-subtitle">The end of Paul's apostolic ambition and the gospel coming full circle</p>
-        <p class="post-excerpt">Barcelona and the broader region of Hispania hold a unique place in Pauline missiology as the stated ultimate destination of his westward apostolic ambition. I hope to see you in passing as I go to Spain, Paul writes in Romans 15:24 — Spain representing the western edge of the known Roman world.</p>
-        <div class="post-meta-row">
-          <span class="post-date">March 1, 2026</span>
-          <span class="post-scripture">Romans 15:20-24 - Romans 10:14-15</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/come-to-me-all-who-labor.html" class="post-card reveal" data-category="Gospel &amp; Grace">
-        <span class="post-category">Gospel &amp; Grace</span>
-        <h3 class="post-title">Come to Me, All Who Labor</h3>
-        <p class="post-subtitle">The yoke of Christ as rest, not burden</p>
-        <p class="post-excerpt">The invitation of Matthew 11:28 is the strangest paradox in the Gospels. Jesus calls the weary to take on a yoke. Rest is found not in the removal of burden but in the exchange of burdens.</p>
-        <div class="post-meta-row">
-          <span class="post-date">February 18, 2026</span>
-          <span class="post-scripture">Matthew 11:28-30</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/the-counselor-as-barnabas.html" class="post-card reveal" data-category="Biblical Counseling">
-        <span class="post-category">Biblical Counseling</span>
-        <h3 class="post-title">The Counselor as Barnabas</h3>
-        <p class="post-subtitle">Encouragement as a theological act</p>
-        <p class="post-excerpt">Barnabas means son of encouragement — yet that title was given, not born. His name was Joseph. The church renamed him for what he did, and what he did was see potential in people others had written off. This is the counselor's vocation.</p>
-        <div class="post-meta-row">
-          <span class="post-date">January 30, 2026</span>
-          <span class="post-scripture">Acts 4:36 - Acts 9:27 - Acts 15:39</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      <a href="posts/anxiety-and-the-sovereignty-of-god.html" class="post-card reveal" data-category="Biblical Counseling">
-        <span class="post-category">Biblical Counseling</span>
-        <h3 class="post-title">Anxiety and the Sovereignty of God</h3>
-        <p class="post-subtitle">Why Philippians 4:6 is not a command to simply calm down</p>
-        <p class="post-excerpt">Philippians 4:6 is one of the most quoted and most misapplied verses in pastoral ministry. Do not be anxious about anything is read as a command to stop feeling anxious — as though anxiety were simply a moral failure correctable by willpower.</p>
-        <div class="post-meta-row">
-          <span class="post-date">January 5, 2026</span>
-          <span class="post-scripture">Philippians 4:6-7</span>
-        </div>
-        <span class="read-link">Read</span>
-      </a>
-      </div>
-
-      <div class="empty-state" id="empty-state">
-        <p>No articles found in this category.</p>
+      <div class="posts-grid" id="posts-grid"></div>
+      <div class="empty-state" id="empty-state" style="display:none;">
+        <p>No articles in this category yet.</p>
       </div>
     </section>
   </main>
 
   <footer>
     <div class="footer-logo">The <em>Kiln</em></div>
-    <p>6688 Nolensville Rd, Ste 108 #2042, Brentwood, TN 37027 &nbsp;·&nbsp;
-       <a href="mailto:support@thekiln.org">support@thekiln.org</a> &nbsp;·&nbsp; Nashville, TN</p>
-    <p style="margin-top:0.4rem;">&copy; 2025–2026 The Kiln Ministries. All rights reserved.</p>
+    <p>The Kiln Ministries · Jackson &amp; Nashville, Tennessee</p>
+    <p style="margin-top: 0.6rem;">
+      <a href="https://thegreatphysician.ai" target="_blank">Counseling App</a> ·
+      <a href="mailto:support@thekiln.org">support@thekiln.org</a>
+    </p>
   </footer>
 
 <script>
-
-  const nav = document.getElementById('nav');
-  window.addEventListener('scroll', () => {
-    nav.classList.toggle('scrolled', window.scrollY > 40);
-  }, { passive: true });
-
-  const hamburger = document.getElementById('hamburger');
-  const mobileMenu = document.getElementById('mobile-menu');
-  function toggleMenu(e) { e.preventDefault(); mobileMenu.classList.toggle('open'); }
-  hamburger.addEventListener('click', toggleMenu);
-  hamburger.addEventListener('touchstart', toggleMenu, { passive: false });
-  mobileMenu.querySelectorAll('a').forEach(a => {
-    a.addEventListener('click', () => mobileMenu.classList.remove('open'));
-  });
-
-  const io = new IntersectionObserver((entries) => {
-    entries.forEach(e => { if (e.isIntersecting) {
-      e.target.classList.add('visible');
-      io.unobserve(e.target);
-    }});
-  }, { threshold: 0 });
-  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
-
-
-  /* ── EMBER PARTICLES ──────────────────────────────────── */
-  (function () {
-    const container = document.getElementById('embers');
-    const colors = ['#c9a84c', '#e0ba5f', '#a88830', '#f0d070'];
-    for (let i = 0; i < 14; i++) {
+(function() {
+  // --- Embers animation ---
+  const embers = document.getElementById('embers');
+  if (embers) {
+    const count = 14;
+    for (let i = 0; i < count; i++) {
       const e = document.createElement('div');
       e.className = 'ember';
-      const size = Math.random() * 4 + 2;
-      e.style.cssText =
-        'width:' + size + 'px;' +
-        'height:' + size + 'px;' +
-        'left:' + (Math.random() * 100) + '%;' +
-        'bottom:' + (Math.random() * 30) + '%;' +
-        'background:' + colors[Math.floor(Math.random() * colors.length)] + ';' +
-        'animation-duration:' + (Math.random() * 6 + 5) + 's;' +
-        'animation-delay:' + (Math.random() * -8) + 's;' +
-        'opacity:' + (Math.random() * 0.5 + 0.2) + ';';
-      container.appendChild(e);
+      const size = 2 + Math.random() * 4;
+      e.style.width = size + 'px';
+      e.style.height = size + 'px';
+      e.style.left = Math.random() * 100 + '%';
+      e.style.bottom = '-10px';
+      e.style.animationDuration = (4 + Math.random() * 5) + 's';
+      e.style.animationDelay = (Math.random() * 5) + 's';
+      embers.appendChild(e);
     }
-  })();
-
-  /* ── FILTER ───────────────────────────────────────────── */
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  const allCards = document.querySelectorAll('.post-card, .featured-card');
-  const featuredSlot = document.getElementById('featured-slot');
-  const gridDivider = document.getElementById('grid-divider');
-  const emptyState = document.getElementById('empty-state');
-
-  function applyFilter(cat) {
-    filterBtns.forEach(b => b.classList.toggle('active', b.dataset.category === cat));
-
-    let visibleCount = 0;
-    allCards.forEach(card => {
-      const match = cat === 'all' || card.dataset.category === cat;
-      card.style.display = match ? '' : 'none';
-      if (match) visibleCount++;
-    });
-
-    // Hide featured slot when filtering (only show featured on All view)
-    featuredSlot.style.display = cat === 'all' ? '' : 'none';
-    gridDivider.style.display = (cat === 'all' && visibleCount > 0) ? 'flex' : 'none';
-    emptyState.classList.toggle('active', visibleCount === 0);
   }
 
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => applyFilter(btn.dataset.category));
-  });
+  // --- Nav scroll behavior ---
+  const nav = document.getElementById('nav');
+  if (nav) {
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 30) nav.classList.add('scrolled');
+      else nav.classList.remove('scrolled');
+    });
+  }
 
-  // Apply initial filter on page load (matches the .active button in HTML)
-  const initialBtn = document.querySelector('.filter-btn.active');
-  if (initialBtn) applyFilter(initialBtn.dataset.category);
+  // --- Hamburger menu ---
+  const hamb = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  if (hamb && mobileMenu) {
+    hamb.addEventListener('click', () => mobileMenu.classList.toggle('open'));
+    mobileMenu.querySelectorAll('a').forEach(a => {
+      a.addEventListener('click', () => mobileMenu.classList.remove('open'));
+    });
+  }
+
+  // --- Helpers ---
+  const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+  function escapeHtml(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function formatDate(iso) {
+    if (!iso) return '';
+    const parts = iso.split('-');
+    if (parts.length !== 3) return iso;
+    const [y, m, d] = parts.map(Number);
+    if (!y || !m || !d) return iso;
+    return `${months[m-1]} ${d}, ${y}`;
+  }
+
+  function sortPosts(posts) {
+    return posts.slice().sort((a, b) => {
+      if (!!a.featured !== !!b.featured) return a.featured ? -1 : 1;
+      return (b.date || '').localeCompare(a.date || '');
+    });
+  }
+
+  // --- Card renderers ---
+  function renderFeaturedCard(post) {
+    const subtitle = post.subtitle ? `<p class="post-subtitle">${escapeHtml(post.subtitle)}</p>` : '';
+    const scripture = post.scripture ? `<span class="post-scripture">${escapeHtml(post.scripture)}</span>` : '';
+    const cat = post.category ? `<span class="post-category">${escapeHtml(post.category)}</span>` : '';
+    return `
+      <a href="post.html?slug=${encodeURIComponent(post.slug)}" class="featured-card reveal" data-category="${escapeHtml(post.category || '')}">
+        <div class="featured-card-accent">
+          <p class="featured-badge">✦ Featured Article</p>
+          <h2 class="post-title">${escapeHtml(post.title)}</h2>
+          ${subtitle}
+        </div>
+        <div class="featured-card-body">
+          <p class="post-excerpt">${escapeHtml(post.excerpt || '')}</p>
+          <div>
+            <div class="post-meta-row">
+              ${cat}
+              <span class="post-date">${escapeHtml(formatDate(post.date))}</span>
+              ${scripture}
+            </div>
+            <span class="read-link">Read Article</span>
+          </div>
+        </div>
+      </a>
+    `;
+  }
+
+  function renderPostCard(post) {
+    const subtitle = post.subtitle ? `<p class="post-subtitle">${escapeHtml(post.subtitle)}</p>` : '';
+    const cat = post.category ? `<span class="post-category">${escapeHtml(post.category)}</span>` : '';
+    return `
+      <a href="post.html?slug=${encodeURIComponent(post.slug)}" class="post-card reveal" data-category="${escapeHtml(post.category || '')}">
+        ${cat}
+        <h2 class="post-title">${escapeHtml(post.title)}</h2>
+        ${subtitle}
+        <p class="post-excerpt">${escapeHtml(post.excerpt || '')}</p>
+        <div>
+          <div class="post-meta-row">
+            <span class="post-date">${escapeHtml(formatDate(post.date))}</span>
+          </div>
+          <span class="read-link">Read Article</span>
+        </div>
+      </a>
+    `;
+  }
+
+  // --- Filter UI ---
+  function renderFilters(posts, activeCategory, onSelect) {
+    const cats = ['All', ...Array.from(new Set(posts.map(p => p.category).filter(Boolean)))];
+    const bar = document.getElementById('filter-bar');
+    bar.innerHTML = cats.map(c => {
+      const active = c === activeCategory ? ' active' : '';
+      return `<button class="filter-btn${active}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`;
+    }).join('');
+    bar.querySelectorAll('.filter-btn').forEach(btn => {
+      btn.addEventListener('click', () => onSelect(btn.getAttribute('data-cat')));
+    });
+  }
+
+  // --- Render & state ---
+  let allPosts = [];
+  let currentCategory = 'All';
+
+  function update() {
+    const filtered = currentCategory === 'All'
+      ? allPosts
+      : allPosts.filter(p => p.category === currentCategory);
+    const sorted = sortPosts(filtered);
+    const featured = sorted.filter(p => p.featured);
+    const rest = sorted.filter(p => !p.featured);
+
+    const featuredSlot = document.getElementById('featured-slot');
+    const gridDivider = document.getElementById('grid-divider');
+    const postsGrid = document.getElementById('posts-grid');
+    const empty = document.getElementById('empty-state');
+
+    featuredSlot.innerHTML = featured.map(renderFeaturedCard).join('');
+    postsGrid.innerHTML = rest.map(renderPostCard).join('');
+
+    gridDivider.style.display = (featured.length > 0 && rest.length > 0) ? 'flex' : 'none';
+    empty.style.display = sorted.length === 0 ? 'block' : 'none';
+
+    renderFilters(allPosts, currentCategory, (cat) => {
+      currentCategory = cat;
+      update();
+    });
+
+    // Trigger reveal animations
+    requestAnimationFrame(() => {
+      document.querySelectorAll('.reveal').forEach((el, i) => {
+        setTimeout(() => el.classList.add('visible'), 80 + i * 60);
+      });
+    });
+  }
+
+  // --- Load posts.json ---
+  fetch('posts.json', { cache: 'no-cache' })
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status);
+      return r.json();
+    })
+    .then(data => {
+      allPosts = Array.isArray(data) ? data : [];
+      update();
+    })
+    .catch(err => {
+      const grid = document.getElementById('posts-grid');
+      grid.innerHTML = `<div class="error-state"><p>Could not load articles.</p><p class="tech">${escapeHtml(err.message)}</p></div>`;
+      console.error(err);
+    });
+})();
 </script>
+
 </body>
 </html>
