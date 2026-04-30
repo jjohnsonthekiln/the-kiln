@@ -794,15 +794,12 @@
       min-height: 44px;
       justify-content: center;
       align-items: center;
-      position: relative;
-      z-index: 9999;
-      pointer-events: auto;
     }
     .hamburger span {
       display: block;
       width: 24px;
-      height: 3px;
-      background: #ff0000;
+      height: 2px;
+      background: var(--earth);
       transition: all 0.3s;
     }
     .mobile-menu {
@@ -1144,74 +1141,23 @@
       nav.classList.toggle('scrolled', window.scrollY > 40);
     }, { passive: true });
 
-    /* ── HAMBURGER MENU (DIAGNOSTIC VERSION) ──────────── */
+    /* ── HAMBURGER MENU ───────────────────────────────── */
     const hamburger = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobile-menu');
-    const hamburgerSpans = hamburger ? hamburger.querySelectorAll('span') : [];
-
-    // Page-wide tap tracker: fixed banner that shows what was just tapped.
-    const debugBanner = document.createElement('div');
-    debugBanner.id = 'debug-banner';
-    debugBanner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#000;color:#0f0;font-family:monospace;font-size:12px;padding:6px 10px;border-bottom:2px solid #0f0;pointer-events:none;';
-    debugBanner.textContent = 'DEBUG: tap anywhere to test...';
-    document.body.appendChild(debugBanner);
-
-    function describeTarget(el) {
-      if (!el || !el.tagName) return 'unknown';
-      let s = el.tagName.toLowerCase();
-      if (el.id) s += '#' + el.id;
-      if (el.className && typeof el.className === 'string') s += '.' + el.className.split(' ').filter(Boolean).join('.');
-      return s;
-    }
-
-    let tapCount = 0;
-    document.addEventListener('touchstart', (e) => {
-      tapCount++;
-      const t = e.target;
-      const x = e.touches && e.touches[0] ? Math.round(e.touches[0].clientX) : '?';
-      const y = e.touches && e.touches[0] ? Math.round(e.touches[0].clientY) : '?';
-      debugBanner.textContent = `#${tapCount} touch (${x},${y}) → ${describeTarget(t)}`;
-    }, { passive: true, capture: true });
-
-    document.addEventListener('click', (e) => {
-      tapCount++;
-      debugBanner.textContent = `#${tapCount} click (${e.clientX},${e.clientY}) → ${describeTarget(e.target)}`;
-    }, { capture: true });
-
-    // Visual diagnostic: flash green for 300ms when hamburger toggle fires.
-    function flashHamburger() {
-      hamburgerSpans.forEach(s => { s.style.background = '#0f0'; });
-      setTimeout(() => {
-        hamburgerSpans.forEach(s => { s.style.background = ''; });
-      }, 300);
-    }
-
     let lastToggle = 0;
     function toggleMenu(e) {
       if (e) { e.preventDefault(); e.stopPropagation(); }
-      flashHamburger();
       const now = Date.now();
+      // Debounce the synthesized click some iOS versions fire after touchstart.
       if (now - lastToggle < 350) return;
       lastToggle = now;
-      if (mobileMenu.classList.contains('open')) {
-        mobileMenu.classList.remove('open');
-        mobileMenu.style.display = '';
-      } else {
-        mobileMenu.classList.add('open');
-        mobileMenu.style.display = 'flex';
-      }
+      mobileMenu.classList.toggle('open');
     }
-
     if (hamburger && mobileMenu) {
       hamburger.addEventListener('click', toggleMenu);
       hamburger.addEventListener('touchstart', toggleMenu, { passive: false });
-      hamburger.addEventListener('pointerdown', toggleMenu);
     }
-
-    function closeMobile() {
-      mobileMenu.classList.remove('open');
-      mobileMenu.style.display = '';
-    }
+    function closeMobile() { mobileMenu.classList.remove('open'); }
     window.closeMobile = closeMobile;
 
     /* ── REVEAL ON SCROLL ─────────────────────────────── */
@@ -1252,27 +1198,6 @@
 
     /* ── CONTACT FORM ─────────────────────────────────── */
     document.getElementById('contact-form').addEventListener('submit', function(e) {
-      e.preventDefault();
-      const fname   = document.getElementById('fname').value.trim();
-      const lname   = document.getElementById('lname').value.trim();
-      const email   = document.getElementById('email').value.trim();
-      const reason  = document.getElementById('reason').value;
-      const message = document.getElementById('message').value.trim();
-      if (!fname || !lname || !email || !message) {
-        alert('Please fill in all required fields.');
-        return;
-      }
-      fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ fname, lname, email, reason, message })
-      })
-      .then(() => {
-        document.getElementById('contact-form').style.display = 'none';
-        document.getElementById('form-success').style.display = 'block';
-      })
-      .catch(() => {
-        document.getElementById('contact-form').addEventListener('submit', function(e) {
       e.preventDefault();
       const fname   = document.getElementById('fname').value.trim();
       const lname   = document.getElementById('lname').value.trim();
