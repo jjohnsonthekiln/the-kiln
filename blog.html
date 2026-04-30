@@ -4,651 +4,333 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Articles | The Kiln Ministries</title>
+  <meta name="description" content="Articles and reflections from The Kiln Ministries — biblical counseling, theology, and the grace of God at work in ordinary lives." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,500&family=Lora:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet" />
-
   <style>
-    /* ── TOKENS ─────────────────────────────────────────── */
-    :root {
-      --cream:   #0d1b2e;
-      --sand:    #a8c5e8;
-      --clay:    #c9a84c;
-      --ember:   #e0ba5f;
-      --ash:     #6a8faf;
-      --earth:   #f0f4f8;
-      --charcoal:#060e18;
-      --white:   #152338;
+    
+:root {
+  --cream:   #0d1b2e;
+  --sand:    #a8c5e8;
+  --clay:    #c9a84c;
+  --ember:   #e0ba5f;
+  --ash:     #6a8faf;
+  --earth:   #f0f4f8;
+  --charcoal:#060e18;
+  --white:   #152338;
+  --ff-display: 'Cormorant Garamond', Georgia, serif;
+  --ff-body:    'Lora', Georgia, serif;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; font-size: 17px; }
+body {
+  background: var(--cream);
+  color: var(--earth);
+  font-family: var(--ff-body);
+  line-height: 1.75;
+  overflow-x: hidden;
+}
+body::before {
+  content: '';
+  position: fixed; inset: 0;
+  pointer-events: none; z-index: 999;
+  opacity: 0.03;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px;
+}
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 1.25rem 3rem;
+  transition: background 0.4s var(--ease-out), box-shadow 0.4s;
+}
+nav.scrolled {
+  background: rgba(13, 27, 46, 0.97);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 1px 0 rgba(168,197,232,0.1);
+}
+.nav-logo {
+  font-family: var(--ff-display);
+  font-size: 1.6rem; font-weight: 500;
+  color: var(--earth); letter-spacing: 0.02em; text-decoration: none;
+}
+.nav-logo span { color: var(--clay); }
+.nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
+.nav-links a {
+  font-family: var(--ff-body); font-size: 0.85rem;
+  letter-spacing: 0.12em; text-transform: uppercase;
+  color: var(--ash); text-decoration: none; transition: color 0.2s;
+}
+.nav-links a:hover, .nav-links a.active { color: var(--clay); }
+.nav-login {
+  padding: 0.35rem 1rem !important;
+  border: 1px solid rgba(201,168,76,0.4) !important;
+  border-radius: 4px !important;
+  color: var(--clay) !important;
+  transition: background 0.2s, color 0.2s !important;
+}
+.nav-login:hover {
+  background: var(--clay) !important;
+  color: var(--charcoal) !important;
+}
+.hamburger {
+  display: none; flex-direction: column; gap: 5px;
+  cursor: pointer; background: none; border: none; padding: 10px;
+  min-width: 44px; min-height: 44px;
+  justify-content: center; align-items: center;
+}
+.hamburger span {
+  display: block; width: 24px; height: 2px;
+  background: var(--earth); transition: all 0.3s;
+}
+.mobile-menu {
+  display: none; position: fixed; inset: 0;
+  background: rgba(6,14,24,0.97); z-index: 200;
+  flex-direction: column; align-items: center; justify-content: center; gap: 2.5rem;
+}
+.mobile-menu.open { display: flex; }
+.mobile-menu a {
+  font-family: var(--ff-display); font-size: 2rem; font-weight: 300;
+  color: var(--earth); text-decoration: none; letter-spacing: 0.05em;
+}
+.mobile-menu a:hover { color: var(--clay); }
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(22px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.reveal { opacity: 0; transform: translateY(24px);
+  transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out); }
+.reveal.visible { opacity: 1; transform: none; }
+footer {
+  background: var(--charcoal); color: var(--ash);
+  text-align: center; padding: 3rem 2rem;
+  font-family: var(--ff-body); font-size: 0.82rem; letter-spacing: 0.04em;
+}
+.footer-logo {
+  font-family: var(--ff-display); font-size: 1.4rem; font-weight: 300;
+  color: var(--earth); margin-bottom: 0.8rem;
+}
+.footer-logo em { color: var(--clay); font-style: italic; }
+footer p { line-height: 1.9; color: var(--ash); }
+footer a { color: var(--ash); text-decoration: none; }
+footer a:hover { color: var(--clay); }
+@media (max-width: 768px) {
+  nav { padding: 1rem 1.5rem; }
+  .nav-links { display: none; }
+  .hamburger { display: flex; }
+}
 
-      --ff-display: 'Cormorant Garamond', Georgia, serif;
-      --ff-body:    'Lora', Georgia, serif;
-      --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
-    }
+    
+.page-hero {
+  min-height: 44vh;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center;
+  padding: 8rem 2rem 4rem;
+  position: relative; overflow: hidden;
+}
+.page-hero::after {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 90% 60% at 50% 100%, rgba(30,58,95,0.5) 0%, transparent 60%);
+  pointer-events: none;
+}
+.embers { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+.ember {
+  position: absolute; border-radius: 50%;
+  background: var(--ember);
+  animation: rise linear infinite;
+}
+@keyframes rise {
+  0%   { transform: translateY(0) scale(1); opacity: 0.6; }
+  80%  { opacity: 0.3; }
+  100% { transform: translateY(-80vh) scale(0.2); opacity: 0; }
+}
+.hero-eyebrow {
+  font-family: var(--ff-body); font-size: 0.78rem;
+  letter-spacing: 0.25em; text-transform: uppercase;
+  color: var(--ember); margin-bottom: 1.4rem;
+  opacity: 0; animation: fadeUp 0.9s 0.2s var(--ease-out) forwards;
+  position: relative; z-index: 2;
+}
+.hero-title {
+  font-family: var(--ff-display);
+  font-size: clamp(2.8rem, 7vw, 5.5rem);
+  font-weight: 300; line-height: 0.95; color: var(--earth);
+  letter-spacing: -0.01em;
+  opacity: 0; animation: fadeUp 1s 0.4s var(--ease-out) forwards;
+  position: relative; z-index: 2;
+}
+.hero-title em { font-style: italic; color: var(--clay); }
+.hero-rule {
+  width: 56px; height: 1.5px; background: var(--ember);
+  margin: 1.8rem auto;
+  opacity: 0; animation: fadeUp 0.8s 0.65s var(--ease-out) forwards;
+  position: relative; z-index: 2;
+}
+.hero-tagline {
+  font-family: var(--ff-display);
+  font-size: clamp(1rem, 2vw, 1.35rem);
+  font-style: italic; font-weight: 300; color: var(--ash);
+  max-width: 520px; line-height: 1.55;
+  opacity: 0; animation: fadeUp 0.8s 0.8s var(--ease-out) forwards;
+  position: relative; z-index: 2;
+}
+.filter-bar {
+  display: flex; justify-content: center; flex-wrap: wrap;
+  gap: 0.75rem; padding: 2.5rem 2rem 0;
+  max-width: 900px; margin: 0 auto;
+}
+.filter-btn {
+  font-family: var(--ff-body); font-size: 0.75rem;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  padding: 0.45rem 1.2rem;
+  border: 1px solid rgba(168,197,232,0.2);
+  background: transparent; color: var(--ash);
+  cursor: pointer; transition: border-color 0.2s, color 0.2s, background 0.2s;
+  border-radius: 2px;
+}
+.filter-btn:hover, .filter-btn.active {
+  border-color: var(--clay); color: var(--clay);
+}
+.filter-btn.active { background: rgba(201,168,76,0.08); }
+.blog-section {
+  padding: 4rem 2rem 6rem;
+  max-width: 1100px; margin: 0 auto;
+}
+.featured-card {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0;
+  background: var(--white);
+  border: 1px solid rgba(168,197,232,0.08);
+  margin-bottom: 3rem;
+  transition: box-shadow 0.3s var(--ease-out);
+  text-decoration: none; color: inherit;
+}
+.featured-card:hover { box-shadow: 0 8px 40px rgba(0,0,0,0.3); }
+.featured-card-accent {
+  background: linear-gradient(160deg, rgba(201,168,76,0.15) 0%, rgba(13,27,46,0) 60%);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 3.5rem 3rem;
+  border-right: 1px solid rgba(168,197,232,0.08);
+  position: relative;
+}
+.featured-badge {
+  font-family: var(--ff-body); font-size: 0.68rem;
+  letter-spacing: 0.22em; text-transform: uppercase;
+  color: var(--ember); margin-bottom: 1rem;
+}
+.featured-card-accent .post-title {
+  font-family: var(--ff-display);
+  font-size: clamp(1.8rem, 3vw, 2.8rem); font-weight: 300;
+  line-height: 1.15; color: var(--earth);
+}
+.featured-card-accent .post-title em { font-style: italic; color: var(--clay); }
+.featured-card-accent .post-subtitle {
+  font-family: var(--ff-display); font-style: italic;
+  color: var(--ash); margin-top: 0.5rem; font-size: 1.05rem;
+}
+.featured-card-body {
+  padding: 3.5rem 3rem;
+  display: flex; flex-direction: column; justify-content: space-between;
+}
+.featured-card-body .post-excerpt {
+  font-family: var(--ff-body); color: var(--ash);
+  font-size: 0.95rem; line-height: 1.8; flex: 1;
+}
+.post-meta-row {
+  display: flex; align-items: center; gap: 1.2rem;
+  margin-top: 2rem; flex-wrap: wrap;
+}
+.post-category {
+  font-family: var(--ff-body); font-size: 0.68rem;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--clay); border: 1px solid rgba(201,168,76,0.35);
+  padding: 0.25rem 0.7rem; border-radius: 2px;
+}
+.post-date {
+  font-family: var(--ff-body); font-size: 0.75rem;
+  color: var(--ash); opacity: 0.7;
+}
+.post-scripture {
+  font-family: var(--ff-display); font-style: italic;
+  font-size: 0.82rem; color: var(--ember); margin-left: auto;
+}
+.read-link {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  margin-top: 1.8rem;
+  font-family: var(--ff-body); font-size: 0.78rem;
+  letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--clay); text-decoration: none;
+  transition: gap 0.2s;
+}
+.read-link:hover { gap: 0.85rem; }
+.read-link::after { content: '→'; }
+.grid-divider {
+  display: flex; align-items: center; gap: 1rem;
+  margin-bottom: 2.5rem;
+}
+.grid-divider::before, .grid-divider::after {
+  content: ''; flex: 1; height: 1px;
+  background: rgba(168,197,232,0.15);
+}
+.grid-divider span {
+  color: var(--ember); font-family: var(--ff-display); font-size: 1.2rem;
+}
+.posts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1.8rem;
+}
+.post-card {
+  background: var(--white);
+  border: 1px solid rgba(168,197,232,0.08);
+  border-top: 2px solid transparent;
+  padding: 2rem 2rem 1.6rem;
+  display: flex; flex-direction: column;
+  text-decoration: none; color: inherit;
+  transition: border-top-color 0.25s, box-shadow 0.25s, transform 0.25s var(--ease-out);
+}
+.post-card:hover {
+  border-top-color: var(--clay);
+  box-shadow: 0 6px 28px rgba(0,0,0,0.25);
+  transform: translateY(-3px);
+}
+.post-card .post-category { margin-bottom: 1rem; align-self: flex-start; }
+.post-card .post-title {
+  font-family: var(--ff-display); font-size: 1.5rem; font-weight: 400;
+  line-height: 1.2; color: var(--earth); margin-bottom: 0.4rem;
+}
+.post-card .post-title em { font-style: italic; color: var(--clay); }
+.post-card .post-subtitle {
+  font-family: var(--ff-display); font-style: italic;
+  color: var(--ash); font-size: 0.9rem; margin-bottom: 1rem;
+}
+.post-card .post-excerpt {
+  font-size: 0.88rem; color: var(--ash);
+  line-height: 1.75; flex: 1;
+}
+.post-card .post-meta-row { margin-top: 1.5rem; }
+.post-card .read-link { margin-top: 1.2rem; }
+.empty-state {
+  text-align: center; padding: 5rem 2rem; display: none;
+}
+.empty-state.active { display: block; }
+.empty-state p {
+  font-family: var(--ff-display); font-style: italic;
+  color: var(--ash); font-size: 1.2rem;
+}
+@media (max-width: 768px) {
+  .featured-card { grid-template-columns: 1fr; }
+  .featured-card-accent { border-right: none; border-bottom: 1px solid rgba(168,197,232,0.08); padding: 2.5rem 1.8rem; }
+  .featured-card-body { padding: 2.5rem 1.8rem; }
+  .posts-grid { grid-template-columns: 1fr; }
+}
 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; font-size: 17px; }
-
-    body {
-      background: var(--cream);
-      color: var(--earth);
-      font-family: var(--ff-body);
-      line-height: 1.75;
-      overflow-x: hidden;
-    }
-
-    /* Grain overlay */
-    body::before {
-      content: '';
-      position: fixed;
-      inset: 0;
-      pointer-events: none;
-      z-index: 999;
-      opacity: 0.03;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-      background-size: 180px;
-    }
-
-    /* ── NAV ─────────────────────────────────────────────── */
-    nav {
-      position: fixed;
-      top: 0; left: 0; right: 0;
-      z-index: 100;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 1.25rem 3rem;
-      transition: background 0.4s var(--ease-out), box-shadow 0.4s;
-    }
-    nav.scrolled {
-      background: rgba(13, 27, 46, 0.97);
-      backdrop-filter: blur(8px);
-      box-shadow: 0 1px 0 rgba(168,197,232,0.1);
-    }
-    .nav-logo {
-      font-family: var(--ff-display);
-      font-size: 1.6rem;
-      font-weight: 500;
-      color: var(--earth);
-      letter-spacing: 0.02em;
-      text-decoration: none;
-    }
-    .nav-logo span { color: var(--clay); }
-    .nav-links {
-      display: flex;
-      gap: 2.5rem;
-      list-style: none;
-      align-items: center;
-    }
-    .nav-links a {
-      font-family: var(--ff-body);
-      font-size: 0.85rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--ash);
-      text-decoration: none;
-      transition: color 0.2s;
-    }
-    .nav-links a:hover, .nav-links a.active { color: var(--clay); }
-    .nav-login {
-      padding: 0.35rem 1rem !important;
-      border: 1px solid rgba(201,168,76,0.4) !important;
-      border-radius: 4px !important;
-      color: var(--clay) !important;
-      transition: background 0.2s, color 0.2s !important;
-    }
-    .nav-login:hover {
-      background: var(--clay) !important;
-      color: var(--charcoal) !important;
-    }
-
-    /* ── ANIMATIONS ─────────────────────────────────────── */
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(22px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-    .reveal {
-      opacity: 0;
-      transform: translateY(24px);
-      transition: opacity 0.7s var(--ease-out), transform 0.7s var(--ease-out);
-    }
-    .reveal.visible { opacity: 1; transform: none; }
-
-    /* ── PAGE HERO ──────────────────────────────────────── */
-    .page-hero {
-      min-height: 44vh;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 8rem 2rem 4rem;
-      position: relative;
-      overflow: hidden;
-    }
-    .page-hero::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(ellipse 90% 60% at 50% 100%, rgba(30,58,95,0.5) 0%, transparent 60%);
-      pointer-events: none;
-    }
-    .embers {
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      overflow: hidden;
-    }
-    .ember {
-      position: absolute;
-      border-radius: 50%;
-      background: var(--ember);
-      animation: rise linear infinite;
-    }
-    @keyframes rise {
-      0%   { transform: translateY(0) scale(1); opacity: 0.6; }
-      80%  { opacity: 0.3; }
-      100% { transform: translateY(-80vh) scale(0.2); opacity: 0; }
-    }
-    .hero-eyebrow {
-      font-family: var(--ff-body);
-      font-size: 0.78rem;
-      letter-spacing: 0.25em;
-      text-transform: uppercase;
-      color: var(--ember);
-      margin-bottom: 1.4rem;
-      opacity: 0;
-      animation: fadeUp 0.9s 0.2s var(--ease-out) forwards;
-      position: relative; z-index: 2;
-    }
-    .hero-title {
-      font-family: var(--ff-display);
-      font-size: clamp(2.8rem, 7vw, 5.5rem);
-      font-weight: 300;
-      line-height: 0.95;
-      color: var(--earth);
-      letter-spacing: -0.01em;
-      opacity: 0;
-      animation: fadeUp 1s 0.4s var(--ease-out) forwards;
-      position: relative; z-index: 2;
-    }
-    .hero-title em { font-style: italic; color: var(--clay); }
-    .hero-rule {
-      width: 56px;
-      height: 1.5px;
-      background: var(--ember);
-      margin: 1.8rem auto;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.65s var(--ease-out) forwards;
-      position: relative; z-index: 2;
-    }
-    .hero-tagline {
-      font-family: var(--ff-display);
-      font-size: clamp(1rem, 2vw, 1.35rem);
-      font-style: italic;
-      font-weight: 300;
-      color: var(--ash);
-      max-width: 520px;
-      line-height: 1.55;
-      opacity: 0;
-      animation: fadeUp 0.8s 0.8s var(--ease-out) forwards;
-      position: relative; z-index: 2;
-    }
-
-    /* ── FILTER BAR ─────────────────────────────────────── */
-    .filter-bar {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 0.75rem;
-      padding: 2.5rem 2rem 0;
-      max-width: 900px;
-      margin: 0 auto;
-    }
-    .filter-btn {
-      font-family: var(--ff-body);
-      font-size: 0.75rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      padding: 0.45rem 1.2rem;
-      border: 1px solid rgba(168,197,232,0.2);
-      background: transparent;
-      color: var(--ash);
-      cursor: pointer;
-      transition: border-color 0.2s, color 0.2s, background 0.2s;
-      border-radius: 2px;
-    }
-    .filter-btn:hover, .filter-btn.active {
-      border-color: var(--clay);
-      color: var(--clay);
-    }
-    .filter-btn.active {
-      background: rgba(201,168,76,0.08);
-    }
-
-    /* ── BLOG GRID ──────────────────────────────────────── */
-    .blog-section {
-      padding: 4rem 2rem 6rem;
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    /* Featured card */
-    .featured-card {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0;
-      background: #152338;
-      border: 1px solid rgba(168,197,232,0.08);
-      margin-bottom: 3rem;
-      transition: box-shadow 0.3s var(--ease-out);
-      cursor: pointer;
-    }
-    .featured-card:hover {
-      box-shadow: 0 8px 40px rgba(0,0,0,0.3);
-    }
-    .featured-card-accent {
-      background: linear-gradient(160deg, rgba(201,168,76,0.15) 0%, rgba(13,27,46,0) 60%);
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 3.5rem 3rem;
-      border-right: 1px solid rgba(168,197,232,0.08);
-      position: relative;
-    }
-    .featured-badge {
-      font-family: var(--ff-body);
-      font-size: 0.68rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--ember);
-      margin-bottom: 1rem;
-    }
-    .featured-card-accent .post-title {
-      font-family: var(--ff-display);
-      font-size: clamp(1.8rem, 3vw, 2.8rem);
-      font-weight: 300;
-      line-height: 1.15;
-      color: var(--earth);
-    }
-    .featured-card-accent .post-title em { font-style: italic; color: var(--clay); }
-    .featured-card-accent .post-subtitle {
-      font-family: var(--ff-display);
-      font-style: italic;
-      color: var(--ash);
-      margin-top: 0.5rem;
-      font-size: 1.05rem;
-    }
-    .featured-card-body {
-      padding: 3.5rem 3rem;
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-    }
-    .featured-card-body .post-excerpt {
-      font-family: var(--ff-body);
-      color: var(--ash);
-      font-size: 0.95rem;
-      line-height: 1.8;
-      flex: 1;
-    }
-    .post-meta-row {
-      display: flex;
-      align-items: center;
-      gap: 1.2rem;
-      margin-top: 2rem;
-      flex-wrap: wrap;
-    }
-    .post-category {
-      font-family: var(--ff-body);
-      font-size: 0.68rem;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--clay);
-      border: 1px solid rgba(201,168,76,0.35);
-      padding: 0.25rem 0.7rem;
-      border-radius: 2px;
-    }
-    .post-date {
-      font-family: var(--ff-body);
-      font-size: 0.75rem;
-      color: var(--ash);
-      opacity: 0.7;
-    }
-    .post-scripture {
-      font-family: var(--ff-display);
-      font-style: italic;
-      font-size: 0.82rem;
-      color: var(--ember);
-      margin-left: auto;
-    }
-    .read-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      margin-top: 1.8rem;
-      font-family: var(--ff-body);
-      font-size: 0.78rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--clay);
-      text-decoration: none;
-      transition: gap 0.2s;
-    }
-    .read-link:hover { gap: 0.85rem; }
-    .read-link::after { content: '→'; }
-
-    /* Divider */
-    .grid-divider {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 2.5rem;
-    }
-    .grid-divider::before, .grid-divider::after {
-      content: '';
-      flex: 1;
-      height: 1px;
-      background: rgba(168,197,232,0.15);
-    }
-    .grid-divider span {
-      color: var(--ember);
-      font-family: var(--ff-display);
-      font-size: 1.2rem;
-    }
-
-    /* Card grid */
-    .posts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-      gap: 1.8rem;
-    }
-    .post-card {
-      background: #152338;
-      border: 1px solid rgba(168,197,232,0.08);
-      border-top: 2px solid transparent;
-      padding: 2rem 2rem 1.6rem;
-      display: flex;
-      flex-direction: column;
-      transition: border-top-color 0.25s, box-shadow 0.25s, transform 0.25s var(--ease-out);
-      cursor: pointer;
-    }
-    .post-card:hover {
-      border-top-color: var(--clay);
-      box-shadow: 0 6px 28px rgba(0,0,0,0.25);
-      transform: translateY(-3px);
-    }
-    .post-card .post-category { margin-bottom: 1rem; align-self: flex-start; }
-    .post-card .post-title {
-      font-family: var(--ff-display);
-      font-size: 1.5rem;
-      font-weight: 400;
-      line-height: 1.2;
-      color: var(--earth);
-      margin-bottom: 0.4rem;
-    }
-    .post-card .post-title em { font-style: italic; color: var(--clay); }
-    .post-card .post-subtitle {
-      font-family: var(--ff-display);
-      font-style: italic;
-      color: var(--ash);
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
-    }
-    .post-card .post-excerpt {
-      font-size: 0.88rem;
-      color: var(--ash);
-      line-height: 1.75;
-      flex: 1;
-    }
-    .post-card .post-meta-row { margin-top: 1.5rem; }
-    .post-card .read-link { margin-top: 1.2rem; }
-
-    /* ── ARTICLE VIEW ────────────────────────────────────── */
-    .article-view {
-      display: none;
-      max-width: 720px;
-      margin: 0 auto;
-      padding: 8rem 2rem 6rem;
-    }
-    .article-view.active { display: block; }
-    .article-back {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-family: var(--ff-body);
-      font-size: 0.78rem;
-      letter-spacing: 0.14em;
-      text-transform: uppercase;
-      color: var(--ash);
-      cursor: pointer;
-      border: none;
-      background: none;
-      margin-bottom: 3rem;
-      transition: color 0.2s, gap 0.2s;
-      padding: 0;
-    }
-    .article-back:hover { color: var(--clay); gap: 0.8rem; }
-    .article-back::before { content: '←'; }
-    .article-eyebrow {
-      font-family: var(--ff-body);
-      font-size: 0.75rem;
-      letter-spacing: 0.22em;
-      text-transform: uppercase;
-      color: var(--ember);
-      margin-bottom: 1.2rem;
-    }
-    .article-title {
-      font-family: var(--ff-display);
-      font-size: clamp(2.4rem, 5vw, 4rem);
-      font-weight: 300;
-      line-height: 1.05;
-      color: var(--earth);
-      margin-bottom: 0.6rem;
-    }
-    .article-title em { font-style: italic; color: var(--clay); }
-    .article-subtitle {
-      font-family: var(--ff-display);
-      font-style: italic;
-      font-size: 1.2rem;
-      color: var(--ash);
-      margin-bottom: 2rem;
-    }
-    .article-meta {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      flex-wrap: wrap;
-      padding-bottom: 2rem;
-      border-bottom: 1px solid rgba(168,197,232,0.1);
-      margin-bottom: 2.5rem;
-    }
-    .article-rule {
-      width: 56px;
-      height: 1.5px;
-      background: var(--ember);
-      margin-bottom: 2.5rem;
-    }
-    .article-body p {
-      color: var(--ash);
-      font-size: 1.05rem;
-      line-height: 1.85;
-      margin-bottom: 1.6rem;
-    }
-    .article-body p:first-child {
-      font-size: 1.15rem;
-      color: var(--earth);
-    }
-    .article-body h3 {
-      font-family: var(--ff-display);
-      font-size: 1.45rem;
-      font-weight: 400;
-      color: var(--earth);
-      margin-top: 2.4rem;
-      margin-bottom: 1rem;
-      padding-bottom: 0.5rem;
-      border-bottom: 1px solid rgba(201,168,76,0.25);
-    }
-    .article-body h3 em { font-style: italic; color: var(--clay); }
-    .article-scripture-footer {
-      margin-top: 3rem;
-      padding-top: 2rem;
-      border-top: 1px solid rgba(168,197,232,0.1);
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .article-scripture-footer::before {
-      content: '';
-      width: 32px;
-      height: 1px;
-      background: var(--ember);
-      flex-shrink: 0;
-    }
-    .article-scripture-footer span {
-      font-family: var(--ff-display);
-      font-style: italic;
-      color: var(--ember);
-      font-size: 0.95rem;
-    }
-
-    /* Tags */
-    .tag-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 0.5rem;
-      margin-top: 2.5rem;
-    }
-    .tag {
-      font-family: var(--ff-body);
-      font-size: 0.7rem;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--ash);
-      border: 1px solid rgba(168,197,232,0.2);
-      padding: 0.2rem 0.65rem;
-      border-radius: 2px;
-    }
-
-    /* ── EMPTY STATE ─────────────────────────────────────── */
-    .empty-state {
-      text-align: center;
-      padding: 5rem 2rem;
-      display: none;
-    }
-    .empty-state.active { display: block; }
-    .empty-state p {
-      font-family: var(--ff-display);
-      font-style: italic;
-      color: var(--ash);
-      font-size: 1.2rem;
-    }
-
-    /* ── LOADING ─────────────────────────────────────────── */
-    .loading {
-      text-align: center;
-      padding: 5rem 2rem;
-    }
-    .loading p {
-      font-family: var(--ff-display);
-      font-style: italic;
-      color: var(--ash);
-      font-size: 1.1rem;
-      animation: pulse 1.5s ease-in-out infinite;
-    }
-    @keyframes pulse {
-      0%, 100% { opacity: 0.5; }
-      50% { opacity: 1; }
-    }
-
-    /* ── FOOTER ─────────────────────────────────────────── */
-    footer {
-      background: var(--charcoal);
-      color: var(--ash);
-      text-align: center;
-      padding: 3rem 2rem;
-      font-family: var(--ff-body);
-      font-size: 0.82rem;
-      letter-spacing: 0.04em;
-    }
-    .footer-logo {
-      font-family: var(--ff-display);
-      font-size: 1.4rem;
-      font-weight: 300;
-      color: var(--earth);
-      margin-bottom: 0.8rem;
-    }
-    .footer-logo em { color: var(--clay); font-style: italic; }
-    footer p { line-height: 1.9; color: var(--ash); }
-    footer a { color: var(--ash); text-decoration: none; }
-    footer a:hover { color: var(--clay); }
-
-    /* ── RESPONSIVE ──────────────────────────────────────── */
-    @media (max-width: 768px) {
-      nav { padding: 1rem 1.5rem; }
-      .nav-links { gap: 1.5rem; }
-      .featured-card { grid-template-columns: 1fr; }
-      .featured-card-accent { border-right: none; border-bottom: 1px solid rgba(168,197,232,0.08); padding: 2.5rem 1.8rem; }
-      .featured-card-body { padding: 2.5rem 1.8rem; }
-      .posts-grid { grid-template-columns: 1fr; }
-      .article-view { padding: 6rem 1.5rem 4rem; }
-    }
-    @media (max-width: 500px) {
-      .nav-links li:not(:last-child) { display: none; }
-    }
-
-    .hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      padding: 10px;
-      min-width: 44px;
-      min-height: 44px;
-      justify-content: center;
-      align-items: center;
-    }
-    .hamburger span {
-      display: block;
-      width: 24px;
-      height: 2px;
-      background: var(--earth);
-      transition: all 0.3s;
-    }
-    .mobile-menu {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(6,14,24,0.97);
-      z-index: 200;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 2.5rem;
-    }
-    .mobile-menu.open { display: flex; }
-    .mobile-menu a {
-      font-family: var(--ff-display);
-      font-size: 2rem;
-      font-weight: 300;
-      color: var(--earth);
-      text-decoration: none;
-      letter-spacing: 0.05em;
-    }
-    .mobile-menu a:hover { color: var(--clay); }
-    @media (max-width: 768px) {
-      .nav-links { display: none; }
-      .hamburger { display: flex; }
-    }
-    @media (max-width: 480px) {
-      .nav-links { display: none; }
-    }
   </style>
 </head>
 <body>
 
-  <!-- NAV -->
   <nav id="nav">
     <a class="nav-logo" href="index.html">The <span>Kiln</span></a>
     <ul class="nav-links">
@@ -664,18 +346,16 @@
       <span></span><span></span><span></span>
     </button>
   </nav>
-
   <div class="mobile-menu" id="mobile-menu">
-    <a href="index.html#about" onclick="closeMobile()">About</a>
-    <a href="index.html#services" onclick="closeMobile()">Services</a>
-    <a href="index.html#apps" onclick="closeMobile()">Apps</a>
-    <a href="blog.html" onclick="closeMobile()">Articles</a>
-    <a href="index.html#contact" onclick="closeMobile()">Contact</a>
-    <a href="https://thegreatphysician.ai" target="_blank" onclick="closeMobile()">Counseling App</a>
-    <a href="https://thekiln.org/admin" onclick="closeMobile()" style="color:var(--clay)">Login</a>
+    <a href="index.html#about">About</a>
+    <a href="index.html#services">Services</a>
+    <a href="index.html#apps">Apps</a>
+    <a href="blog.html">Articles</a>
+    <a href="index.html#contact">Contact</a>
+    <a href="https://thegreatphysician.ai" target="_blank">Counseling App</a>
+    <a href="https://thekiln.org/admin" style="color:var(--clay)">Login</a>
   </div>
 
-  <!-- PAGE HERO -->
   <section class="page-hero" id="blog-hero">
     <div class="embers" id="embers"></div>
     <p class="hero-eyebrow">The Kiln Ministries</p>
@@ -684,266 +364,300 @@
     <p class="hero-tagline">Biblical counseling, theology, and the grace of God at work in ordinary lives.</p>
   </section>
 
-  <!-- MAIN CONTENT: Blog list view -->
   <main id="blog-list">
-    <!-- Filter bar -->
     <div class="filter-bar" id="filter-bar">
-      <button class="filter-btn active" data-category="all">All</button>
+      <button class="filter-btn active" data-category="all">All</button><button class="filter-btn" data-category="Biblical Counseling">Biblical Counseling</button><button class="filter-btn" data-category="Gospel &amp; Grace">Gospel &amp; Grace</button><button class="filter-btn" data-category="Mediterranean Journey">Mediterranean Journey</button>
     </div>
 
     <section class="blog-section">
-      <div class="loading" id="loading-indicator">
-        <p>Loading articles…</p>
+      <div id="featured-slot">
+      <a href="posts/grace-in-the-furnace.html" class="featured-card reveal" data-category="Biblical Counseling">
+        <div class="featured-card-accent">
+          <p class="featured-badge">✦ Featured Article</p>
+          <h2 class="post-title">Grace in the Furnace</h2>
+          <p class="post-subtitle">How suffering shapes us into vessels of Christ</p>
+        </div>
+        <div class="featured-card-body">
+          <p class="post-excerpt">The potter does not despise the cracked clay. He sees in every fracture an opportunity — a place where his hands can press deeper, where the fire can do its refining work.</p>
+          <div>
+            <div class="post-meta-row">
+              <span class="post-category">Biblical Counseling</span>
+              <span class="post-date">March 28, 2026</span>
+              <span class="post-scripture">Romans 8:28-29</span>
+            </div>
+            <span class="read-link">Read Article</span>
+          </div>
+        </div>
+      </a>
       </div>
 
-      <!-- Featured post slot -->
-      <div id="featured-slot"></div>
-
-      <!-- Divider before grid -->
-      <div class="grid-divider" id="grid-divider" style="display:none;">
+      <div class="grid-divider" id="grid-divider">
         <span>✦</span>
       </div>
 
-      <!-- Card grid -->
-      <div class="posts-grid" id="posts-grid"></div>
+      <div class="posts-grid" id="posts-grid">
+      <a href="posts/there-is-no-seam.html" class="post-card reveal" data-category="Gospel &amp; Grace">
+        <span class="post-category">Gospel &amp; Grace</span>
+        <h3 class="post-title">There Is No Seam</h3>
+        <p class="post-subtitle">The Trinitarian beauty of Ephesians 1, and what it means for the trembling believer</p>
+        <p class="post-excerpt">In Greek, it is a single sentence. Twelve verses. Paul builds it like a vault of arches climbing toward heaven — teaching that salvation is Trinitarian from beginning to end, and that there is no seam through which a believer can fall.</p>
+        <div class="post-meta-row">
+          <span class="post-date">April 29, 2026</span>
+          <span class="post-scripture">Ephesians 1:3-14</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/social-media-and-the-distracted-soul.html" class="post-card reveal" data-category="Biblical Counseling">
+        <span class="post-category">Biblical Counseling</span>
+        <h3 class="post-title">Social Media and the Distracted Soul</h3>
+        <p class="post-subtitle">Reclaiming attention as an act of worship</p>
+        <p class="post-excerpt">Attention is not a neutral faculty. Scripture treats it as a worshipful act. What we behold, we become — and the architecture of social media is designed to fragment beholding into an infinite scroll of competing claimants for the soul.</p>
+        <div class="post-meta-row">
+          <span class="post-date">March 10, 2026</span>
+          <span class="post-scripture">Psalm 115:8 - Philippians 4:8</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/rome-italy.html" class="post-card reveal" data-category="Mediterranean Journey">
+        <span class="post-category">Mediterranean Journey</span>
+        <h3 class="post-title">Rome, Italy</h3>
+        <p class="post-subtitle">Scripture and mission at the heart of the ancient world</p>
+        <p class="post-excerpt">Rome stands as perhaps the most significant city in the entire biblical narrative of the early church. Paul addressed his most theologically comprehensive letter to the church here, writing that the gospel is the power of God for salvation to everyone who believes.</p>
+        <div class="post-meta-row">
+          <span class="post-date">March 1, 2026</span>
+          <span class="post-scripture">Romans 1:16 - Acts 28:30-31</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/naples-italy.html" class="post-card reveal" data-category="Mediterranean Journey">
+        <span class="post-category">Mediterranean Journey</span>
+        <h3 class="post-title">Naples, Italy</h3>
+        <p class="post-subtitle">Where Paul disembarked and the gospel preceded him</p>
+        <p class="post-excerpt">While Naples itself is not mentioned by name in Scripture, the region directly figures into Paul's final journey to Rome. Acts 28:13 records that Paul's ship sailed to Puteoli in the Bay of Naples, where he found brothers already there and was invited to stay seven days. The gospel had preceded the Apostle.</p>
+        <div class="post-meta-row">
+          <span class="post-date">March 1, 2026</span>
+          <span class="post-scripture">Acts 28:13-14</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/crete-greece.html" class="post-card reveal" data-category="Mediterranean Journey">
+        <span class="post-category">Mediterranean Journey</span>
+        <h3 class="post-title">Crete (Chania), Greece</h3>
+        <p class="post-subtitle">Titus, elders in every town, and the power of the gospel to transform</p>
+        <p class="post-excerpt">Crete appears at several pivotal moments in the New Testament — from Paul's storm-tossed voyage past its shores to his commission to Titus to appoint elders in every town. Cretans were among the very first recipients of the Holy Spirit at Pentecost, likely carrying the gospel home before Paul ever arrived.</p>
+        <div class="post-meta-row">
+          <span class="post-date">March 1, 2026</span>
+          <span class="post-scripture">Titus 1:5 - Acts 27:10 - Acts 2:11</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/ephesus-turkey.html" class="post-card reveal" data-category="Mediterranean Journey">
+        <span class="post-category">Mediterranean Journey</span>
+        <h3 class="post-title">Ephesus, Turkey</h3>
+        <p class="post-subtitle">The hub of Paul's greatest missionary effort and the church that lost its first love</p>
+        <p class="post-excerpt">Ephesus is arguably the most extensively documented city in the entire New Testament outside of Jerusalem. Paul spent approximately three years here — longer than anywhere else recorded in Acts — and from this hub all the residents of Asia heard the word of the Lord, both Jews and Greeks.</p>
+        <div class="post-meta-row">
+          <span class="post-date">March 1, 2026</span>
+          <span class="post-scripture">Acts 19:10 - Ephesians 2:8-9 - Revelation 2:4</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/mykonos-greece.html" class="post-card reveal" data-category="Mediterranean Journey">
+        <span class="post-category">Mediterranean Journey</span>
+        <h3 class="post-title">Mykonos, Greece</h3>
+        <p class="post-subtitle">Where the nations gather and the gospel still needs to be heard</p>
+        <p class="post-excerpt">Mykonos does not appear by name in Scripture, but it lies in the heart of the Aegean Sea through which Paul repeatedly sailed. Every island in this chain was part of the world Christ was reclaiming through the proclamation of His apostles.</p>
+        <div class="post-meta-row">
+          <span class="post-date">March 1, 2026</span>
+          <span class="post-scripture">Acts 20:15 - Acts 17:28</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/athens-greece.html" class="post-card reveal" data-category="Mediterranean Journey">
+        <span class="post-category">Mediterranean Journey</span>
+        <h3 class="post-title">Athens, Greece</h3>
+        <p class="post-subtitle">Mars Hill, the unknown God, and the gospel in the world's intellectual capital</p>
+        <p class="post-excerpt">Athens occupies a uniquely prominent place in Paul's missionary narrative as the intellectual and cultural capital of the ancient world. Paul's address on the Areopagus is a masterpiece of contextual apologetics — beginning with their altar to the unknown God and ending with the proclamation of resurrection.</p>
+        <div class="post-meta-row">
+          <span class="post-date">March 1, 2026</span>
+          <span class="post-scripture">Acts 17:22-23 - Acts 17:34</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/santorini-greece.html" class="post-card reveal" data-category="Mediterranean Journey">
+        <span class="post-category">Mediterranean Journey</span>
+        <h3 class="post-title">Santorini, Greece</h3>
+        <p class="post-subtitle">Beauty, created glory, and the gospel on the edge of the Aegean</p>
+        <p class="post-excerpt">Santorini — known in antiquity as Thera — does not appear by name in the biblical text, yet it lay squarely within the Aegean maritime world of the New Testament church. The apostolic mission pressed through every natural barrier, and no island in the Aegean lay beyond the reach of the gospel's advance.</p>
+        <div class="post-meta-row">
+          <span class="post-date">March 1, 2026</span>
+          <span class="post-scripture">Romans 1:20 - Acts 27</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/bar-montenegro.html" class="post-card reveal" data-category="Mediterranean Journey">
+        <span class="post-category">Mediterranean Journey</span>
+        <h3 class="post-title">Bar, Montenegro</h3>
+        <p class="post-subtitle">Illyricum — the edge of Paul's apostolic vision</p>
+        <p class="post-excerpt">Bar lies in the ancient region of Illyricum — and Paul's own summary of his missionary career places it at the boundary: from Jerusalem and all the way around to Illyricum I have fulfilled the ministry of the gospel of Christ.</p>
+        <div class="post-meta-row">
+          <span class="post-date">March 1, 2026</span>
+          <span class="post-scripture">Romans 15:19-20 - 2 Timothy 4:10</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/corfu-greece.html" class="post-card reveal" data-category="Mediterranean Journey">
+        <span class="post-category">Mediterranean Journey</span>
+        <h3 class="post-title">Corfu, Greece</h3>
+        <p class="post-subtitle">Gateway to the Adriatic and the apostolic corridor westward</p>
+        <p class="post-excerpt">Corfu (ancient Corcyra) sits on the maritime route between the eastern Mediterranean and the Adriatic Sea — directly on the sea lanes Paul would have used in his journeys to and from Rome. It was the gateway to the Adriatic in ancient navigation.</p>
+        <div class="post-meta-row">
+          <span class="post-date">March 1, 2026</span>
+          <span class="post-scripture">Romans 15:19 - Acts 27-28</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/sicily-messina.html" class="post-card reveal" data-category="Mediterranean Journey">
+        <span class="post-category">Mediterranean Journey</span>
+        <h3 class="post-title">Sicily (Messina), Italy</h3>
+        <p class="post-subtitle">Paul ashore at Syracuse and the gospel at the crossroads of the Mediterranean</p>
+        <p class="post-excerpt">Sicily appears directly in the narrative of Paul's journey to Rome. Acts 28:12 records: And landing at Syracuse, we stayed there for three days. Syracuse was the largest and most important city of ancient Sicily, and Paul's three-day stop there is explicitly recorded by Luke.</p>
+        <div class="post-meta-row">
+          <span class="post-date">March 1, 2026</span>
+          <span class="post-scripture">Acts 28:12-13</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/barcelona-spain.html" class="post-card reveal" data-category="Mediterranean Journey">
+        <span class="post-category">Mediterranean Journey</span>
+        <h3 class="post-title">Barcelona, Spain</h3>
+        <p class="post-subtitle">The end of Paul's apostolic ambition and the gospel coming full circle</p>
+        <p class="post-excerpt">Barcelona and the broader region of Hispania hold a unique place in Pauline missiology as the stated ultimate destination of his westward apostolic ambition. I hope to see you in passing as I go to Spain, Paul writes in Romans 15:24 — Spain representing the western edge of the known Roman world.</p>
+        <div class="post-meta-row">
+          <span class="post-date">March 1, 2026</span>
+          <span class="post-scripture">Romans 15:20-24 - Romans 10:14-15</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/come-to-me-all-who-labor.html" class="post-card reveal" data-category="Gospel &amp; Grace">
+        <span class="post-category">Gospel &amp; Grace</span>
+        <h3 class="post-title">Come to Me, All Who Labor</h3>
+        <p class="post-subtitle">The yoke of Christ as rest, not burden</p>
+        <p class="post-excerpt">The invitation of Matthew 11:28 is the strangest paradox in the Gospels. Jesus calls the weary to take on a yoke. Rest is found not in the removal of burden but in the exchange of burdens.</p>
+        <div class="post-meta-row">
+          <span class="post-date">February 18, 2026</span>
+          <span class="post-scripture">Matthew 11:28-30</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/the-counselor-as-barnabas.html" class="post-card reveal" data-category="Biblical Counseling">
+        <span class="post-category">Biblical Counseling</span>
+        <h3 class="post-title">The Counselor as Barnabas</h3>
+        <p class="post-subtitle">Encouragement as a theological act</p>
+        <p class="post-excerpt">Barnabas means son of encouragement — yet that title was given, not born. His name was Joseph. The church renamed him for what he did, and what he did was see potential in people others had written off. This is the counselor's vocation.</p>
+        <div class="post-meta-row">
+          <span class="post-date">January 30, 2026</span>
+          <span class="post-scripture">Acts 4:36 - Acts 9:27 - Acts 15:39</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      <a href="posts/anxiety-and-the-sovereignty-of-god.html" class="post-card reveal" data-category="Biblical Counseling">
+        <span class="post-category">Biblical Counseling</span>
+        <h3 class="post-title">Anxiety and the Sovereignty of God</h3>
+        <p class="post-subtitle">Why Philippians 4:6 is not a command to simply calm down</p>
+        <p class="post-excerpt">Philippians 4:6 is one of the most quoted and most misapplied verses in pastoral ministry. Do not be anxious about anything is read as a command to stop feeling anxious — as though anxiety were simply a moral failure correctable by willpower.</p>
+        <div class="post-meta-row">
+          <span class="post-date">January 5, 2026</span>
+          <span class="post-scripture">Philippians 4:6-7</span>
+        </div>
+        <span class="read-link">Read</span>
+      </a>
+      </div>
 
-      <!-- Empty state -->
       <div class="empty-state" id="empty-state">
         <p>No articles found in this category.</p>
       </div>
     </section>
   </main>
 
-  <!-- ARTICLE DETAIL VIEW -->
-  <div class="article-view" id="article-view">
-    <button class="article-back" id="article-back">Back to Articles</button>
-    <div id="article-content"></div>
-  </div>
-
-  <!-- FOOTER -->
   <footer>
     <div class="footer-logo">The <em>Kiln</em></div>
     <p>6688 Nolensville Rd, Ste 108 #2042, Brentwood, TN 37027 &nbsp;·&nbsp;
-       <a href="/cdn-cgi/l/email-protection#d2b8b7b4b492a6bab7b9bbbebcfcbda0b5"><span class="__cf_email__" data-cfemail="deb4bbb8b89eaab6bbb5b7b2b0f0b1acb9">[email&#160;protected]</span></a> &nbsp;·&nbsp; Nashville, TN</p>
+       <a href="mailto:support@thekiln.org">support@thekiln.org</a> &nbsp;·&nbsp; Nashville, TN</p>
     <p style="margin-top:0.4rem;">&copy; 2025–2026 The Kiln Ministries. All rights reserved.</p>
   </footer>
 
-  <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
-    /* ── NAV SCROLL ───────────────────────────────────────── */
-    const nav = document.getElementById('nav');
-    window.addEventListener('scroll', () => {
-      nav.classList.toggle('scrolled', window.scrollY > 40);
-    }, { passive: true });
+<script>
 
-    /* ── EMBER PARTICLES ──────────────────────────────────── */
-    (function () {
-      const container = document.getElementById('embers');
-      const colors = ['#c9a84c', '#e0ba5f', '#a88830', '#f0d070'];
-      for (let i = 0; i < 14; i++) {
-        const e = document.createElement('div');
-        e.className = 'ember';
-        const size = Math.random() * 4 + 2;
-        e.style.cssText = `
-          width:${size}px; height:${size}px;
-          left:${Math.random() * 100}%;
-          bottom:${Math.random() * 30}%;
-          background:${colors[Math.floor(Math.random() * colors.length)]};
-          animation-duration:${Math.random() * 6 + 5}s;
-          animation-delay:${Math.random() * -8}s;
-          opacity:${Math.random() * 0.5 + 0.2};`;
-        container.appendChild(e);
-      }
-    })();
+  const nav = document.getElementById('nav');
+  window.addEventListener('scroll', () => {
+    nav.classList.toggle('scrolled', window.scrollY > 40);
+  }, { passive: true });
 
-    /* ── REVEAL ON SCROLL ─────────────────────────────────── */
-    function initReveal() {
-      const els = document.querySelectorAll('.reveal');
-      const io = new IntersectionObserver((entries) => {
-        entries.forEach(e => {
-          if (e.isIntersecting) { e.target.classList.add('visible'); io.unobserve(e.target); }
-        });
-      }, { threshold: 0 });
-      els.forEach(el => io.observe(el));
+  const hamburger = document.getElementById('hamburger');
+  const mobileMenu = document.getElementById('mobile-menu');
+  function toggleMenu(e) { e.preventDefault(); mobileMenu.classList.toggle('open'); }
+  hamburger.addEventListener('click', toggleMenu);
+  hamburger.addEventListener('touchstart', toggleMenu, { passive: false });
+  mobileMenu.querySelectorAll('a').forEach(a => {
+    a.addEventListener('click', () => mobileMenu.classList.remove('open'));
+  });
+
+  const io = new IntersectionObserver((entries) => {
+    entries.forEach(e => { if (e.isIntersecting) {
+      e.target.classList.add('visible');
+      io.unobserve(e.target);
+    }});
+  }, { threshold: 0 });
+  document.querySelectorAll('.reveal').forEach(el => io.observe(el));
+
+
+  /* ── EMBER PARTICLES ──────────────────────────────────── */
+  (function () {
+    const container = document.getElementById('embers');
+    const colors = ['#c9a84c', '#e0ba5f', '#a88830', '#f0d070'];
+    for (let i = 0; i < 14; i++) {
+      const e = document.createElement('div');
+      e.className = 'ember';
+      const size = Math.random() * 4 + 2;
+      e.style.cssText =
+        'width:' + size + 'px;' +
+        'height:' + size + 'px;' +
+        'left:' + (Math.random() * 100) + '%;' +
+        'bottom:' + (Math.random() * 30) + '%;' +
+        'background:' + colors[Math.floor(Math.random() * colors.length)] + ';' +
+        'animation-duration:' + (Math.random() * 6 + 5) + 's;' +
+        'animation-delay:' + (Math.random() * -8) + 's;' +
+        'opacity:' + (Math.random() * 0.5 + 0.2) + ';';
+      container.appendChild(e);
     }
+  })();
 
-    /* ── FORMAT DATE ──────────────────────────────────────── */
-    function formatDate(iso) {
-      const d = new Date(iso + 'T00:00:00');
-      return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
-    }
+  /* ── FILTER ───────────────────────────────────────────── */
+  const filterBtns = document.querySelectorAll('.filter-btn');
+  const allCards = document.querySelectorAll('.post-card, .featured-card');
+  const featuredSlot = document.getElementById('featured-slot');
+  const gridDivider = document.getElementById('grid-divider');
+  const emptyState = document.getElementById('empty-state');
 
-    /* ── ITALICIZE COLONS IN TITLES ───────────────────────── */
-    // Wraps text after the last colon in <em> if applicable
-    // We'll rely on JSON for explicit <em> — skip auto-parsing for safety
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const cat = btn.dataset.category;
+      filterBtns.forEach(b => b.classList.toggle('active', b === btn));
 
-    /* ── STATE ────────────────────────────────────────────── */
-    let allPosts = [];
-    let activeCategory = 'all';
-
-    /* ── RENDER FEATURED ──────────────────────────────────── */
-    function renderFeatured(post) {
-      const slot = document.getElementById('featured-slot');
-      if (!post) { slot.innerHTML = ''; return; }
-      slot.innerHTML = `
-        <div class="featured-card reveal" onclick="openArticle('${post.id}')">
-          <div class="featured-card-accent">
-            <p class="featured-badge">✦ Featured Article</p>
-            <h2 class="post-title">${post.title}</h2>
-            <p class="post-subtitle">${post.subtitle}</p>
-          </div>
-          <div class="featured-card-body">
-            <p class="post-excerpt">${post.excerpt}</p>
-            <div>
-              <div class="post-meta-row">
-                <span class="post-category">${post.category}</span>
-                <span class="post-date">${formatDate(post.date)}</span>
-                <span class="post-scripture">${post.scripture}</span>
-              </div>
-              <a class="read-link" onclick="event.stopPropagation(); openArticle('${post.id}')">Read Article</a>
-            </div>
-          </div>
-        </div>`;
-    }
-
-    /* ── RENDER CARD ──────────────────────────────────────── */
-    function renderCard(post) {
-      return `
-        <div class="post-card reveal" onclick="openArticle('${post.id}')">
-          <span class="post-category">${post.category}</span>
-          <h3 class="post-title">${post.title}</h3>
-          <p class="post-subtitle">${post.subtitle}</p>
-          <p class="post-excerpt">${post.excerpt}</p>
-          <div class="post-meta-row">
-            <span class="post-date">${formatDate(post.date)}</span>
-            <span class="post-scripture">${post.scripture}</span>
-          </div>
-          <a class="read-link" onclick="event.stopPropagation(); openArticle('${post.id}')">Read</a>
-        </div>`;
-    }
-
-    /* ── RENDER GRID ──────────────────────────────────────── */
-    function renderGrid(posts) {
-      const featured = posts.find(p => p.featured);
-      const rest = posts.filter(p => !p.featured || activeCategory !== 'all');
-
-      // When filtering by category, show all matched posts as cards (no featured layout)
-      const isFiltered = activeCategory !== 'all';
-      const cardsToShow = isFiltered ? posts : rest;
-      const featuredToShow = isFiltered ? null : featured;
-
-      renderFeatured(featuredToShow);
-
-      const divider = document.getElementById('grid-divider');
-      const grid = document.getElementById('posts-grid');
-      const empty = document.getElementById('empty-state');
-
-      if (posts.length === 0) {
-        divider.style.display = 'none';
-        grid.innerHTML = '';
-        empty.classList.add('active');
-        return;
-      }
-
-      empty.classList.remove('active');
-      divider.style.display = cardsToShow.length > 0 ? 'flex' : 'none';
-      grid.innerHTML = cardsToShow.map(renderCard).join('');
-      initReveal();
-    }
-
-    /* ── BUILD FILTERS ────────────────────────────────────── */
-    function buildFilters(posts) {
-      const categories = ['all', ...new Set(posts.map(p => p.category))];
-      const bar = document.getElementById('filter-bar');
-      bar.innerHTML = categories.map(cat => `
-        <button class="filter-btn${cat === 'all' ? ' active' : ''}"
-                data-category="${cat}"
-                onclick="filterBy('${cat}')">
-          ${cat === 'all' ? 'All' : cat}
-        </button>`).join('');
-    }
-
-    /* ── FILTER ───────────────────────────────────────────── */
-    function filterBy(category) {
-      activeCategory = category;
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.classList.toggle('active', btn.dataset.category === category);
+      let visibleCount = 0;
+      allCards.forEach(card => {
+        const match = cat === 'all' || card.dataset.category === cat;
+        card.style.display = match ? '' : 'none';
+        if (match) visibleCount++;
       });
-      const filtered = category === 'all'
-        ? allPosts
-        : allPosts.filter(p => p.category === category);
-      renderGrid(filtered);
-    }
 
-    /* ── OPEN ARTICLE ─────────────────────────────────────── */
-    function openArticle(id) {
-      const post = allPosts.find(p => p.id === id);
-      if (!post) return;
-
-      const tags = post.tags.map(t => `<span class="tag">${t}</span>`).join('');
-      const body = post.body.map(para =>
-        para.startsWith('## ')
-          ? `<h3>${para.slice(3)}</h3>`
-          : `<p>${para}</p>`
-      ).join('');
-
-      document.getElementById('article-content').innerHTML = `
-        <p class="article-eyebrow">${post.category}</p>
-        <h1 class="article-title">${post.title}</h1>
-        <p class="article-subtitle">${post.subtitle}</p>
-        <div class="article-meta">
-          <span class="post-category">${post.category}</span>
-          <span class="post-date">${formatDate(post.date)}</span>
-          <span class="post-date">By ${post.author}</span>
-        </div>
-        <div class="article-rule"></div>
-        <div class="article-body">${body}</div>
-        <div class="article-scripture-footer">
-          <span>${post.scripture}</span>
-        </div>
-        <div class="tag-list">${tags}</div>`;
-
-      document.getElementById('blog-list').style.display = 'none';
-      const av = document.getElementById('article-view');
-      av.classList.add('active');
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
-    /* ── BACK TO LIST ─────────────────────────────────────── */
-    document.getElementById('article-back').addEventListener('click', () => {
-      document.getElementById('article-view').classList.remove('active');
-      document.getElementById('blog-list').style.display = '';
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      // Hide featured slot when filtering (only show featured on All view)
+      featuredSlot.style.display = cat === 'all' ? '' : 'none';
+      gridDivider.style.display = (cat === 'all' && visibleCount > 0) ? 'flex' : 'none';
+      emptyState.classList.toggle('active', visibleCount === 0);
     });
-
-    /* ── LOAD POSTS ───────────────────────────────────────── */
-    async function loadPosts() {
-      try {
-        const res = await fetch('posts.json');
-        if (!res.ok) throw new Error('Failed to load posts.json');
-        allPosts = await res.json();
-
-        // Sort newest first
-        allPosts.sort((a, b) => new Date(b.date) - new Date(a.date));
-
-        document.getElementById('loading-indicator').style.display = 'none';
-        buildFilters(allPosts);
-        filterBy('Mediterranean Journey');
-      } catch (err) {
-        document.getElementById('loading-indicator').innerHTML =
-          '<p style="color:var(--clay)">Could not load articles. Check that posts.json is in the same directory.</p>';
-        console.error(err);
-      }
-    }
-
-    loadPosts();
-  
-    /* ── HAMBURGER MENU ───────────────────────────────── */
-    const hamburger = document.getElementById('hamburger');
-    const mobileMenu = document.getElementById('mobile-menu');
-    function toggleMenu(e) { e.preventDefault(); mobileMenu.classList.toggle('open'); }
-    hamburger.addEventListener('click', toggleMenu);
-    hamburger.addEventListener('touchstart', toggleMenu, { passive: false });
-    function closeMobile() { mobileMenu.classList.remove('open'); }
+  });
 </script>
 </body>
 </html>
