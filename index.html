@@ -794,12 +794,15 @@
       min-height: 44px;
       justify-content: center;
       align-items: center;
+      position: relative;
+      z-index: 9999;
+      pointer-events: auto;
     }
     .hamburger span {
       display: block;
       width: 24px;
-      height: 2px;
-      background: var(--earth);
+      height: 3px;
+      background: #ff0000;
       transition: all 0.3s;
     }
     .mobile-menu {
@@ -1174,6 +1177,7 @@
     if (hamburger && mobileMenu) {
       hamburger.addEventListener('click', toggleMenu);
       hamburger.addEventListener('touchstart', toggleMenu, { passive: false });
+      hamburger.addEventListener('pointerdown', toggleMenu);
     }
 
     function closeMobile() {
