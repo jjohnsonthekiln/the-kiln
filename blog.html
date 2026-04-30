@@ -366,7 +366,7 @@ footer a:hover { color: var(--clay); }
 
   <main id="blog-list">
     <div class="filter-bar" id="filter-bar">
-      <button class="filter-btn active" data-category="all">All</button><button class="filter-btn" data-category="Biblical Counseling">Biblical Counseling</button><button class="filter-btn" data-category="Gospel &amp; Grace">Gospel &amp; Grace</button><button class="filter-btn" data-category="Mediterranean Journey">Mediterranean Journey</button>
+      <button class="filter-btn" data-category="all">All</button><button class="filter-btn active" data-category="Biblical Counseling">Biblical Counseling</button><button class="filter-btn" data-category="Gospel &amp; Grace">Gospel &amp; Grace</button><button class="filter-btn" data-category="Mediterranean Journey">Mediterranean Journey</button>
     </div>
 
     <section class="blog-section">
@@ -640,24 +640,29 @@ footer a:hover { color: var(--clay); }
   const gridDivider = document.getElementById('grid-divider');
   const emptyState = document.getElementById('empty-state');
 
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      const cat = btn.dataset.category;
-      filterBtns.forEach(b => b.classList.toggle('active', b === btn));
+  function applyFilter(cat) {
+    filterBtns.forEach(b => b.classList.toggle('active', b.dataset.category === cat));
 
-      let visibleCount = 0;
-      allCards.forEach(card => {
-        const match = cat === 'all' || card.dataset.category === cat;
-        card.style.display = match ? '' : 'none';
-        if (match) visibleCount++;
-      });
-
-      // Hide featured slot when filtering (only show featured on All view)
-      featuredSlot.style.display = cat === 'all' ? '' : 'none';
-      gridDivider.style.display = (cat === 'all' && visibleCount > 0) ? 'flex' : 'none';
-      emptyState.classList.toggle('active', visibleCount === 0);
+    let visibleCount = 0;
+    allCards.forEach(card => {
+      const match = cat === 'all' || card.dataset.category === cat;
+      card.style.display = match ? '' : 'none';
+      if (match) visibleCount++;
     });
+
+    // Hide featured slot when filtering (only show featured on All view)
+    featuredSlot.style.display = cat === 'all' ? '' : 'none';
+    gridDivider.style.display = (cat === 'all' && visibleCount > 0) ? 'flex' : 'none';
+    emptyState.classList.toggle('active', visibleCount === 0);
+  }
+
+  filterBtns.forEach(btn => {
+    btn.addEventListener('click', () => applyFilter(btn.dataset.category));
   });
+
+  // Apply initial filter on page load (matches the .active button in HTML)
+  const initialBtn = document.querySelector('.filter-btn.active');
+  if (initialBtn) applyFilter(initialBtn.dataset.category);
 </script>
 </body>
 </html>
