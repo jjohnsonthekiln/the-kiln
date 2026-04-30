@@ -1149,7 +1149,36 @@
     const mobileMenu = document.getElementById('mobile-menu');
     const hamburgerSpans = hamburger ? hamburger.querySelectorAll('span') : [];
 
-    // Visual diagnostic: flash green for 300ms whenever ANY tap event fires.
+    // Page-wide tap tracker: fixed banner that shows what was just tapped.
+    const debugBanner = document.createElement('div');
+    debugBanner.id = 'debug-banner';
+    debugBanner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:99999;background:#000;color:#0f0;font-family:monospace;font-size:12px;padding:6px 10px;border-bottom:2px solid #0f0;pointer-events:none;';
+    debugBanner.textContent = 'DEBUG: tap anywhere to test...';
+    document.body.appendChild(debugBanner);
+
+    function describeTarget(el) {
+      if (!el || !el.tagName) return 'unknown';
+      let s = el.tagName.toLowerCase();
+      if (el.id) s += '#' + el.id;
+      if (el.className && typeof el.className === 'string') s += '.' + el.className.split(' ').filter(Boolean).join('.');
+      return s;
+    }
+
+    let tapCount = 0;
+    document.addEventListener('touchstart', (e) => {
+      tapCount++;
+      const t = e.target;
+      const x = e.touches && e.touches[0] ? Math.round(e.touches[0].clientX) : '?';
+      const y = e.touches && e.touches[0] ? Math.round(e.touches[0].clientY) : '?';
+      debugBanner.textContent = `#${tapCount} touch (${x},${y}) → ${describeTarget(t)}`;
+    }, { passive: true, capture: true });
+
+    document.addEventListener('click', (e) => {
+      tapCount++;
+      debugBanner.textContent = `#${tapCount} click (${e.clientX},${e.clientY}) → ${describeTarget(e.target)}`;
+    }, { capture: true });
+
+    // Visual diagnostic: flash green for 300ms when hamburger toggle fires.
     function flashHamburger() {
       hamburgerSpans.forEach(s => { s.style.background = '#0f0'; });
       setTimeout(() => {
@@ -1164,7 +1193,6 @@
       const now = Date.now();
       if (now - lastToggle < 350) return;
       lastToggle = now;
-      // Toggle class AND inline style as fallback in case CSS isn't applying.
       if (mobileMenu.classList.contains('open')) {
         mobileMenu.classList.remove('open');
         mobileMenu.style.display = '';
