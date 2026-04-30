@@ -4,3 +4,8 @@
 !.dev.vars.example
 .env*
 !.env.example
+
+# Deploy backups
+backups-pathb-*/
+posts.json.bak
+*.bak
