@@ -1144,10 +1144,21 @@
     /* ── HAMBURGER MENU ───────────────────────────────── */
     const hamburger = document.getElementById('hamburger');
     const mobileMenu = document.getElementById('mobile-menu');
-    function toggleMenu(e) { e.preventDefault(); mobileMenu.classList.toggle('open'); }
+    let lastToggle = 0;
+    function toggleMenu(e) {
+      if (e) { e.preventDefault(); e.stopPropagation(); }
+      const now = Date.now();
+      // Debounce: ignore the synthesized click that some iOS versions fire
+      // after touchstart even when preventDefault() is called.
+      if (now - lastToggle < 350) return;
+      lastToggle = now;
+      mobileMenu.classList.toggle('open');
+    }
     hamburger.addEventListener('click', toggleMenu);
     hamburger.addEventListener('touchstart', toggleMenu, { passive: false });
     function closeMobile() { mobileMenu.classList.remove('open'); }
+    // Expose to inline onclick handlers regardless of script scoping.
+    window.closeMobile = closeMobile;
 
     /* ── REVEAL ON SCROLL ─────────────────────────────── */
     const revealEls = document.querySelectorAll('.reveal');
