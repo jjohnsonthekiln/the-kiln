@@ -20,6 +20,14 @@ html, body { height: 100%; background: var(--navy); color: var(--cream); font-fa
 .login-card { background: var(--navy-2); border: 0.5px solid var(--border); border-radius: 16px; padding: 40px; width: 100%; max-width: 360px; text-align: center; }
 .login-card input { width: 100%; background: var(--navy-3); border: 0.5px solid var(--border); border-radius: 8px; padding: 12px 14px; color: var(--cream); font-family: var(--sans); font-size: 15px; outline: none; margin-bottom: 14px; }
 .login-card input:focus { border-color: rgba(201,169,110,0.4); }
+.pw-wrap { position: relative; margin-bottom: 14px; }
+.pw-wrap input { margin-bottom: 0; padding-right: 44px; }
+.pw-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 8px; cursor: pointer; color: rgba(255,247,230,0.55); display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: color 0.15s, background 0.15s; }
+.pw-toggle:hover { color: var(--cream); background: rgba(255,247,230,0.06); }
+.pw-toggle svg { display: block; width: 18px; height: 18px; }
+.pw-toggle .eye-closed { display: none; }
+.pw-toggle.showing .eye-open { display: none; }
+.pw-toggle.showing .eye-closed { display: block; }
 .btn { background: var(--gold); color: var(--navy); border: none; border-radius: 8px; padding: 12px 24px; font-family: var(--sans); font-size: 14px; font-weight: 400; cursor: pointer; width: 100%; transition: opacity 0.15s; }
 .btn:hover { opacity: 0.85; }
 .err-msg { font-size: 13px; color: #d07070; margin-top: 10px; }
@@ -71,7 +79,14 @@ header h1 { font-family: var(--serif); font-weight: 300; font-size: 22px; color:
 <body>
 <div id="login-screen">
   <div class="login-card">
-    <input type="password" id="pw-input" placeholder="Password" />
+    <input type="text" id="user-input" placeholder="Username" autocomplete="username" autocapitalize="off" autocorrect="off" />
+    <div class="pw-wrap">
+      <input type="password" id="pw-input" placeholder="Password" autocomplete="current-password" />
+      <button type="button" class="pw-toggle" id="pw-toggle" aria-label="Show password" tabindex="-1">
+        <svg class="eye-open" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M1.5 12s4-7.5 10.5-7.5S22.5 12 22.5 12s-4 7.5-10.5 7.5S1.5 12 1.5 12z"/><circle cx="12" cy="12" r="3.2"/></svg>
+        <svg class="eye-closed" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3l18 18"/><path d="M10.6 6.2A10.7 10.7 0 0 1 12 6c6.5 0 10.5 7.5 10.5 7.5a18.2 18.2 0 0 1-3.4 4.3"/><path d="M6.5 7.6A18.5 18.5 0 0 0 1.5 12s4 7.5 10.5 7.5a10.9 10.9 0 0 0 4.6-1"/><path d="M9.9 9.9a3.2 3.2 0 0 0 4.2 4.2"/></svg>
+      </button>
+    </div>
     <button class="btn" id="login-btn">Sign In</button>
     <div class="err-msg" id="login-err"></div>
   </div>
@@ -114,6 +129,11 @@ header h1 { font-family: var(--serif); font-weight: 300; font-size: 22px; color:
 </div>
 <script>
 'use strict';
+// NOTE: These credentials are compared client-side and visible in the
+// page source — same cosmetic-only security model this admin has had
+// from day one. Treat the dashboard as "obscure URL + a token", not
+// real auth. Real auth would mean a server-side check.
+const ADMIN_USER     = 'admin';
 const ADMIN_PASSWORD = 'kiln2026';
 const API_ENDPOINTS = {
   ctm: '/api/conversations',
@@ -146,6 +166,7 @@ document.querySelectorAll('.src-btn').forEach(btn => {
   });
 });
 
+document.getElementById('user-input').addEventListener('keydown', e => { if (e.key === 'Enter') { document.getElementById('pw-input').focus(); } });
 document.getElementById('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') login(); });
 document.getElementById('login-btn').addEventListener('click', login);
 document.getElementById('logout-btn').addEventListener('click', () => {
@@ -153,15 +174,32 @@ document.getElementById('logout-btn').addEventListener('click', () => {
   password = '';
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('user-input').value = '';
   document.getElementById('pw-input').value = '';
+  document.getElementById('login-err').textContent = '';
+});
+
+// Show/hide password toggle
+document.getElementById('pw-toggle').addEventListener('click', () => {
+  const input  = document.getElementById('pw-input');
+  const toggle = document.getElementById('pw-toggle');
+  const showing = toggle.classList.toggle('showing');
+  input.type = showing ? 'text' : 'password';
+  toggle.setAttribute('aria-label', showing ? 'Hide password' : 'Show password');
+  input.focus();
 });
 
 function login() {
-  const pw = document.getElementById('pw-input').value.trim();
-  if (pw !== ADMIN_PASSWORD) { document.getElementById('login-err').textContent = 'Incorrect password.'; return; }
+  const user = document.getElementById('user-input').value.trim();
+  const pw   = document.getElementById('pw-input').value.trim();
+  if (user !== ADMIN_USER || pw !== ADMIN_PASSWORD) {
+    document.getElementById('login-err').textContent = 'Incorrect username or password.';
+    return;
+  }
   password = pw;
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('app').style.display = 'block';
+  document.getElementById('login-err').textContent = '';
   loadStats();
   loadSessions(true);
 }
