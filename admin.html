@@ -4,33 +4,37 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400&family=Lato:wght@300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 :root {
-  --navy: #0D1B2A; --navy-2: #162032; --navy-3: #1E2D40;
-  --gold: #E5C277; --gold-dim: #B89968;
-  --cream: #EDE0C4; --cream-dim: #b5a98a;
-  --border: rgba(201,169,110,0.15);
+  /* Cream theme — matches the Great Physician / Kiln app palette. (Variable
+     names kept for minimal churn; values flipped from the old navy theme.) */
+  --navy: #faf8f4; --navy-2: #f0ebe0; --navy-3: #e8dfd0;
+  --gold: #8b5e1a; --gold-fill: #c9a84c; --gold-dim: #7a6a58;
+  --cream: #2c1a0e; --cream-dim: #7a6a58;
+  --border: #e0d8cc;
   --serif: 'Cormorant Garamond', Georgia, serif;
-  --sans: 'Lato', sans-serif;
+  --sans: 'Montserrat', sans-serif;
 }
 html, body { height: 100%; background: var(--navy); color: var(--cream); font-family: var(--sans); font-weight: 300; -webkit-font-smoothing: antialiased; }
 #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
-.login-card { background: var(--navy-2); border: 0.5px solid var(--border); border-radius: 16px; padding: 40px; width: 100%; max-width: 360px; text-align: center; }
-.login-card input { width: 100%; background: var(--navy-3); border: 0.5px solid var(--border); border-radius: 8px; padding: 12px 14px; color: var(--cream); font-family: var(--sans); font-size: 15px; outline: none; margin-bottom: 14px; }
-.login-card input:focus { border-color: rgba(201,169,110,0.4); }
+.login-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 4px 24px rgba(44,26,14,0.06); }
+.login-card input { width: 100%; background: var(--navy); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; color: var(--cream); font-family: var(--sans); font-size: 15px; outline: none; margin-bottom: 14px; }
+.login-card input:focus { border-color: var(--gold-fill); }
+input::placeholder, #filters input::placeholder { color: var(--gold-dim); }
 .pw-wrap { position: relative; margin-bottom: 14px; }
 .pw-wrap input { margin-bottom: 0; padding-right: 44px; }
-.pw-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 8px; cursor: pointer; color: rgba(255,247,230,0.55); display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: color 0.15s, background 0.15s; }
-.pw-toggle:hover { color: var(--cream); background: rgba(255,247,230,0.06); }
+.pw-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; padding: 8px; cursor: pointer; color: var(--gold-dim); display: flex; align-items: center; justify-content: center; border-radius: 6px; transition: color 0.15s, background 0.15s; }
+.pw-toggle:hover { color: var(--cream); background: rgba(44,26,14,0.05); }
 .pw-toggle svg { display: block; width: 18px; height: 18px; }
 .pw-toggle .eye-closed { display: none; }
 .pw-toggle.showing .eye-open { display: none; }
 .pw-toggle.showing .eye-closed { display: block; }
-.btn { background: var(--gold); color: var(--navy); border: none; border-radius: 8px; padding: 12px 24px; font-family: var(--sans); font-size: 14px; font-weight: 400; cursor: pointer; width: 100%; transition: opacity 0.15s; }
-.btn:hover { opacity: 0.85; }
-.err-msg { font-size: 13px; color: #d07070; margin-top: 10px; }
+.btn { background: var(--gold-fill); color: #fff; border: none; border-radius: 8px; padding: 12px 24px; font-family: var(--sans); font-size: 14px; font-weight: 600; letter-spacing: 0.3px; cursor: pointer; width: 100%; transition: opacity 0.15s; }
+.btn:hover { opacity: 0.88; }
+.btn:disabled { opacity: 0.6; cursor: default; }
+.err-msg { font-size: 13px; color: #a8412b; margin-top: 10px; }
 #app { display: none; min-height: 100vh; }
 header { background: var(--navy-2); border-bottom: 0.5px solid var(--border); padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
 header h1 { font-family: var(--serif); font-weight: 300; font-size: 22px; color: var(--gold); }
@@ -39,7 +43,7 @@ header h1 { font-family: var(--serif); font-weight: 300; font-size: 22px; color:
 .header-right { display: flex; align-items: center; gap: 14px; }
 #source-toggle { display: flex; background: var(--navy-3); border: 0.5px solid var(--border); border-radius: 8px; overflow: hidden; }
 .src-btn { background: transparent; border: none; color: var(--gold-dim); padding: 7px 14px; font-family: var(--sans); font-size: 12px; font-weight: 400; cursor: pointer; transition: background 0.15s, color 0.15s; }
-.src-btn.active { background: var(--gold); color: var(--navy); }
+.src-btn.active { background: var(--gold-fill); color: #fff; }
 .src-btn:not(.active):hover { color: var(--gold); }
 #stats-bar { display: flex; gap: 16px; padding: 16px 24px; border-bottom: 0.5px solid var(--border); flex-wrap: wrap; }
 .stat { background: var(--navy-2); border: 0.5px solid var(--border); border-radius: 10px; padding: 12px 18px; }
@@ -71,8 +75,8 @@ header h1 { font-family: var(--serif); font-weight: 300; font-size: 22px; color:
 .message { margin-bottom: 16px; }
 .msg-label { font-size: 11px; color: var(--gold-dim); margin-bottom: 4px; text-transform: uppercase; letter-spacing: 0.05em; }
 .msg-bubble { padding: 14px 18px; border-radius: 10px; font-size: 16px; line-height: 1.75; font-weight: 300; white-space: pre-wrap; }
-.msg-bubble.user { background: var(--navy-3); border: 0.5px solid var(--border); color: #F9F2DD; }
-.msg-bubble.ai { background: #FBF6E8; color: #1C1812; }
+.msg-bubble.user { background: var(--navy-3); border: 0.5px solid var(--border); color: var(--cream); }
+.msg-bubble.ai { background: #fff; border: 0.5px solid var(--border); color: var(--cream); }
 .loading { text-align: center; color: var(--gold-dim); padding: 40px; font-size: 14px; }
 </style>
 </head>
