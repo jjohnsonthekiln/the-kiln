@@ -129,12 +129,11 @@ header h1 { font-family: var(--serif); font-weight: 300; font-size: 22px; color:
 </div>
 <script>
 'use strict';
-// NOTE: These credentials are compared client-side and visible in the
-// page source — same cosmetic-only security model this admin has had
-// from day one. Treat the dashboard as "obscure URL + a token", not
-// real auth. Real auth would mean a server-side check.
-const ADMIN_USER     = 'admin';
-const ADMIN_PASSWORD = 'kiln2026';
+// The password is validated SERVER-SIDE in functions/api/* against the
+// ADMIN_PASSWORD environment variable (a Cloudflare Pages secret) — it is
+// never shipped to the browser. The username below is only a cosmetic
+// label, not a secret.
+const ADMIN_USER = 'admin';
 const API_ENDPOINTS = {
   ctm: '/api/conversations',
   gp:  '/api/gp-conversations',
@@ -189,19 +188,39 @@ document.getElementById('pw-toggle').addEventListener('click', () => {
   input.focus();
 });
 
-function login() {
-  const user = document.getElementById('user-input').value.trim();
-  const pw   = document.getElementById('pw-input').value.trim();
-  if (user !== ADMIN_USER || pw !== ADMIN_PASSWORD) {
-    document.getElementById('login-err').textContent = 'Incorrect username or password.';
+async function login() {
+  const user  = document.getElementById('user-input').value.trim();
+  const pw    = document.getElementById('pw-input').value.trim();
+  const errEl = document.getElementById('login-err');
+  const btn   = document.getElementById('login-btn');
+  errEl.textContent = '';
+  if (user !== ADMIN_USER || !pw) {
+    errEl.textContent = 'Incorrect username or password.';
     return;
   }
-  password = pw;
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('app').style.display = 'block';
-  document.getElementById('login-err').textContent = '';
-  loadStats();
-  loadSessions(true);
+  // Validate the password against the server; it is never stored in this page.
+  btn.disabled = true;
+  const prevLabel = btn.textContent;
+  btn.textContent = 'Signing in…';
+  try {
+    const res = await fetch(API_ENDPOINTS.ctm, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ password: pw, action: 'sessions', limit: 1, offset: 0 }),
+    });
+    if (res.status === 401) { errEl.textContent = 'Incorrect username or password.'; return; }
+    if (!res.ok)            { errEl.textContent = 'Server error — please try again.'; return; }
+    password = pw;
+    document.getElementById('login-screen').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    loadStats();
+    loadSessions(true);
+  } catch (e) {
+    errEl.textContent = 'Network error — please try again.';
+  } finally {
+    btn.disabled = false;
+    btn.textContent = prevLabel;
+  }
 }
 
 async function call(body) {

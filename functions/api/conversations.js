@@ -7,7 +7,8 @@ const CORS = {
   'Access-Control-Allow-Headers': 'Content-Type',
 };
 
-const ADMIN_PASSWORD = 'kiln2026'; // change this
+// Admin password is a server-side secret (Cloudflare Pages env var), never
+// shipped to the browser. Set ADMIN_PASSWORD in the Pages project settings.
 
 export async function onRequestOptions() {
   return new Response(null, { headers: CORS });
@@ -19,7 +20,7 @@ export async function onRequestPost(context) {
   try {
     const { password, action, session_id, lang, date_from, date_to, limit = 50, offset = 0 } = await request.json();
 
-    if (password !== ADMIN_PASSWORD) {
+    if (!env.ADMIN_PASSWORD || password !== env.ADMIN_PASSWORD) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json', ...CORS },
