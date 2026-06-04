@@ -86,8 +86,8 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
 .sel-all-lbl input { width: 14px; height: 14px; accent-color: var(--gold-fill); cursor: pointer; }
 #print-selected:disabled { opacity: 0.45; cursor: default; }
 
-/* Off-screen stage used to build a clean, light document that html2pdf
-   rasterizes into a one-click PDF (no browser print dialog needed). */
+/* Off-screen stage used to build a clean, light document that html2canvas
+   rasterizes; generatePdf() then paginates it into a one-click PDF. */
 .pdf-stage { position: fixed; left: -10000px; top: 0; width: 720px; background: #fff; }
 .pdf-doc { background: #fff; color: #1a1a1a; font-family: 'Montserrat', Arial, sans-serif; font-weight: 400; }
 .pdf-sess { padding: 6px 24px 24px; }
@@ -155,8 +155,11 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
     <div id="conversation-view"><p class="placeholder">Select a session to view</p></div>
   </div>
 </div>
-<!-- html2pdf.js 0.10.2 — vendored locally (see vendor/) so the admin has no external runtime dependency -->
-<script src="/vendor/html2pdf.bundle.min.js"></script>
+<!-- jsPDF 2.5.2 + html2canvas 1.4.1 — vendored locally (see vendor/) so the admin
+     has no external runtime dependency. We paginate manually (see generatePdf)
+     to avoid slicing through lines of text. -->
+<script src="/vendor/jspdf.umd.min.js"></script>
+<script src="/vendor/html2canvas.min.js"></script>
 <script>
 'use strict';
 // The password is validated SERVER-SIDE in functions/api/* against the
@@ -426,29 +429,85 @@ function buildSessionHtml(item) {
   return `<section class="pdf-sess"><div class="pdf-head">${head}</div>${rows}</section>`;
 }
 
-// Render the given sessions to an off-screen stage and let html2pdf
-// download a single combined PDF (each session begins on a new page).
-async function generatePdf(items, filename) {
-  if (!items.length) return;
-  if (typeof html2pdf === 'undefined') { alert('PDF library failed to load. Check your connection and reload.'); return; }
+// A4 portrait layout, in millimetres.
+const PDF = { pageW: 210, pageH: 297, mL: 12, mR: 12, mT: 12, mB: 16 };
+
+// Render one session's HTML to a canvas via html2canvas (off-screen).
+async function renderSessionCanvas(item) {
   const stage = document.createElement('div');
   stage.className = 'pdf-stage';
-  stage.innerHTML = `<div class="pdf-doc">${items.map(buildSessionHtml).join('')}</div>`;
+  stage.innerHTML = `<div class="pdf-doc">${buildSessionHtml(item)}</div>`;
   document.body.appendChild(stage);
-  const opt = {
-    margin:      [12, 12, 16, 12],
-    filename:    filename,
-    image:       { type: 'jpeg', quality: 0.98 },
-    html2canvas: { scale: 2, backgroundColor: '#ffffff', windowWidth: 720 },
-    jsPDF:       { unit: 'mm', format: 'a4', orientation: 'portrait' },
-    pagebreak:   { mode: ['css', 'legacy'], avoid: '.pdf-msg' }
-  };
   try {
-    await html2pdf().set(opt).from(stage.firstChild).save();
-  } catch (err) {
-    alert('Could not generate PDF: ' + (err && err.message ? err.message : err));
+    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (_) {} }
+    return await html2canvas(stage.firstChild, { scale: 2, backgroundColor: '#ffffff', windowWidth: 720 });
   } finally {
     stage.remove();
+  }
+}
+
+// Find the lowest pixel row in [minY, maxY] that holds no dark (text) pixels,
+// so a page break there can't slice through a line of text. The gaps between
+// lines and between message bubbles are all light, which gives us safe cuts in
+// any language. Falls back to maxY if the whole band is solid (rare).
+function safeCutRow(data, w, minY, maxY) {
+  const DARK = 140;   // luminance below this counts as ink/text
+  const step = 3;     // sample every 3rd column — fast and reliable enough
+  for (let y = maxY; y >= minY; y--) {
+    const base = y * w * 4;
+    let clean = true;
+    for (let x = 0; x < w; x += step) {
+      const i = base + x * 4;
+      if ((data[i] * 0.299 + data[i + 1] * 0.587 + data[i + 2] * 0.114) < DARK) { clean = false; break; }
+    }
+    if (clean) return y;
+  }
+  return maxY;
+}
+
+// Build a multi-page PDF. Each session starts on a fresh page; long sessions
+// paginate at blank rows so no message is ever cut mid-line.
+async function generatePdf(items, filename) {
+  if (!items.length) return;
+  if (!window.jspdf || !window.html2canvas) { alert('PDF library failed to load. Check your connection and reload.'); return; }
+  const { jsPDF } = window.jspdf;
+  const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+  const contentW = PDF.pageW - PDF.mL - PDF.mR;
+  const contentH = PDF.pageH - PDF.mT - PDF.mB;
+
+  const slice = document.createElement('canvas');
+  const sctx = slice.getContext('2d');
+  let firstPage = true;
+
+  try {
+    for (const item of items) {
+      const canvas = await renderSessionCanvas(item);
+      const W = canvas.width, H = canvas.height;
+      const pxPerMm = W / contentW;
+      const pageHpx = Math.floor(contentH * pxPerMm);
+      const data = canvas.getContext('2d').getImageData(0, 0, W, H).data;
+
+      let y = 0;
+      while (y < H) {
+        let end = Math.min(y + pageHpx, H);
+        if (end < H) {
+          // Keep pages reasonably full: never cut higher than ~55% down.
+          const minEnd = Math.min(end, y + Math.floor(pageHpx * 0.55));
+          end = safeCutRow(data, W, Math.max(minEnd, y + 1), end);
+        }
+        const hpx = end - y;
+        slice.width = W; slice.height = hpx;
+        sctx.fillStyle = '#ffffff'; sctx.fillRect(0, 0, W, hpx);
+        sctx.drawImage(canvas, 0, y, W, hpx, 0, 0, W, hpx);
+        if (!firstPage) pdf.addPage();
+        firstPage = false;
+        pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', PDF.mL, PDF.mT, contentW, hpx / pxPerMm);
+        y = end;
+      }
+    }
+    pdf.save(filename);
+  } catch (err) {
+    alert('Could not generate PDF: ' + (err && err.message ? err.message : err));
   }
 }
 
