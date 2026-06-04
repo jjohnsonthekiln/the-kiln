@@ -155,7 +155,8 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
     <div id="conversation-view"><p class="placeholder">Select a session to view</p></div>
   </div>
 </div>
-<script src="https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.2/dist/html2pdf.bundle.min.js"></script>
+<!-- html2pdf.js 0.10.2 — vendored locally (see vendor/) so the admin has no external runtime dependency -->
+<script src="/vendor/html2pdf.bundle.min.js"></script>
 <script>
 'use strict';
 // The password is validated SERVER-SIDE in functions/api/* against the
