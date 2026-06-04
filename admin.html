@@ -84,7 +84,9 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
 .loading { text-align: center; color: var(--gold-dim); padding: 40px; font-size: 14px; }
 .sel-all-lbl { display: flex; align-items: center; gap: 6px; font-size: 13px; color: var(--gold-dim); cursor: pointer; user-select: none; }
 .sel-all-lbl input { width: 14px; height: 14px; accent-color: var(--gold-fill); cursor: pointer; }
-#print-selected:disabled { opacity: 0.45; cursor: default; }
+#print-selected:disabled, #delete-selected:disabled { opacity: 0.45; cursor: default; }
+.danger-btn { color: #a8412b; }
+.danger-btn:hover:not(:disabled) { border-color: #a8412b; }
 
 /* Off-screen stage used to build a clean, light document that html2canvas
    rasterizes; generatePdf() then paginates it into a one-click PDF. */
@@ -149,6 +151,7 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
     <button class="filter-btn" id="clear-filter">Clear</button>
     <label class="sel-all-lbl"><input type="checkbox" id="select-all"> Select all</label>
     <button class="filter-btn" id="print-selected" disabled>⤓ Save selected</button>
+    <button class="filter-btn danger-btn" id="delete-selected" disabled>✕ Delete checked</button>
   </div>
   <div id="main">
     <div id="session-list"></div>
@@ -404,9 +407,12 @@ function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').
 
 function updateSelCount() {
   const n = selected.size;
-  const btn = document.getElementById('print-selected');
-  btn.textContent = n ? `⤓ Save selected (${n})` : '⤓ Save selected';
-  btn.disabled = n === 0;
+  const ps = document.getElementById('print-selected');
+  ps.textContent = n ? `⤓ Save selected (${n})` : '⤓ Save selected';
+  ps.disabled = n === 0;
+  const ds = document.getElementById('delete-selected');
+  ds.textContent = n ? `✕ Delete checked (${n})` : '✕ Delete checked';
+  ds.disabled = n === 0;
 }
 
 // Build the light-themed HTML for one session, honoring its schema.
@@ -542,7 +548,38 @@ async function printSelected() {
   }
 }
 
+// Delete every checked session (with a confirm). Removes them from the list
+// and the selection as each one succeeds.
+async function deleteSelected() {
+  const n = selected.size;
+  if (!n) return;
+  if (!confirm(`Delete ALL messages for ${n} selected session(s)?\n\nThis cannot be undone.`)) return;
+  const ds = document.getElementById('delete-selected');
+  const ps = document.getElementById('print-selected');
+  ds.disabled = true; ps.disabled = true;
+  ds.textContent = 'Deleting…';
+  // Snapshot id -> list element so we can remove rows without selector escaping.
+  const elById = {};
+  document.querySelectorAll('#session-list .session-item').forEach(it => { elById[it.dataset.id] = it; });
+  const failed = [];
+  for (const sid of Array.from(selected.keys())) {
+    const data = await call({ action: 'delete', session_id: sid });
+    if (data && data.error) { failed.push(sid); continue; }
+    selected.delete(sid);
+    if (elById[sid]) elById[sid].remove();
+  }
+  document.getElementById('select-all').checked = false;
+  updateSelCount();
+  loadStats();
+  if (currentConv && !document.querySelector('.session-item.active')) {
+    currentConv = null;
+    document.getElementById('conversation-view').innerHTML = '<p class="placeholder">Select a session to view</p>';
+  }
+  if (failed.length) alert(`Could not delete ${failed.length} session(s). They remain in the list.`);
+}
+
 document.getElementById('print-selected').addEventListener('click', printSelected);
+document.getElementById('delete-selected').addEventListener('click', deleteSelected);
 
 // "Select all" toggles every session currently rendered in the list.
 document.getElementById('select-all').addEventListener('change', e => {
