@@ -130,15 +130,15 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
     <h1>Conversation Viewer</h1>
     <div class="header-right">
       <div id="source-toggle">
-        <button class="src-btn active" data-src="ctm">Come to Me</button>
-        <button class="src-btn" data-src="gp">Great Physician</button>
+        <button class="src-btn" data-src="ctm">Come to Me</button>
+        <button class="src-btn active" data-src="gp">Great Physician</button>
       </div>
       <button class="logout-btn" id="logout-btn">Sign Out</button>
     </div>
   </header>
   <div id="stats-bar"></div>
   <div id="filters">
-    <select id="lang-filter">
+    <select id="lang-filter" style="display:none">
       <option value="">All Languages</option>
       <option value="en">English</option>
       <option value="es">Español</option>
@@ -180,7 +180,7 @@ const API_ENDPOINTS = {
   ctm: '/api/conversations',
   gp:  '/api/gp-conversations',
 };
-let currentSource = 'ctm';
+let currentSource = 'gp';
 let password = '';
 let offset = 0;
 const LIMIT = 30;
