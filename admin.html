@@ -360,9 +360,10 @@ async function loadMessages(session_id, lang, date, el) {
   document.title = `Kiln Conversation — ${session_id}`;
 
   if (currentSource === 'gp') {
-    // GP schema: one row per message with role + content
-    view.innerHTML = `<div class="conv-header"><div><h2>Session</h2><p>${new Date(date).toLocaleString()} · ${data.messages.length} message(s) · ID: ${session_id}</p></div><div class="conv-actions"><label class="txt-opt"><input type="checkbox" id="txt-opt-id"> ID</label><label class="txt-opt"><input type="checkbox" id="txt-opt-count"> Count</label><button class="print-btn alt" onclick="exportTxtCurrent()" title="Export a clean plain-text transcript to feed as context into a Great Physician session">⤓ Export .txt</button><button class="print-btn" onclick="savePdfCurrent()" title="Save this conversation as a PDF">⤓ Save PDF</button></div></div>`;
-    data.messages.forEach(m => {
+    // GP schema: one row per message with role + content (priming turn hidden)
+    const msgs = displayMessages('gp', data.messages);
+    view.innerHTML = `<div class="conv-header"><div><h2>Session</h2><p>${new Date(date).toLocaleString()} · ${msgs.length} message(s) · ID: ${session_id}</p></div><div class="conv-actions"><label class="txt-opt"><input type="checkbox" id="txt-opt-id"> ID</label><label class="txt-opt"><input type="checkbox" id="txt-opt-count"> Count</label><button class="print-btn alt" onclick="exportTxtCurrent()" title="Export a clean plain-text transcript to feed as context into a Great Physician session">⤓ Export .txt</button><button class="print-btn" onclick="savePdfCurrent()" title="Save this conversation as a PDF">⤓ Save PDF</button></div></div>`;
+    msgs.forEach(m => {
       const isUser = (m.role || '').toLowerCase() === 'user';
       const label = isUser ? 'User' : 'Counselor';
       const cls   = isUser ? 'user' : 'ai';
@@ -412,6 +413,25 @@ document.addEventListener('keydown', (e) => {
 
 function escHtml(s) { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
+// The GP chat auto-seeds every session with a priming user turn ("Hello, I need
+// some help") and a boilerplate counselor greeting in reply (see test-chat.html).
+// Neither is part of the real conversation, so hide both from the viewer and the
+// PDF/.txt exports. Keyed off the priming user turn, so it works for any
+// counselor persona (Barnabas, Lydia, …). CTM has no such seed — passed through.
+const GP_PRIMING = 'hello, i need some help';
+function displayMessages(source, messages) {
+  const msgs = Array.isArray(messages) ? messages : [];
+  if (source !== 'gp' || !msgs.length) return msgs;
+  const first = msgs[0];
+  if (first && (first.role || '').toLowerCase() === 'user'
+      && (first.content || '').trim().toLowerCase() === GP_PRIMING) {
+    // Drop the priming user turn, plus the counselor reply that follows it.
+    const drop = (msgs[1] && (msgs[1].role || '').toLowerCase() !== 'user') ? 2 : 1;
+    return msgs.slice(drop);
+  }
+  return msgs;
+}
+
 // ---- PDF export (one-click, no browser print dialog) ----
 
 function updateSelCount() {
@@ -429,8 +449,9 @@ function buildSessionHtml(item) {
   const dateStr = new Date(item.date).toLocaleString();
   let head, rows = '';
   if (item.source === 'gp') {
-    head = `<h2 class="pdf-h2">Session</h2><p class="pdf-sub">${dateStr} · ${item.messages.length} message(s) · ID: ${item.session_id}</p>`;
-    item.messages.forEach(m => {
+    const msgs = displayMessages('gp', item.messages);
+    head = `<h2 class="pdf-h2">Session</h2><p class="pdf-sub">${dateStr} · ${msgs.length} message(s) · ID: ${item.session_id}</p>`;
+    msgs.forEach(m => {
       const isUser = (m.role || '').toLowerCase() === 'user';
       rows += `<div class="pdf-msg"><div class="pdf-label">${isUser ? 'User' : 'Counselor'}</div><div class="pdf-bubble ${isUser ? 'u' : 'a'}">${escHtml(m.content)}</div></div>`;
     });
@@ -575,7 +596,7 @@ function conversationToTxt(convo, opts = {}) {
   const date = convo.date ? new Date(convo.date) : null;
   if (date && !isNaN(date)) lines.push(`Session date: ${date.toLocaleString()}`);
 
-  const msgs = convo.messages || [];
+  const msgs = displayMessages(convo.source, convo.messages);
   if (includeCount) lines.push(`${convo.source === 'gp' ? 'Messages' : 'Turns'}: ${msgs.length}`);
   if (includeId && convo.session_id) lines.push(`ID: ${convo.session_id}`);
   lines.push('='.repeat(50), '');
