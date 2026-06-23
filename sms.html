@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Text Message (SMS) Program — The Kiln Ministries</title>
+  <meta name="description" content="How The Kiln Ministries uses text messaging (SMS) for its Come to Me and Great Physician programs, including consent, opt-out, and privacy.">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --navy: #1e3a5f;
+      --navy-dark: #0d1b2e;
+      --blue-light: #a8c5e8;
+      --blue-mid: #6a9cbf;
+      --gold: #c9a84c;
+      --white: #f0f4f8;
+      --gray: #8a9bb0;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: var(--navy-dark);
+      color: var(--white);
+      overflow-x: hidden;
+    }
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      padding: 18px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+      background: rgba(13,27,46,0.95); backdrop-filter: blur(12px);
+      border-bottom: 1px solid rgba(168,197,232,0.1);
+    }
+    .nav-brand {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; color: var(--white); text-decoration: none;
+    }
+    .nav-links { display: flex; gap: 32px; list-style: none; }
+    .nav-links a {
+      color: var(--gray); text-decoration: none;
+      font-size: 0.75rem; letter-spacing: 0.2em; text-transform: uppercase;
+      transition: color 0.2s;
+    }
+    .nav-links a:hover { color: var(--blue-light); }
+
+    .hero {
+      padding: 140px 24px 60px;
+      text-align: center;
+      background: radial-gradient(ellipse at 50% 30%, #1e3a5f 0%, #0a1520 100%);
+      border-bottom: 1px solid rgba(168,197,232,0.08);
+    }
+    .hero-eyebrow {
+      font-size: 0.72rem; letter-spacing: 0.4em;
+      color: var(--gold); text-transform: uppercase; margin-bottom: 20px;
+    }
+    .hero-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 5vw, 4rem);
+      font-weight: 300; color: var(--white); margin-bottom: 16px;
+    }
+    .hero-meta {
+      font-size: 0.78rem; color: var(--gray);
+      letter-spacing: 0.1em; line-height: 2;
+    }
+
+    .content {
+      max-width: 780px; margin: 0 auto;
+      padding: 80px 24px 100px;
+    }
+
+    .section { margin-bottom: 52px; }
+
+    h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem; font-weight: 300;
+      color: var(--white); margin-bottom: 8px;
+      letter-spacing: 0.3px;
+    }
+    .section-number {
+      font-size: 0.68rem; letter-spacing: 0.4em;
+      color: var(--gold); text-transform: uppercase;
+      margin-bottom: 12px; display: block;
+    }
+    .gold-line {
+      width: 40px; height: 1px; background: var(--gold);
+      margin: 16px 0 20px;
+    }
+
+    h3 {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      color: var(--blue-light); margin: 28px 0 10px;
+    }
+
+    p {
+      font-size: 0.92rem; line-height: 1.9;
+      color: var(--gray); font-weight: 300;
+      margin-bottom: 16px;
+    }
+
+    ul {
+      list-style: none; margin: 8px 0 16px 0; padding: 0;
+    }
+    ul li {
+      font-size: 0.9rem; line-height: 1.8;
+      color: var(--gray); font-weight: 300;
+      padding: 4px 0 4px 20px; position: relative;
+    }
+    ul li::before {
+      content: '—';
+      position: absolute; left: 0;
+      color: var(--gold); font-size: 0.8rem;
+    }
+
+    .highlight-box {
+      background: rgba(30,58,95,0.3);
+      border-left: 2px solid var(--gold);
+      border-radius: 2px;
+      padding: 20px 24px;
+      margin: 20px 0;
+    }
+    .highlight-box p {
+      margin-bottom: 0;
+      font-style: italic;
+      color: var(--blue-light);
+      font-size: 0.95rem;
+    }
+
+    .keyword-row {
+      display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0 16px;
+    }
+    .keyword {
+      background: rgba(201,168,76,0.06);
+      border: 1px solid rgba(201,168,76,0.25);
+      border-radius: 4px;
+      padding: 14px 20px; flex: 1; min-width: 200px;
+    }
+    .keyword strong {
+      color: var(--gold); font-size: 0.82rem;
+      letter-spacing: 0.15em; text-transform: uppercase;
+      display: block; margin-bottom: 6px;
+    }
+    .keyword span { font-size: 0.86rem; color: var(--gray); line-height: 1.6; }
+
+    .contact-block {
+      background: rgba(201,168,76,0.06);
+      border: 1px solid rgba(201,168,76,0.2);
+      border-radius: 4px;
+      padding: 28px 32px;
+      margin-top: 16px;
+    }
+    .contact-block p { margin-bottom: 4px; }
+    .contact-block a { color: var(--blue-light); text-decoration: none; }
+    .contact-block a:hover { color: var(--white); }
+
+    .divider {
+      height: 1px;
+      background: rgba(168,197,232,0.08);
+      margin: 52px 0;
+    }
+
+    .footnote {
+      font-size: 0.78rem; color: var(--gray);
+      font-style: italic; opacity: 0.6;
+      border-top: 1px solid rgba(168,197,232,0.08);
+      padding-top: 24px; margin-top: 52px;
+    }
+
+    footer {
+      padding: 48px 24px; text-align: center;
+      border-top: 1px solid rgba(168,197,232,0.08);
+    }
+    footer p { font-size: 0.78rem; color: var(--gray); letter-spacing: 0.1em; line-height: 2; }
+    footer a { color: var(--blue-light); text-decoration: none; }
+
+    @media (max-width: 768px) {
+      nav { padding: 16px 20px; }
+      .nav-links { display: none; }
+      .content { padding: 60px 20px 80px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a href="/" class="nav-brand">The Kiln Ministries</a>
+  <ul class="nav-links">
+    <li><a href="/privacy.html">Privacy</a></li>
+    <li><a href="mailto:support@thekiln.org">Contact</a></li>
+  </ul>
+</nav>
+
+<div class="hero">
+  <p class="hero-eyebrow">The Kiln Ministries</p>
+  <h1 class="hero-title">Text Message (SMS) Program</h1>
+  <p class="hero-meta">
+    How we use SMS &nbsp;·&nbsp; Consent &nbsp;·&nbsp; Opt-out &nbsp;·&nbsp; Privacy<br>
+    Effective Date: June 23, 2026
+  </p>
+</div>
+
+<div class="content">
+
+  <!-- 1 -->
+  <div class="section">
+    <span class="section-number">Section 1</span>
+    <h2>About Our Messaging</h2>
+    <div class="gold-line"></div>
+    <p>The Kiln Ministries, a nonprofit organization registered in Tennessee, sends text messages (SMS) to support two of its ministry programs. We send only program-related notifications. We do not send marketing or promotional text messages, and we do not use text messaging for advertising.</p>
+    <div class="highlight-box">
+      <p>We never sell, rent, or share your mobile phone number or your SMS consent with any third party or affiliate for their marketing purposes.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 2 -->
+  <div class="section">
+    <span class="section-number">Section 2</span>
+    <h2>Our Two Messaging Programs</h2>
+    <div class="gold-line"></div>
+
+    <h3>Come to Me — Counselor Notifications</h3>
+    <p>Come to Me (cometome.ai) is The Kiln Ministries' online counseling outreach. Approved ministry counselors receive an SMS notification when a new visitor begins a conversation, so that a counselor can log in and respond. These messages go only to recruited ministry staff.</p>
+
+    <h3>Great Physician — Counselee Homework &amp; Session Reminders</h3>
+    <p>Great Physician (thegreatphysician.ai) is The Kiln Ministries' biblical-counseling app. A counselor may send a counselee their assigned homework or a session reminder by text. These messages are initiated by the counselee's own counselor as part of their counseling relationship.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 3 -->
+  <div class="section">
+    <span class="section-number">Section 3</span>
+    <h2>How You Consent (Opt-In)</h2>
+    <div class="gold-line"></div>
+    <p>We obtain consent before sending text messages. There is no automated web opt-in form; consent is given directly to a person within the ministry:</p>
+    <ul>
+      <li><strong>Come to Me counselors</strong> are personally recruited by ministry leadership and explicitly agree — verbally and in a written record kept by the ministry — to receive SMS notifications as part of their counseling role.</li>
+      <li><strong>Great Physician counselees</strong> provide their own mobile number to their counselor and agree to receive homework and session reminders from that counselor. A counselee may decline at any time and continue counseling by other means.</li>
+    </ul>
+    <p>Message frequency varies based on counseling activity. <strong>Message and data rates may apply.</strong></p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 4 -->
+  <div class="section">
+    <span class="section-number">Section 4</span>
+    <h2>Opting Out &amp; Getting Help</h2>
+    <div class="gold-line"></div>
+    <div class="keyword-row">
+      <div class="keyword">
+        <strong>Reply STOP</strong>
+        <span>Reply STOP to any message to unsubscribe. You will receive a one-time confirmation and no further texts.</span>
+      </div>
+      <div class="keyword">
+        <strong>Reply HELP</strong>
+        <span>Reply HELP for assistance, or email support@thekiln.org.</span>
+      </div>
+    </div>
+    <p>If you opt out, you can opt back in at any time by letting your counselor or ministry contact know.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 5 -->
+  <div class="section">
+    <span class="section-number">Section 5</span>
+    <h2>Privacy</h2>
+    <div class="gold-line"></div>
+    <p>Mobile phone numbers and SMS consent are used solely to deliver the program notifications described above. They are not shared with third parties or affiliates for marketing, and they are not sold or rented. Our full data practices are described in our <a href="/privacy.html" style="color: var(--blue-light); text-decoration: none;">Privacy Policy</a>.</p>
+    <p>We use Twilio, a messaging provider, solely to transmit these text messages on our behalf.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- 6 -->
+  <div class="section">
+    <span class="section-number">Section 6</span>
+    <h2>Contact Us</h2>
+    <div class="gold-line"></div>
+    <p>Questions about our text messaging program? Contact:</p>
+    <div class="contact-block">
+      <p><strong>The Kiln Ministries</strong></p>
+      <p><a href="mailto:support@thekiln.org">support@thekiln.org</a></p>
+      <p>Jackson, Tennessee</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p>© 2026 The Kiln Ministries · Jackson, Tennessee</p>
+  <p style="margin-top: 8px;"><a href="/">The Kiln Ministries</a> · <a href="/privacy.html">Privacy</a> · <a href="mailto:support@thekiln.org">support@thekiln.org</a></p>
+</footer>
+
+</body>
+</html>
