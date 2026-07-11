@@ -109,6 +109,26 @@ export async function onRequestPost(context) {
       });
     }
 
+    // ── USAGE ─────────────────────────────────────────────
+    // Content-free usage counters (usage_counters table): one row per
+    // (day, channel, private) with message/session tallies. This is what
+    // counts private-mode (green shield) chats, whose transcripts are never
+    // stored. The client computes windows and the daily chart from the rows.
+    if (action === 'usage') {
+      const url = `${env.GP_SUPABASE_URL}/rest/v1/usage_counters?select=*&order=day.desc&limit=1000`;
+      const res = await fetch(url, { headers });
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        return new Response(JSON.stringify({ error: 'usage_counters unavailable — run usage_counters_migration.sql', detail: data }), {
+          status: 500,
+          headers: { 'Content-Type': 'application/json', ...CORS },
+        });
+      }
+      return new Response(JSON.stringify({ counters: data }), {
+        headers: { 'Content-Type': 'application/json', ...CORS },
+      });
+    }
+
     // ── DELETE ────────────────────────────────────────────
     if (action === 'delete' && session_id) {
       const url = `${env.GP_SUPABASE_URL}/rest/v1/conversations?session_id=eq.${session_id}`;
@@ -120,6 +140,12 @@ export async function onRequestPost(context) {
           headers: { 'Content-Type': 'application/json', ...CORS },
         });
       }
+      // Also remove the Memory-library record (chat_sessions) if one exists —
+      // deleting only the messages orphans a "saved" library entry whose
+      // transcript is gone.
+      await fetch(`${env.GP_SUPABASE_URL}/rest/v1/chat_sessions?id=eq.${session_id}`, {
+        method: 'DELETE', headers,
+      }).catch(() => {});
       return new Response(JSON.stringify({ success: true }), {
         headers: { 'Content-Type': 'application/json', ...CORS },
       });

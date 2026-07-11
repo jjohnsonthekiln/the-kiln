@@ -92,6 +92,25 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
 .danger-btn { color: #a8412b; }
 .danger-btn:hover:not(:disabled) { border-color: #a8412b; }
 
+/* Usage-stats panel (rendered into #conversation-view) */
+.usage-wrap h2 { font-family: var(--serif); font-weight: 600; font-size: 21px; color: var(--gold); margin-bottom: 4px; }
+.usage-wrap .u-sub { font-size: 12px; color: var(--gold-dim); margin-bottom: 18px; }
+.usage-wrap h3 { font-family: var(--sans); font-weight: 600; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--gold); margin: 20px 0 10px; }
+.u-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
+.u-stat { background: var(--navy-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; text-align: center; }
+.u-val { font-family: var(--serif); font-weight: 600; font-size: 24px; color: var(--gold); line-height: 1; }
+.u-lbl { font-size: 11px; color: var(--gold-dim); margin-top: 4px; }
+.u-legend { font-size: 12px; color: var(--gold-dim); margin-bottom: 8px; }
+.u-dot { display: inline-block; width: 9px; height: 9px; border-radius: 5px; margin: 0 4px 0 12px; }
+.u-dot.guide { background: var(--gold-fill); } .u-dot.research { background: #5b8b6b; } .u-dot.private { background: #a8c5e8; }
+.u-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
+.u-bar-label { width: 58px; font-size: 11px; color: var(--gold-dim); text-align: right; }
+.u-bar-track { flex: 1; display: flex; background: var(--navy-2); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; height: 15px; }
+.u-bar { height: 100%; }
+.u-bar.guide { background: var(--gold-fill); } .u-bar.research { background: #5b8b6b; } .u-bar.private { background: #a8c5e8; }
+.u-bar-total { width: 36px; font-size: 11px; color: var(--gold); }
+.u-note { font-size: 11px; color: var(--gold-dim); font-style: italic; margin-top: 18px; line-height: 1.6; }
+
 /* Off-screen stage used to build a clean, light document that html2canvas
    rasterizes; generatePdf() then paginates it into a one-click PDF. */
 .pdf-stage { position: fixed; left: -10000px; top: 0; width: 720px; background: #fff; }
@@ -158,6 +177,7 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
     <label class="sel-all-lbl"><input type="checkbox" id="select-all"> Select all</label>
     <button class="filter-btn" id="print-selected" disabled>⤓ Save selected</button>
     <button class="filter-btn danger-btn" id="delete-selected" disabled>✕ Delete checked</button>
+    <button class="filter-btn" id="usage-btn" title="Usage statistics — includes private-mode chats, which are counted but never stored">📊 Usage stats</button>
   </div>
   <div id="main">
     <div id="session-list"></div>
@@ -197,8 +217,9 @@ document.querySelectorAll('.src-btn').forEach(btn => {
     if (src === currentSource) return;
     currentSource = src;
     document.querySelectorAll('.src-btn').forEach(b => b.classList.toggle('active', b.dataset.src === src));
-    // Lang filter only applies to Come to Me
+    // Lang filter only applies to Come to Me; usage stats only to GP
     document.getElementById('lang-filter').style.display = src === 'gp' ? 'none' : '';
+    document.getElementById('usage-btn').style.display = src === 'gp' ? '' : 'none';
     // Reset filters and reload everything
     currentFilters = {};
     document.getElementById('lang-filter').value = '';
@@ -703,6 +724,84 @@ async function deleteSelected() {
   }
   if (failed.length) alert(`Could not delete ${failed.length} session(s). They remain in the list.`);
 }
+
+// ---- Usage stats (GP only) ----
+// Renders the content-free usage counters into the conversation pane: every
+// message is counted — including private-mode (green shield) chats, whose
+// transcripts are never stored — via daily (day, channel, private) tallies.
+
+function sumCounters(counters, field, { sinceDaysAgo = null, privateOnly = null } = {}) {
+  let since = null;
+  if (sinceDaysAgo !== null) {
+    const d = new Date(Date.now() - sinceDaysAgo * 86400000);
+    since = d.toISOString().slice(0, 10);
+  }
+  let total = 0;
+  for (const r of counters) {
+    if (since && r.day < since) continue;
+    if (privateOnly !== null && !!r.private !== privateOnly) continue;
+    total += Number(r[field]) || 0;
+  }
+  return total;
+}
+
+async function loadUsage() {
+  document.querySelectorAll('.session-item').forEach(e => e.classList.remove('active'));
+  currentConv = null;
+  const view = document.getElementById('conversation-view');
+  view.innerHTML = '<div class="loading">Loading usage stats…</div>';
+  const data = await call({ action: 'usage' });
+  if (data.error) { view.innerHTML = `<div class="loading" style="color:#d07070">${escHtml(data.error)}</div>`; return; }
+  const counters = data.counters || [];
+
+  const uCard = (lbl, val) => `<div class="u-stat"><div class="u-val">${val}</div><div class="u-lbl">${lbl}</div></div>`;
+  const windows = [['Today', 0], ['7 days', 6], ['30 days', 29], ['All time', null]];
+  const rowFor = (field, opts) => windows.map(([lbl, ago]) =>
+    uCard(lbl, sumCounters(counters, field, { ...(opts || {}), sinceDaysAgo: ago }))).join('');
+
+  // 14-day chart: guide/research = stored-allowed chats; private = shield-on.
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000);
+    days.push({ key: d.toISOString().slice(0, 10), label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), guide: 0, research: 0, priv: 0 });
+  }
+  const byKey = Object.fromEntries(days.map(d => [d.key, d]));
+  for (const r of counters) {
+    const day = byKey[r.day];
+    if (!day) continue;
+    const n = Number(r.messages) || 0;
+    if (r.private) day.priv += n;
+    else if (r.channel === 'research') day.research += n;
+    else day.guide += n;
+  }
+  const maxDay = Math.max(1, ...days.map(d => d.guide + d.research + d.priv));
+  const bars = days.map(d => {
+    const total = d.guide + d.research + d.priv;
+    const pct = n => (n / maxDay * 100).toFixed(1);
+    return `<div class="u-bar-row"><div class="u-bar-label">${d.label}</div><div class="u-bar-track">`
+      + `<div class="u-bar guide" style="width:${pct(d.guide)}%"></div>`
+      + `<div class="u-bar research" style="width:${pct(d.research)}%"></div>`
+      + `<div class="u-bar private" style="width:${pct(d.priv)}%"></div>`
+      + `</div><div class="u-bar-total">${total}</div></div>`;
+  }).join('');
+
+  view.innerHTML = `<div class="usage-wrap">
+    <h2>Usage Stats — Great Physician</h2>
+    <div class="u-sub">Counted from content-free daily tallies — includes private-mode chats, which are never stored.</div>
+    <h3>All messages</h3><div class="u-grid">${rowFor('messages')}</div>
+    <h3>Private-mode messages</h3><div class="u-grid">${rowFor('messages', { privateOnly: true })}</div>
+    <h3>Conversations started</h3><div class="u-grid">${rowFor('sessions_started')}</div>
+    <h3>Daily activity — last 14 days</h3>
+    <div class="u-legend">messages per day:<span class="u-dot guide"></span>Guide<span class="u-dot research"></span>Research<span class="u-dot private"></span>Private mode</div>
+    ${bars}
+    <p class="u-note">Counters begin July 11, 2026 (the date the usage_counters migration ran) and count user
+    messages only. Private-mode chats appear here as numbers only — no content, session id, or user id is
+    ever stored for them. The session list on the left shows stored transcripts, which exclude private mode
+    and shrink as the 7-day sweep deletes unsaved anonymous chats.</p>
+  </div>`;
+}
+
+document.getElementById('usage-btn').addEventListener('click', loadUsage);
 
 document.getElementById('print-selected').addEventListener('click', printSelected);
 document.getElementById('delete-selected').addEventListener('click', deleteSelected);
