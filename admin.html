@@ -103,11 +103,13 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
 .u-legend { font-size: 12px; color: var(--gold-dim); margin-bottom: 8px; }
 .u-dot { display: inline-block; width: 9px; height: 9px; border-radius: 5px; margin: 0 4px 0 12px; }
 .u-dot.guide { background: var(--gold-fill); } .u-dot.research { background: #5b8b6b; } .u-dot.private { background: #a8c5e8; }
+.u-dot.c1 { background: var(--gold-fill); } .u-dot.c2 { background: #5b8b6b; } .u-dot.c3 { background: #a8c5e8; } .u-dot.c4 { background: #b4b2a9; }
 .u-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
 .u-bar-label { width: 58px; font-size: 11px; color: var(--gold-dim); text-align: right; }
 .u-bar-track { flex: 1; display: flex; background: var(--navy-2); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; height: 15px; }
 .u-bar { height: 100%; }
 .u-bar.guide { background: var(--gold-fill); } .u-bar.research { background: #5b8b6b; } .u-bar.private { background: #a8c5e8; }
+.u-bar.c1 { background: var(--gold-fill); } .u-bar.c2 { background: #5b8b6b; } .u-bar.c3 { background: #a8c5e8; } .u-bar.c4 { background: #b4b2a9; }
 .u-bar-total { width: 36px; font-size: 11px; color: var(--gold); }
 .u-note { font-size: 11px; color: var(--gold-dim); font-style: italic; margin-top: 18px; line-height: 1.6; }
 
@@ -217,9 +219,8 @@ document.querySelectorAll('.src-btn').forEach(btn => {
     if (src === currentSource) return;
     currentSource = src;
     document.querySelectorAll('.src-btn').forEach(b => b.classList.toggle('active', b.dataset.src === src));
-    // Lang filter only applies to Come to Me; usage stats only to GP
+    // Lang filter only applies to Come to Me; usage stats exists for both
     document.getElementById('lang-filter').style.display = src === 'gp' ? 'none' : '';
-    document.getElementById('usage-btn').style.display = src === 'gp' ? '' : 'none';
     // Reset filters and reload everything
     currentFilters = {};
     document.getElementById('lang-filter').value = '';
@@ -750,6 +751,13 @@ async function loadUsage() {
   currentConv = null;
   const view = document.getElementById('conversation-view');
   view.innerHTML = '<div class="loading">Loading usage stats…</div>';
+  if (currentSource === 'gp') return loadUsageGp(view);
+  return loadUsageCtm(view);
+}
+
+// GP: content-free counters (usage_counters table) — counts private-mode
+// chats whose transcripts are never stored.
+async function loadUsageGp(view) {
   const data = await call({ action: 'usage' });
   if (data.error) { view.innerHTML = `<div class="loading" style="color:#d07070">${escHtml(data.error)}</div>`; return; }
   const counters = data.counters || [];
@@ -798,6 +806,89 @@ async function loadUsage() {
     messages only. Private-mode chats appear here as numbers only — no content, session id, or user id is
     ever stored for them. The session list on the left shows stored transcripts, which exclude private mode
     and shrink as the 7-day sweep deletes unsaved anonymous chats.</p>
+  </div>`;
+}
+
+// Come to Me: no private mode — every Q&A turn is stored — so usage is
+// computed from stored rows: exact all-time total + last 30 days of
+// (session_id, lang, created_at), windowed client-side, with a language
+// split instead of GP's private/stored distinction.
+async function loadUsageCtm(view) {
+  const data = await call({ action: 'usage' });
+  if (data.error) { view.innerHTML = `<div class="loading" style="color:#d07070">${escHtml(data.error)}</div>`; return; }
+  const recent = data.recent || [];
+  const DAY = 86400000;
+  const now = Date.now();
+
+  const inWindow = (r, daysAgo) => new Date(r.created_at).getTime() >= now - daysAgo * DAY;
+  const turnsIn = (daysAgo) => recent.filter(r => inWindow(r, daysAgo)).length;
+  const sessionsIn = (daysAgo) => new Set(recent.filter(r => inWindow(r, daysAgo)).map(r => r.session_id)).size;
+
+  const uCard = (lbl, val) => `<div class="u-stat"><div class="u-val">${val}</div><div class="u-lbl">${lbl}</div></div>`;
+
+  // Language split over the last 30 days, largest first.
+  const langCounts = {};
+  for (const r of recent) {
+    const l = (r.lang || '??').toLowerCase();
+    langCounts[l] = (langCounts[l] || 0) + 1;
+  }
+  const langsSorted = Object.entries(langCounts).sort((a, b) => b[1] - a[1]);
+  const topLangs = langsSorted.slice(0, 3).map(([l]) => l);
+  const langClass = (l) => {
+    const i = topLangs.indexOf(l);
+    return i === -1 ? 'c4' : `c${i + 1}`;
+  };
+
+  // 14-day chart, segmented by the top 3 languages + other.
+  const days = [];
+  for (let i = 13; i >= 0; i--) {
+    const d = new Date(now - i * DAY);
+    days.push({ key: d.toISOString().slice(0, 10), label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), segs: { c1: 0, c2: 0, c3: 0, c4: 0 } });
+  }
+  const byKey = Object.fromEntries(days.map(d => [d.key, d]));
+  for (const r of recent) {
+    const day = byKey[String(r.created_at).slice(0, 10)];
+    if (!day) continue;
+    day.segs[langClass((r.lang || '??').toLowerCase())]++;
+  }
+  const maxDay = Math.max(1, ...days.map(d => d.segs.c1 + d.segs.c2 + d.segs.c3 + d.segs.c4));
+  const bars = days.map(d => {
+    const total = d.segs.c1 + d.segs.c2 + d.segs.c3 + d.segs.c4;
+    const pct = n => (n / maxDay * 100).toFixed(1);
+    return `<div class="u-bar-row"><div class="u-bar-label">${d.label}</div><div class="u-bar-track">`
+      + ['c1', 'c2', 'c3', 'c4'].map(c => `<div class="u-bar ${c}" style="width:${pct(d.segs[c])}%"></div>`).join('')
+      + `</div><div class="u-bar-total">${total}</div></div>`;
+  }).join('');
+
+  const legend = topLangs.map((l, i) => `<span class="u-dot c${i + 1}"></span>${escHtml(l.toUpperCase())}`).join('')
+    + (langsSorted.length > 3 ? '<span class="u-dot c4"></span>Other' : '');
+
+  const langCards = langsSorted.slice(0, 4)
+    .map(([l, n]) => uCard(`${escHtml(l.toUpperCase())} · last 30 days`, n)).join('');
+
+  view.innerHTML = `<div class="usage-wrap">
+    <h2>Usage Stats — Come to Me</h2>
+    <div class="u-sub">Computed from stored conversations (every Q&amp;A turn is stored).</div>
+    <h3>Questions asked</h3>
+    <div class="u-grid">
+      ${uCard('Today', turnsIn(1))}
+      ${uCard('7 days', turnsIn(7))}
+      ${uCard('30 days', turnsIn(30))}
+      ${uCard('All time', data.total ?? '—')}
+    </div>
+    <h3>Active sessions</h3>
+    <div class="u-grid">
+      ${uCard('Today', sessionsIn(1))}
+      ${uCard('7 days', sessionsIn(7))}
+      ${uCard('30 days', sessionsIn(30))}
+    </div>
+    <h3>By language</h3>
+    <div class="u-grid">${langCards || '<div class="u-sub">No activity in the last 30 days.</div>'}</div>
+    <h3>Daily activity — last 14 days</h3>
+    <div class="u-legend">questions per day:${legend}</div>
+    ${bars}
+    <p class="u-note">All-time total is exact; the windows, language split, and chart are computed from the
+    last 30 days of stored rows. Deleting conversations removes them from these counts.</p>
   </div>`;
 }
 
