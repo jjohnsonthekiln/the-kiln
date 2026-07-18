@@ -88,17 +88,16 @@ export async function onRequestPost(context) {
 
     // ── USAGE ─────────────────────────────────────────────
     // Data for the admin Usage Stats panel. Come to Me stores every Q&A turn,
-    // so usage is computed from stored rows: an exact all-time count plus the
-    // last 30 days of (session_id, lang, created_at) for the client to window
-    // into today/7d/30d cards, distinct-session counts, a language split, and
-    // the 14-day daily chart.
+    // so usage is computed from stored rows: an exact all-time count plus up
+    // to 10,000 most-recent (session_id, lang, created_at) rows — the full
+    // history until the table outgrows that — for the client to window into
+    // cards, the day-range chart, and the monthly chart.
     if (action === 'usage') {
-      const since = new Date(Date.now() - 30 * 86400000).toISOString();
       const [totalRes, recentRes] = await Promise.all([
         fetch(`${env.SUPABASE_URL}/rest/v1/conversations?select=id`, {
           headers: { ...headers, 'Prefer': 'count=exact', 'Range': '0-0' },
         }),
-        fetch(`${env.SUPABASE_URL}/rest/v1/conversations?select=session_id,lang,created_at&created_at=gte.${since}&order=created_at.desc&limit=10000`, { headers }),
+        fetch(`${env.SUPABASE_URL}/rest/v1/conversations?select=session_id,lang,created_at&order=created_at.desc&limit=10000`, { headers }),
       ]);
       const total = totalRes.headers.get('content-range')?.split('/')[1] ?? null;
       const recent = await recentRes.json();

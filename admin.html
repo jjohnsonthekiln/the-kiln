@@ -112,6 +112,10 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
 .u-bar.c1 { background: var(--gold-fill); } .u-bar.c2 { background: #5b8b6b; } .u-bar.c3 { background: #a8c5e8; } .u-bar.c4 { background: #b4b2a9; }
 .u-bar-total { width: 36px; font-size: 11px; color: var(--gold); }
 .u-note { font-size: 11px; color: var(--gold-dim); font-style: italic; margin-top: 18px; line-height: 1.6; }
+.u-range { display: inline-flex; gap: 0; background: var(--navy-3); border: 1px solid var(--border); border-radius: 8px; overflow: hidden; margin-left: 10px; vertical-align: middle; }
+.u-range-btn { background: transparent; border: none; color: var(--gold-dim); padding: 4px 10px; font-family: var(--sans); font-size: 11px; cursor: pointer; }
+.u-range-btn.active { background: var(--gold-fill); color: #fff; }
+.u-range-btn:not(.active):hover { color: var(--gold); }
 
 /* Off-screen stage used to build a clean, light document that html2canvas
    rasterizes; generatePdf() then paginates it into a one-click PDF. */
@@ -746,62 +750,117 @@ function sumCounters(counters, field, { sinceDaysAgo = null, privateOnly = null 
   return total;
 }
 
+// Fetched usage data is cached per source so the range selector re-renders
+// instantly without refetching. The daily chart's depth is user-selectable;
+// the monthly chart always covers everything the API returned.
+let usageRange = 14;                      // days shown in the daily chart
+const usageCache = { gp: null, ctm: null };
+const USAGE_RANGES = [14, 30, 60, 90];
+
+function setUsageRange(n) {
+  usageRange = n;
+  renderUsage();
+}
+
 async function loadUsage() {
   document.querySelectorAll('.session-item').forEach(e => e.classList.remove('active'));
   currentConv = null;
   const view = document.getElementById('conversation-view');
   view.innerHTML = '<div class="loading">Loading usage stats…</div>';
-  if (currentSource === 'gp') return loadUsageGp(view);
-  return loadUsageCtm(view);
-}
-
-// GP: content-free counters (usage_counters table) — counts private-mode
-// chats whose transcripts are never stored.
-async function loadUsageGp(view) {
   const data = await call({ action: 'usage' });
   if (data.error) { view.innerHTML = `<div class="loading" style="color:#d07070">${escHtml(data.error)}</div>`; return; }
-  const counters = data.counters || [];
+  usageCache[currentSource] = data;
+  renderUsage();
+}
 
-  const uCard = (lbl, val) => `<div class="u-stat"><div class="u-val">${val}</div><div class="u-lbl">${lbl}</div></div>`;
+function renderUsage() {
+  const view = document.getElementById('conversation-view');
+  const data = usageCache[currentSource];
+  if (!data) return;
+  view.innerHTML = currentSource === 'gp' ? renderUsageGp(data) : renderUsageCtm(data);
+}
+
+// ---- Shared chart builders ----
+
+const uCard = (lbl, val) => `<div class="u-stat"><div class="u-val">${val}</div><div class="u-lbl">${lbl}</div></div>`;
+
+const rangeChips = () => `<span class="u-range">${USAGE_RANGES.map(n =>
+  `<button class="u-range-btn ${n === usageRange ? 'active' : ''}" onclick="setUsageRange(${n})">${n}d</button>`).join('')}</span>`;
+
+// Empty day buckets for the selected range, oldest first, keyed YYYY-MM-DD.
+function daySeries(segKeys) {
+  const days = [];
+  for (let i = usageRange - 1; i >= 0; i--) {
+    const d = new Date(Date.now() - i * 86400000);
+    const segs = {}; segKeys.forEach(k => segs[k] = 0);
+    days.push({ key: d.toISOString().slice(0, 10), label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), segs });
+  }
+  return days;
+}
+
+// Empty month buckets from a starting YYYY-MM-DD to now, keyed YYYY-MM.
+function monthSeries(earliestKey, segKeys) {
+  const months = [];
+  if (!earliestKey) return months;
+  const start = new Date(earliestKey.slice(0, 7) + '-01T00:00:00Z');
+  const end = new Date();
+  for (let d = start; d <= end; d = new Date(Date.UTC(d.getUTCFullYear(), d.getUTCMonth() + 1, 1))) {
+    const segs = {}; segKeys.forEach(k => segs[k] = 0);
+    months.push({ key: d.toISOString().slice(0, 7), label: d.toLocaleDateString('en-US', { month: 'short', year: 'numeric', timeZone: 'UTC' }), segs });
+  }
+  return months;
+}
+
+// Render stacked horizontal bars for day or month buckets.
+function barRows(buckets, segKeys) {
+  const max = Math.max(1, ...buckets.map(b => segKeys.reduce((s, k) => s + b.segs[k], 0)));
+  return buckets.map(b => {
+    const total = segKeys.reduce((s, k) => s + b.segs[k], 0);
+    const pct = n => (n / max * 100).toFixed(1);
+    return `<div class="u-bar-row"><div class="u-bar-label">${b.label}</div><div class="u-bar-track">`
+      + segKeys.map(k => `<div class="u-bar ${k}" style="width:${pct(b.segs[k])}%"></div>`).join('')
+      + `</div><div class="u-bar-total">${total}</div></div>`;
+  }).join('');
+}
+
+// ---- GP: content-free counters (usage_counters table) — counts private-mode
+// chats whose transcripts are never stored. ----
+function renderUsageGp(data) {
+  const counters = data.counters || [];
+  const SEGS = ['guide', 'research', 'private'];
+  const segOf = (r) => r.private ? 'private' : (r.channel === 'research' ? 'research' : 'guide');
+
   const windows = [['Today', 0], ['7 days', 6], ['30 days', 29], ['All time', null]];
   const rowFor = (field, opts) => windows.map(([lbl, ago]) =>
     uCard(lbl, sumCounters(counters, field, { ...(opts || {}), sinceDaysAgo: ago }))).join('');
 
-  // 14-day chart: guide/research = stored-allowed chats; private = shield-on.
-  const days = [];
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(Date.now() - i * 86400000);
-    days.push({ key: d.toISOString().slice(0, 10), label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), guide: 0, research: 0, priv: 0 });
-  }
-  const byKey = Object.fromEntries(days.map(d => [d.key, d]));
+  const days = daySeries(SEGS);
+  const dayByKey = Object.fromEntries(days.map(d => [d.key, d]));
+  const earliest = counters.length ? counters.reduce((m, r) => r.day < m ? r.day : m, counters[0].day) : null;
+  const months = monthSeries(earliest, SEGS);
+  const monthByKey = Object.fromEntries(months.map(m => [m.key, m]));
   for (const r of counters) {
-    const day = byKey[r.day];
-    if (!day) continue;
     const n = Number(r.messages) || 0;
-    if (r.private) day.priv += n;
-    else if (r.channel === 'research') day.research += n;
-    else day.guide += n;
+    const seg = segOf(r);
+    if (dayByKey[r.day]) dayByKey[r.day].segs[seg] += n;
+    const mk = String(r.day).slice(0, 7);
+    if (monthByKey[mk]) monthByKey[mk].segs[seg] += n;
   }
-  const maxDay = Math.max(1, ...days.map(d => d.guide + d.research + d.priv));
-  const bars = days.map(d => {
-    const total = d.guide + d.research + d.priv;
-    const pct = n => (n / maxDay * 100).toFixed(1);
-    return `<div class="u-bar-row"><div class="u-bar-label">${d.label}</div><div class="u-bar-track">`
-      + `<div class="u-bar guide" style="width:${pct(d.guide)}%"></div>`
-      + `<div class="u-bar research" style="width:${pct(d.research)}%"></div>`
-      + `<div class="u-bar private" style="width:${pct(d.priv)}%"></div>`
-      + `</div><div class="u-bar-total">${total}</div></div>`;
-  }).join('');
 
-  view.innerHTML = `<div class="usage-wrap">
+  const legend = `<span class="u-dot guide"></span>Guide<span class="u-dot research"></span>Research<span class="u-dot private"></span>Private mode`;
+
+  return `<div class="usage-wrap">
     <h2>Usage Stats — Great Physician</h2>
     <div class="u-sub">Counted from content-free daily tallies — includes private-mode chats, which are never stored.</div>
     <h3>All messages</h3><div class="u-grid">${rowFor('messages')}</div>
     <h3>Private-mode messages</h3><div class="u-grid">${rowFor('messages', { privateOnly: true })}</div>
     <h3>Conversations started</h3><div class="u-grid">${rowFor('sessions_started')}</div>
-    <h3>Daily activity — last 14 days</h3>
-    <div class="u-legend">messages per day:<span class="u-dot guide"></span>Guide<span class="u-dot research"></span>Research<span class="u-dot private"></span>Private mode</div>
-    ${bars}
+    <h3>Daily activity — last ${usageRange} days ${rangeChips()}</h3>
+    <div class="u-legend">messages per day:${legend}</div>
+    ${barRows(days, SEGS)}
+    <h3>Monthly activity</h3>
+    <div class="u-legend">messages per month:${legend}</div>
+    ${barRows(months, SEGS)}
     <p class="u-note">Counters begin July 11, 2026 (the date the usage_counters migration ran) and count user
     messages only. Private-mode chats appear here as numbers only — no content, session id, or user id is
     ever stored for them. The session list on the left shows stored transcripts, which exclude private mode
@@ -809,26 +868,22 @@ async function loadUsageGp(view) {
   </div>`;
 }
 
-// Come to Me: no private mode — every Q&A turn is stored — so usage is
-// computed from stored rows: exact all-time total + last 30 days of
-// (session_id, lang, created_at), windowed client-side, with a language
-// split instead of GP's private/stored distinction.
-async function loadUsageCtm(view) {
-  const data = await call({ action: 'usage' });
-  if (data.error) { view.innerHTML = `<div class="loading" style="color:#d07070">${escHtml(data.error)}</div>`; return; }
-  const recent = data.recent || [];
+// ---- Come to Me: no private mode — every Q&A turn is stored — so usage is
+// computed from stored rows (up to the 10,000 most recent), with a language
+// split instead of GP's private/stored distinction. ----
+function renderUsageCtm(data) {
+  const rows = data.recent || [];
   const DAY = 86400000;
   const now = Date.now();
+  const SEGS = ['c1', 'c2', 'c3', 'c4'];
 
   const inWindow = (r, daysAgo) => new Date(r.created_at).getTime() >= now - daysAgo * DAY;
-  const turnsIn = (daysAgo) => recent.filter(r => inWindow(r, daysAgo)).length;
-  const sessionsIn = (daysAgo) => new Set(recent.filter(r => inWindow(r, daysAgo)).map(r => r.session_id)).size;
+  const turnsIn = (daysAgo) => rows.filter(r => inWindow(r, daysAgo)).length;
+  const sessionsIn = (daysAgo) => new Set(rows.filter(r => inWindow(r, daysAgo)).map(r => r.session_id)).size;
 
-  const uCard = (lbl, val) => `<div class="u-stat"><div class="u-val">${val}</div><div class="u-lbl">${lbl}</div></div>`;
-
-  // Language split over the last 30 days, largest first.
+  // Language split over everything fetched, largest first.
   const langCounts = {};
-  for (const r of recent) {
+  for (const r of rows) {
     const l = (r.lang || '??').toLowerCase();
     langCounts[l] = (langCounts[l] || 0) + 1;
   }
@@ -839,34 +894,26 @@ async function loadUsageCtm(view) {
     return i === -1 ? 'c4' : `c${i + 1}`;
   };
 
-  // 14-day chart, segmented by the top 3 languages + other.
-  const days = [];
-  for (let i = 13; i >= 0; i--) {
-    const d = new Date(now - i * DAY);
-    days.push({ key: d.toISOString().slice(0, 10), label: d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }), segs: { c1: 0, c2: 0, c3: 0, c4: 0 } });
+  const days = daySeries(SEGS);
+  const dayByKey = Object.fromEntries(days.map(d => [d.key, d]));
+  const earliest = rows.length ? rows[rows.length - 1].created_at.slice(0, 10) : null;
+  const months = monthSeries(earliest, SEGS);
+  const monthByKey = Object.fromEntries(months.map(m => [m.key, m]));
+  for (const r of rows) {
+    const seg = langClass((r.lang || '??').toLowerCase());
+    const dk = String(r.created_at).slice(0, 10);
+    if (dayByKey[dk]) dayByKey[dk].segs[seg]++;
+    const mk = dk.slice(0, 7);
+    if (monthByKey[mk]) monthByKey[mk].segs[seg]++;
   }
-  const byKey = Object.fromEntries(days.map(d => [d.key, d]));
-  for (const r of recent) {
-    const day = byKey[String(r.created_at).slice(0, 10)];
-    if (!day) continue;
-    day.segs[langClass((r.lang || '??').toLowerCase())]++;
-  }
-  const maxDay = Math.max(1, ...days.map(d => d.segs.c1 + d.segs.c2 + d.segs.c3 + d.segs.c4));
-  const bars = days.map(d => {
-    const total = d.segs.c1 + d.segs.c2 + d.segs.c3 + d.segs.c4;
-    const pct = n => (n / maxDay * 100).toFixed(1);
-    return `<div class="u-bar-row"><div class="u-bar-label">${d.label}</div><div class="u-bar-track">`
-      + ['c1', 'c2', 'c3', 'c4'].map(c => `<div class="u-bar ${c}" style="width:${pct(d.segs[c])}%"></div>`).join('')
-      + `</div><div class="u-bar-total">${total}</div></div>`;
-  }).join('');
 
   const legend = topLangs.map((l, i) => `<span class="u-dot c${i + 1}"></span>${escHtml(l.toUpperCase())}`).join('')
     + (langsSorted.length > 3 ? '<span class="u-dot c4"></span>Other' : '');
 
   const langCards = langsSorted.slice(0, 4)
-    .map(([l, n]) => uCard(`${escHtml(l.toUpperCase())} · last 30 days`, n)).join('');
+    .map(([l, n]) => uCard(`${escHtml(l.toUpperCase())} · total`, n)).join('');
 
-  view.innerHTML = `<div class="usage-wrap">
+  return `<div class="usage-wrap">
     <h2>Usage Stats — Come to Me</h2>
     <div class="u-sub">Computed from stored conversations (every Q&amp;A turn is stored).</div>
     <h3>Questions asked</h3>
@@ -883,12 +930,16 @@ async function loadUsageCtm(view) {
       ${uCard('30 days', sessionsIn(30))}
     </div>
     <h3>By language</h3>
-    <div class="u-grid">${langCards || '<div class="u-sub">No activity in the last 30 days.</div>'}</div>
-    <h3>Daily activity — last 14 days</h3>
+    <div class="u-grid">${langCards || '<div class="u-sub">No stored activity yet.</div>'}</div>
+    <h3>Daily activity — last ${usageRange} days ${rangeChips()}</h3>
     <div class="u-legend">questions per day:${legend}</div>
-    ${bars}
-    <p class="u-note">All-time total is exact; the windows, language split, and chart are computed from the
-    last 30 days of stored rows. Deleting conversations removes them from these counts.</p>
+    ${barRows(days, SEGS)}
+    <h3>Monthly activity</h3>
+    <div class="u-legend">questions per month:${legend}</div>
+    ${barRows(months, SEGS)}
+    <p class="u-note">All-time total is exact; charts, windows, and the language split are computed from the
+    10,000 most recent stored rows (currently the full history). Deleting conversations removes them from
+    these counts.</p>
   </div>`;
 }
 

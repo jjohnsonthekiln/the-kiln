@@ -115,7 +115,9 @@ export async function onRequestPost(context) {
     // counts private-mode (green shield) chats, whose transcripts are never
     // stored. The client computes windows and the daily chart from the rows.
     if (action === 'usage') {
-      const url = `${env.GP_SUPABASE_URL}/rest/v1/usage_counters?select=*&order=day.desc&limit=1000`;
+      // Full history: counter rows are tiny (a handful per day), so 10k rows
+      // covers years of daily tallies for the range selector + monthly chart.
+      const url = `${env.GP_SUPABASE_URL}/rest/v1/usage_counters?select=*&order=day.desc&limit=10000`;
       const res = await fetch(url, { headers });
       const data = await res.json();
       if (!Array.isArray(data)) {
