@@ -236,7 +236,8 @@ document.querySelectorAll('.src-btn').forEach(btn => {
     updateSelCount();
     currentConv = null;
     document.getElementById('conversation-view').innerHTML = '<p class="placeholder">Select a session to view</p>';
-    if (password) { loadStats(); loadSessions(true); }
+    // Usage Stats is the default page for each source.
+    if (password) { loadStats(); loadSessions(true); loadUsage(); }
   });
 });
 
@@ -293,6 +294,7 @@ async function login() {
     document.getElementById('app').style.display = 'block';
     loadStats();
     loadSessions(true);
+    loadUsage();   // Usage Stats is the default page after login
   } catch (e) {
     errEl.textContent = 'Network error — please try again.';
   } finally {
@@ -930,8 +932,10 @@ function renderUsageGp(data) {
   const legend = `<span class="u-dot total"></span>Total<span class="u-dot guide"></span>Guide<span class="u-dot research"></span>Research<span class="u-dot private"></span>Private mode`;
 
   return `<div class="usage-wrap">
-    <h2>Usage Stats — Great Physician</h2>
-    <div class="u-sub">Counted from content-free daily tallies — includes private-mode chats, which are never stored.</div>
+    <div class="conv-header"><div>
+      <h2>Usage Stats — Great Physician</h2>
+      <div class="u-sub">Counted from content-free daily tallies — includes private-mode chats, which are never stored.</div>
+    </div><button class="print-btn" onclick="savePdfUsage()" title="Save this stats page as a PDF">⤓ Save PDF</button></div>
     <h3>Daily activity — last ${usageRange} days ${rangeChips()}</h3>
     <div class="u-legend">messages per day:${legend}</div>
     ${svgLineChart(days, SEGS)}
@@ -995,8 +999,10 @@ function renderUsageCtm(data) {
     .map(([l, n]) => uCard(`${escHtml(l.toUpperCase())} · total`, n)).join('');
 
   return `<div class="usage-wrap">
-    <h2>Usage Stats — Come to Me</h2>
-    <div class="u-sub">Computed from stored conversations (every Q&amp;A turn is stored).</div>
+    <div class="conv-header"><div>
+      <h2>Usage Stats — Come to Me</h2>
+      <div class="u-sub">Computed from stored conversations (every Q&amp;A turn is stored).</div>
+    </div><button class="print-btn" onclick="savePdfUsage()" title="Save this stats page as a PDF">⤓ Save PDF</button></div>
     <h3>Daily activity — last ${usageRange} days ${rangeChips()}</h3>
     <div class="u-legend">questions per day:${legend}</div>
     ${svgLineChart(days, SEGS)}
@@ -1022,6 +1028,66 @@ function renderUsageCtm(data) {
     10,000 most recent stored rows (currently the full history). Deleting conversations removes them from
     these counts.</p>
   </div>`;
+}
+
+// One-click PDF of the currently rendered Usage Stats panel. Clones the panel
+// into the off-screen light-themed stage (minus interactive controls),
+// rasterizes it with html2canvas, and paginates with the same safe-cut logic
+// the conversation exports use.
+async function savePdfUsage() {
+  const src = document.querySelector('.usage-wrap');
+  if (!src) return;
+  if (!window.jspdf || !window.html2canvas) { alert('PDF library failed to load. Check your connection and reload.'); return; }
+
+  const stage = document.createElement('div');
+  stage.className = 'pdf-stage';
+  const doc = document.createElement('div');
+  doc.className = 'pdf-doc';
+  doc.style.padding = '18px 24px';
+  const clone = src.cloneNode(true);
+  clone.querySelectorAll('.u-range, .print-btn').forEach(e => e.remove());
+  doc.appendChild(clone);
+  stage.appendChild(doc);
+  document.body.appendChild(stage);
+
+  try {
+    if (document.fonts && document.fonts.ready) { try { await document.fonts.ready; } catch (_) {} }
+    const canvas = await html2canvas(doc, { scale: 2, backgroundColor: '#ffffff', windowWidth: 720 });
+
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+    const contentW = PDF.pageW - PDF.mL - PDF.mR;
+    const contentH = PDF.pageH - PDF.mT - PDF.mB;
+    const W = canvas.width, H = canvas.height;
+    const pxPerMm = W / contentW;
+    const pageHpx = Math.floor(contentH * pxPerMm);
+    const data = canvas.getContext('2d').getImageData(0, 0, W, H).data;
+
+    const slice = document.createElement('canvas');
+    const sctx = slice.getContext('2d');
+    let y = 0, firstPage = true;
+    while (y < H) {
+      let end = Math.min(y + pageHpx, H);
+      if (end < H) {
+        const minEnd = Math.min(end, y + Math.floor(pageHpx * 0.55));
+        end = safeCutRow(data, W, Math.max(minEnd, y + 1), end);
+      }
+      const hpx = end - y;
+      slice.width = W; slice.height = hpx;
+      sctx.fillStyle = '#ffffff'; sctx.fillRect(0, 0, W, hpx);
+      sctx.drawImage(canvas, 0, y, W, hpx, 0, 0, W, hpx);
+      if (!firstPage) pdf.addPage();
+      firstPage = false;
+      pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', PDF.mL, PDF.mT, contentW, hpx / pxPerMm);
+      y = end;
+    }
+    const label = currentSource === 'gp' ? 'great-physician' : 'come-to-me';
+    pdf.save(`usage-stats-${label}-${new Date().toISOString().slice(0, 10)}.pdf`);
+  } catch (err) {
+    alert('Could not generate PDF: ' + (err && err.message ? err.message : err));
+  } finally {
+    stage.remove();
+  }
 }
 
 document.getElementById('usage-btn').addEventListener('click', loadUsage);
