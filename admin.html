@@ -104,6 +104,7 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
 .u-dot { display: inline-block; width: 9px; height: 9px; border-radius: 5px; margin: 0 4px 0 12px; }
 .u-dot.guide { background: var(--gold-fill); } .u-dot.research { background: #5b8b6b; } .u-dot.private { background: #a8c5e8; }
 .u-dot.c1 { background: var(--gold-fill); } .u-dot.c2 { background: #5b8b6b; } .u-dot.c3 { background: #a8c5e8; } .u-dot.c4 { background: #b4b2a9; }
+.u-dot.total { background: #7a6a58; }
 .u-bar-row { display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
 .u-bar-label { width: 58px; font-size: 11px; color: var(--gold-dim); text-align: right; }
 .u-bar-track { flex: 1; display: flex; background: var(--navy-2); border: 1px solid var(--border); border-radius: 4px; overflow: hidden; height: 15px; }
@@ -811,16 +812,95 @@ function monthSeries(earliestKey, segKeys) {
   return months;
 }
 
-// Render stacked horizontal bars for day or month buckets.
-function barRows(buckets, segKeys) {
-  const max = Math.max(1, ...buckets.map(b => segKeys.reduce((s, k) => s + b.segs[k], 0)));
-  return buckets.map(b => {
-    const total = segKeys.reduce((s, k) => s + b.segs[k], 0);
-    const pct = n => (n / max * 100).toFixed(1);
-    return `<div class="u-bar-row"><div class="u-bar-label">${b.label}</div><div class="u-bar-track">`
-      + segKeys.map(k => `<div class="u-bar ${k}" style="width:${pct(b.segs[k])}%"></div>`).join('')
-      + `</div><div class="u-bar-total">${total}</div></div>`;
-  }).join('');
+// Chart colors per segment key (SVG needs literals, not CSS vars).
+const SEG_COLORS = {
+  guide: '#c9a84c', research: '#5b8b6b', private: '#a8c5e8',
+  c1: '#c9a84c', c2: '#5b8b6b', c3: '#a8c5e8', c4: '#b4b2a9',
+  total: '#7a6a58',
+};
+
+// Round a max value up to a "nice" axis ceiling (1/2/5 × power of ten).
+function niceCeil(v) {
+  if (v <= 5) return 5;
+  const pow = Math.pow(10, Math.floor(Math.log10(v)));
+  const m = v / pow;
+  return (m <= 1 ? 1 : m <= 2 ? 2 : m <= 5 ? 5 : 10) * pow;
+}
+
+// Vertical line graph: one line per segment plus a dashed Total line.
+// X = time (oldest → newest), Y = count. Dots appear at ≤ 31 points.
+function svgLineChart(buckets, segKeys) {
+  const W = 720, H = 220, L = 40, R = 10, T = 12, B = 26;
+  const iw = W - L - R, ih = H - T - B;
+  const totals = buckets.map(b => segKeys.reduce((s, k) => s + b.segs[k], 0));
+  const yMax = niceCeil(Math.max(1, ...totals));
+  const x = i => L + (buckets.length === 1 ? iw / 2 : i / (buckets.length - 1) * iw);
+  const y = v => T + ih - v / yMax * ih;
+
+  let grid = '';
+  for (const f of [0, 0.25, 0.5, 0.75, 1]) {
+    const gy = y(yMax * f);
+    grid += `<line x1="${L}" y1="${gy}" x2="${W - R}" y2="${gy}" stroke="#e0d8cc" stroke-width="0.6"/>`
+          + `<text x="${L - 5}" y="${gy + 3}" font-size="9" fill="#7a6a58" text-anchor="end">${Math.round(yMax * f)}</text>`;
+  }
+
+  // Up to 7 x-axis labels, evenly spaced.
+  const step = Math.max(1, Math.ceil(buckets.length / 7));
+  let xLabels = '';
+  for (let i = 0; i < buckets.length; i += step) {
+    xLabels += `<text x="${x(i)}" y="${H - 8}" font-size="9" fill="#7a6a58" text-anchor="middle">${buckets[i].label}</text>`;
+  }
+
+  const lineFor = (vals, color, dashed) => {
+    const pts = vals.map((v, i) => `${x(i).toFixed(1)},${y(v).toFixed(1)}`).join(' ');
+    let s = `<polyline points="${pts}" fill="none" stroke="${color}" stroke-width="${dashed ? 1.6 : 1.8}"`
+          + `${dashed ? ' stroke-dasharray="5,4"' : ''} stroke-linejoin="round" stroke-linecap="round"/>`;
+    if (buckets.length <= 31 && !dashed) {
+      s += vals.map((v, i) => `<circle cx="${x(i).toFixed(1)}" cy="${y(v).toFixed(1)}" r="2.4" fill="${color}"/>`).join('');
+    }
+    return s;
+  };
+
+  let lines = lineFor(totals, SEG_COLORS.total, true);
+  for (const k of segKeys) lines += lineFor(buckets.map(b => b.segs[k]), SEG_COLORS[k], false);
+
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${grid}${xLabels}${lines}</svg>`;
+}
+
+// Vertical stacked-column chart (used for Monthly Activity).
+function svgColumnChart(buckets, segKeys) {
+  const W = 720, H = 220, L = 40, R = 10, T = 16, B = 26;
+  const iw = W - L - R, ih = H - T - B;
+  const totals = buckets.map(b => segKeys.reduce((s, k) => s + b.segs[k], 0));
+  const yMax = niceCeil(Math.max(1, ...totals));
+  const slot = iw / Math.max(1, buckets.length);
+  const colW = Math.min(46, slot * 0.62);
+  const y = v => T + ih - v / yMax * ih;
+
+  let grid = '';
+  for (const f of [0, 0.25, 0.5, 0.75, 1]) {
+    const gy = y(yMax * f);
+    grid += `<line x1="${L}" y1="${gy}" x2="${W - R}" y2="${gy}" stroke="#e0d8cc" stroke-width="0.6"/>`
+          + `<text x="${L - 5}" y="${gy + 3}" font-size="9" fill="#7a6a58" text-anchor="end">${Math.round(yMax * f)}</text>`;
+  }
+
+  let cols = '';
+  const labelStep = Math.max(1, Math.ceil(buckets.length / 12));
+  buckets.forEach((b, i) => {
+    const cx = L + slot * i + slot / 2;
+    let acc = 0;
+    for (const k of segKeys) {
+      const v = b.segs[k];
+      if (!v) continue;
+      const yTop = y(acc + v), yBot = y(acc);
+      cols += `<rect x="${(cx - colW / 2).toFixed(1)}" y="${yTop.toFixed(1)}" width="${colW.toFixed(1)}" height="${Math.max(0.5, yBot - yTop).toFixed(1)}" fill="${SEG_COLORS[k]}"/>`;
+      acc += v;
+    }
+    if (acc > 0) cols += `<text x="${cx}" y="${(y(acc) - 4).toFixed(1)}" font-size="9" fill="#7a6a58" text-anchor="middle">${acc}</text>`;
+    if (i % labelStep === 0) cols += `<text x="${cx}" y="${H - 8}" font-size="9" fill="#7a6a58" text-anchor="middle">${b.label}</text>`;
+  });
+
+  return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;display:block">${grid}${cols}</svg>`;
 }
 
 // ---- GP: content-free counters (usage_counters table) — counts private-mode
@@ -847,20 +927,20 @@ function renderUsageGp(data) {
     if (monthByKey[mk]) monthByKey[mk].segs[seg] += n;
   }
 
-  const legend = `<span class="u-dot guide"></span>Guide<span class="u-dot research"></span>Research<span class="u-dot private"></span>Private mode`;
+  const legend = `<span class="u-dot total"></span>Total<span class="u-dot guide"></span>Guide<span class="u-dot research"></span>Research<span class="u-dot private"></span>Private mode`;
 
   return `<div class="usage-wrap">
     <h2>Usage Stats — Great Physician</h2>
     <div class="u-sub">Counted from content-free daily tallies — includes private-mode chats, which are never stored.</div>
+    <h3>Daily activity — last ${usageRange} days ${rangeChips()}</h3>
+    <div class="u-legend">messages per day:${legend}</div>
+    ${svgLineChart(days, SEGS)}
+    <h3>Monthly activity</h3>
+    <div class="u-legend">messages per month:<span class="u-dot guide"></span>Guide<span class="u-dot research"></span>Research<span class="u-dot private"></span>Private mode</div>
+    ${svgColumnChart(months, SEGS)}
     <h3>All messages</h3><div class="u-grid">${rowFor('messages')}</div>
     <h3>Private-mode messages</h3><div class="u-grid">${rowFor('messages', { privateOnly: true })}</div>
     <h3>Conversations started</h3><div class="u-grid">${rowFor('sessions_started')}</div>
-    <h3>Daily activity — last ${usageRange} days ${rangeChips()}</h3>
-    <div class="u-legend">messages per day:${legend}</div>
-    ${barRows(days, SEGS)}
-    <h3>Monthly activity</h3>
-    <div class="u-legend">messages per month:${legend}</div>
-    ${barRows(months, SEGS)}
     <p class="u-note">Counters begin July 11, 2026 (the date the usage_counters migration ran) and count user
     messages only. Private-mode chats appear here as numbers only — no content, session id, or user id is
     ever stored for them. The session list on the left shows stored transcripts, which exclude private mode
@@ -907,8 +987,9 @@ function renderUsageCtm(data) {
     if (monthByKey[mk]) monthByKey[mk].segs[seg]++;
   }
 
-  const legend = topLangs.map((l, i) => `<span class="u-dot c${i + 1}"></span>${escHtml(l.toUpperCase())}`).join('')
+  const langLegend = topLangs.map((l, i) => `<span class="u-dot c${i + 1}"></span>${escHtml(l.toUpperCase())}`).join('')
     + (langsSorted.length > 3 ? '<span class="u-dot c4"></span>Other' : '');
+  const legend = `<span class="u-dot total"></span>Total${langLegend}`;
 
   const langCards = langsSorted.slice(0, 4)
     .map(([l, n]) => uCard(`${escHtml(l.toUpperCase())} · total`, n)).join('');
@@ -916,6 +997,12 @@ function renderUsageCtm(data) {
   return `<div class="usage-wrap">
     <h2>Usage Stats — Come to Me</h2>
     <div class="u-sub">Computed from stored conversations (every Q&amp;A turn is stored).</div>
+    <h3>Daily activity — last ${usageRange} days ${rangeChips()}</h3>
+    <div class="u-legend">questions per day:${legend}</div>
+    ${svgLineChart(days, SEGS)}
+    <h3>Monthly activity</h3>
+    <div class="u-legend">questions per month:${langLegend}</div>
+    ${svgColumnChart(months, SEGS)}
     <h3>Questions asked</h3>
     <div class="u-grid">
       ${uCard('Today', turnsIn(1))}
@@ -931,12 +1018,6 @@ function renderUsageCtm(data) {
     </div>
     <h3>By language</h3>
     <div class="u-grid">${langCards || '<div class="u-sub">No stored activity yet.</div>'}</div>
-    <h3>Daily activity — last ${usageRange} days ${rangeChips()}</h3>
-    <div class="u-legend">questions per day:${legend}</div>
-    ${barRows(days, SEGS)}
-    <h3>Monthly activity</h3>
-    <div class="u-legend">questions per month:${legend}</div>
-    ${barRows(months, SEGS)}
     <p class="u-note">All-time total is exact; charts, windows, and the language split are computed from the
     10,000 most recent stored rows (currently the full history). Deleting conversations removes them from
     these counts.</p>
