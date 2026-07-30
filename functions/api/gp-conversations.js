@@ -20,7 +20,7 @@ export async function onRequestPost(context) {
   const { request, env } = context;
 
   try {
-    const { password, action, session_id, date_from, date_to, limit = 50, offset = 0 } = await request.json();
+    const { password, action, session_id, date_from, date_to, event, limit = 50, offset = 0 } = await request.json();
 
     if (!env.ADMIN_PASSWORD || password !== env.ADMIN_PASSWORD) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
@@ -127,6 +127,30 @@ export async function onRequestPost(context) {
         });
       }
       return new Response(JSON.stringify({ counters: data }), {
+        headers: { 'Content-Type': 'application/json', ...CORS },
+      });
+    }
+
+    // ── GIVEAWAY ──────────────────────────────────────────
+    // Sing! 2026 booth-drawing entries (sing_giveaway_entries). RLS on that
+    // table has no policies at all, so this only works with the service key —
+    // which is exactly why it is proxied here rather than read from the
+    // browser. Entrant names/emails are PII: this returns them to an
+    // already-authenticated admin only, and the client escapes on render.
+    if (action === 'giveaway') {
+      const ev = typeof event === 'string' && event ? event : 'sing-2026';
+      const url = `${env.GP_SUPABASE_URL}/rest/v1/sing_giveaway_entries`
+        + `?select=*&event=eq.${encodeURIComponent(ev)}&order=created_at.desc&limit=5000`;
+      const res = await fetch(url, { headers });
+      const data = await res.json();
+      if (!Array.isArray(data)) {
+        // Most likely cause: sing_giveaway_migration.sql has not been run.
+        return new Response(JSON.stringify({
+          error: 'sing_giveaway_entries unavailable — run sing_giveaway_migration.sql in the main Supabase project',
+          detail: data,
+        }), { status: 500, headers: { 'Content-Type': 'application/json', ...CORS } });
+      }
+      return new Response(JSON.stringify({ entries: data }), {
         headers: { 'Content-Type': 'application/json', ...CORS },
       });
     }

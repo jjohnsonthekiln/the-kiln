@@ -105,6 +105,16 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
 .u-dot.guide { background: var(--gold-fill); } .u-dot.research { background: #5b8b6b; } .u-dot.private { background: #a8c5e8; }
 .u-dot.c1 { background: var(--gold-fill); } .u-dot.c2 { background: #5b8b6b; } .u-dot.c3 { background: #a8c5e8; } .u-dot.c4 { background: #b4b2a9; }
 .u-dot.total { background: #7a6a58; }
+/* Giveaway-entries panel (rendered into #conversation-view) */
+.gw-table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 13px; }
+.gw-table th { text-align: left; font-family: var(--sans); font-weight: 600; font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: var(--gold); padding: 8px 10px; border-bottom: 1px solid var(--border); white-space: nowrap; }
+.gw-table td { padding: 9px 10px; border-bottom: 1px solid var(--border); color: var(--gold-dim); vertical-align: top; }
+.gw-table tr:hover td { background: var(--navy-2); }
+.gw-table td.gw-name { color: var(--gold); font-family: var(--serif); font-size: 15px; }
+.gw-table td.gw-email { font-family: ui-monospace, monospace; font-size: 12px; word-break: break-all; }
+.gw-yes { color: #5b8b6b; } .gw-no { color: #7a6a58; }
+.gw-chip { display: inline-block; font-size: 9px; letter-spacing: 1px; padding: 2px 7px; border-radius: 9px; background: var(--gold-fill); color: #fff; }
+.gw-actions { display: flex; gap: 8px; align-items: center; margin-top: 14px; flex-wrap: wrap; }
 /* Usage-PDF export dialog */
 .ue-overlay { position: fixed; inset: 0; background: rgba(44,26,14,0.45); display: none; align-items: center; justify-content: center; z-index: 50; }
 .ue-overlay.open { display: flex; }
@@ -199,6 +209,7 @@ header h1 { font-family: var(--serif); font-weight: 600; font-size: 23px; color:
     <button class="filter-btn" id="print-selected" disabled>⤓ Save selected</button>
     <button class="filter-btn danger-btn" id="delete-selected" disabled>✕ Delete checked</button>
     <button class="filter-btn" id="usage-btn" title="Usage statistics — includes private-mode chats, which are counted but never stored">📊 Usage stats</button>
+    <button class="filter-btn" id="giveaway-btn" title="Sing! 2026 booth drawing entries">🎁 Giveaway</button>
   </div>
   <div id="main">
     <div id="session-list"></div>
@@ -256,6 +267,9 @@ document.querySelectorAll('.src-btn').forEach(btn => {
     document.querySelectorAll('.src-btn').forEach(b => b.classList.toggle('active', b.dataset.src === src));
     // Lang filter only applies to Come to Me; usage stats exists for both
     document.getElementById('lang-filter').style.display = src === 'gp' ? 'none' : '';
+    // The giveaway lives in the Great Physician database only.
+    document.getElementById('giveaway-btn').style.display = src === 'gp' ? '' : 'none';
+    giveawayCache = null;
     // Reset filters and reload everything
     currentFilters = {};
     document.getElementById('lang-filter').value = '';
@@ -794,6 +808,105 @@ function setUsageRange(n) {
   usageRange = n;
   renderUsage();
 }
+
+// ── Sing! 2026 giveaway entries ──────────────────────────
+// Entries live in the Great Physician Supabase and are only readable with the
+// service key, so they come through /api/gp-conversations like everything else.
+// Names and emails are entrant PII: escape on render, and keep the CSV export
+// local (a Blob) rather than routing it through any third party.
+let giveawayCache = null;
+
+async function loadGiveaway() {
+  document.querySelectorAll('.session-item').forEach(e => e.classList.remove('active'));
+  currentConv = null;
+  const view = document.getElementById('conversation-view');
+  view.innerHTML = '<div class="loading">Loading giveaway entries…</div>';
+  const data = await call({ action: 'giveaway' });
+  if (data.error) {
+    view.innerHTML = `<div class="loading" style="color:#d07070">${escHtml(data.error)}</div>`;
+    return;
+  }
+  giveawayCache = data.entries || [];
+  renderGiveaway();
+}
+
+function renderGiveaway() {
+  const view = document.getElementById('conversation-view');
+  const rows = giveawayCache || [];
+  const optIns = rows.filter(r => r.email_opt_in).length;
+  const winners = rows.filter(r => r.won).length;
+
+  const fmt = (ts) => {
+    if (!ts) return '—';
+    const d = new Date(ts);
+    return isNaN(d) ? '—' : d.toLocaleString('en-US',
+      { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+  };
+
+  const body = rows.length ? rows.map(r => `
+    <tr>
+      <td class="gw-name">${escHtml(r.name)}${r.won ? ' <span class="gw-chip">WON</span>' : ''}</td>
+      <td class="gw-email">${escHtml(r.email)}</td>
+      <td class="${r.email_opt_in ? 'gw-yes' : 'gw-no'}">${r.email_opt_in ? 'Yes' : 'No'}</td>
+      <td>${escHtml(r.source || '—')}</td>
+      <td>${escHtml(fmt(r.created_at))}</td>
+      <td>${escHtml(r.prize || '—')}</td>
+    </tr>`).join('')
+    : '<tr><td colspan="6" style="text-align:center;padding:28px;">No entries yet.</td></tr>';
+
+  view.innerHTML = `
+    <div class="usage-wrap">
+      <h2>Sing! 2026 Giveaway</h2>
+      <div class="u-sub">Booth drawing &middot; four gifts &middot; winners drawn Wednesday morning, September 9</div>
+      <div class="u-grid">
+        ${uCard('Total entries', rows.length)}
+        ${uCard('Wants news', optIns)}
+        ${uCard('Winners recorded', winners)}
+      </div>
+      <h3>Entries</h3>
+      <table class="gw-table">
+        <thead><tr>
+          <th>Name</th><th>Email</th><th>News</th><th>Source</th><th>Entered</th><th>Prize</th>
+        </tr></thead>
+        <tbody>${body}</tbody>
+      </table>
+      <div class="gw-actions">
+        <button class="filter-btn" onclick="loadGiveaway()">↻ Refresh</button>
+        <button class="filter-btn" onclick="exportGiveawayCsv()" ${rows.length ? '' : 'disabled'}>⤓ Export CSV</button>
+      </div>
+      <p class="u-sub" style="margin-top:16px;">Entrants attested to being 18 or older. Recording
+      winners (<code>won</code>, <code>prize</code>, <code>notified_at</code>) is done in the Supabase
+      SQL editor &mdash; see the comments in <code>sing_giveaway_migration.sql</code>.</p>
+    </div>`;
+}
+
+function exportGiveawayCsv() {
+  const rows = giveawayCache || [];
+  if (!rows.length) return;
+  // Guard against CSV injection: a leading =, +, - or @ makes Excel treat the
+  // cell as a formula, and these values are attendee-supplied.
+  const cell = (v) => {
+    let s = v === null || v === undefined ? '' : String(v);
+    if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;
+    return '"' + s.replace(/"/g, '""') + '"';
+  };
+  const header = ['Name', 'Email', 'Wants news', 'Age confirmed', 'Source', 'Entered', 'Won', 'Prize'];
+  const lines = [header.map(cell).join(',')];
+  for (const r of rows) {
+    lines.push([
+      r.name, r.email, r.email_opt_in ? 'yes' : 'no', r.age_confirmed ? 'yes' : 'no',
+      r.source || '', r.created_at || '', r.won ? 'yes' : 'no', r.prize || '',
+    ].map(cell).join(','));
+  }
+  const blob = new Blob(['﻿' + lines.join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'sing-2026-giveaway-entries.csv';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+document.getElementById('giveaway-btn').addEventListener('click', loadGiveaway);
 
 async function loadUsage() {
   document.querySelectorAll('.session-item').forEach(e => e.classList.remove('active'));
