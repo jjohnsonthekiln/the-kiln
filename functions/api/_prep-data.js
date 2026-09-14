@@ -11,7 +11,10 @@
 //   segments  the spoken arc, in order
 //   flow      ordered items inside a segment, so scripture sits where it is read:
 //               { t: 'beat',      text }       - a talking point, set in large type
-//               { t: 'scripture', ref, text }  - read aloud verbatim
+//               { t: 'scripture', ref, text }  - Scripture, read aloud verbatim
+//               { t: 'quote',     ref, text }  - any other source read aloud. Styled apart from
+//                                                scripture on purpose: Plato and Paul should never
+//                                                carry the same weight on the page.
 //               { t: 'note',      text }       - a direction to yourself, not spoken
 
 export const SHEETS = [
@@ -117,7 +120,7 @@ export const SHEETS = [
           { t: 'beat', text: 'Near the end of Plato’s Phaedrus, Socrates tells a story from Egypt. The god Theuth — inventor of number, geometry, astronomy, and letters — brings his inventions to Thamus the king.' },
           { t: 'beat', text: 'When he comes to writing he makes his boldest claim: this will make the Egyptians wiser and improve their memories. He has discovered, he says, a remedy for memory and wisdom.' },
           { t: 'beat', text: 'Thamus is not impressed. The inventor of a thing, he says, is not the best judge of what it will do to the people who use it.' },
-          { t: 'scripture', ref: 'Plato, Phaedrus 274c–275b', text: 'This invention will produce forgetfulness in the souls of those who learn it, because they will not practice their memory. You have discovered a remedy not for memory but for reminding. You offer your students the appearance of wisdom, not wisdom itself.' },
+          { t: 'quote', ref: 'Plato, Phaedrus 274c–275b', text: 'This invention will produce forgetfulness in the souls of those who learn it, because they will not practice their memory. You have discovered a remedy not for memory but for reminding. You offer your students the appearance of wisdom, not wisdom itself.' },
           { t: 'beat', text: 'Three charges. Writing weakens memory. It creates the illusion of understanding. And it cannot convey real knowledge, because real knowledge lives in a person and passes from person to person in conversation.' },
         ],
       },

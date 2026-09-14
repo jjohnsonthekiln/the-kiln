@@ -77,6 +77,12 @@
   .scripture { background: #fff; border-left: 4px solid var(--gold-fill); border-radius: 4px; padding: 22px 26px; margin: 0 0 26px 24px; }
   .scripture p { font-family: var(--serif); font-size: calc(var(--beat) * 1.06); font-style: italic; line-height: 1.5; color: var(--cream); margin-bottom: 10px; }
   .scripture .ref { font-family: var(--sans); font-style: normal; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0; }
+  /* Read aloud like scripture, but never mistaken for it: no card, a dashed rule in the muted
+     brown rather than a solid gold one, and upright rather than italic. Plato does not get
+     Paul's typography. */
+  .quote { background: var(--navy-2); border-left: 4px dashed var(--gold-dim); border-radius: 4px; padding: 22px 26px; margin: 0 0 26px 24px; }
+  .quote p { font-family: var(--serif); font-size: calc(var(--beat) * 0.98); font-style: normal; line-height: 1.5; color: var(--cream); margin-bottom: 10px; }
+  .quote .ref { font-family: var(--sans); font-size: 0.7rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0; }
   /* A note is never spoken — deliberately small and quiet so the eye skips it while talking. */
   .note { display: flex; gap: 10px; margin: 0 0 24px 24px; font-size: 0.8rem; color: var(--cream-dim); font-style: italic; line-height: 1.6; }
   .note::before { content: "\25B8"; font-style: normal; color: var(--gold-fill); }
@@ -84,8 +90,8 @@
   @media (max-width: 640px) {
     header { padding: 12px 16px; }
     main { padding: 28px 16px 90px; }
-    .scripture, .note { margin-left: 0; }
-    .scripture { padding: 18px 20px; }
+    .scripture, .quote, .note { margin-left: 0; }
+    .scripture, .quote { padding: 18px 20px; }
   }
   @media print {
     header { position: static; } .sm, #back-btn { display: none; }
@@ -191,6 +197,10 @@
   function renderFlow(item) {
     if (item.t === 'scripture') {
       return '<div class="scripture"><p>' + esc(item.text) + '</p>' +
+             '<p class="ref">' + esc(item.ref) + '</p></div>';
+    }
+    if (item.t === 'quote') {
+      return '<div class="quote"><p>' + esc(item.text) + '</p>' +
              '<p class="ref">' + esc(item.ref) + '</p></div>';
     }
     if (item.t === 'note') {
