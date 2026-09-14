@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Prep Sheets — The Kiln</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Cream theme — same tokens as admin.html. */
+    --navy: #faf8f4; --navy-2: #f0ebe0; --navy-3: #e8dfd0;
+    --gold: #8b5e1a; --gold-fill: #c9a84c; --gold-dim: #7a6a58;
+    --cream: #2c1a0e; --cream-dim: #7a6a58;
+    --border: #e0d8cc;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Montserrat', sans-serif;
+    /* Reading size, driven by the A-/A+ controls. */
+    --beat: 1.55rem;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--navy); color: var(--cream); -webkit-text-size-adjust: 100%; }
+
+  /* ---- login ---- */
+  #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+  .login-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 4px 24px rgba(44,26,14,0.06); }
+  .login-card h1 { font-family: var(--serif); font-weight: 400; font-size: 1.6rem; margin-bottom: 6px; }
+  .login-card p { font-size: 0.78rem; color: var(--cream-dim); margin-bottom: 22px; letter-spacing: 0.04em; }
+  .login-card input { width: 100%; background: var(--navy); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; color: var(--cream); font-family: var(--sans); font-size: 15px; outline: none; margin-bottom: 14px; }
+  .login-card input:focus { border-color: var(--gold-fill); }
+  .btn { background: var(--gold); color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; width: 100%; }
+  .btn:hover { background: var(--cream); }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+  .err-msg { color: #a3312a; font-size: 0.8rem; margin-top: 12px; min-height: 1em; }
+
+  /* ---- shell ---- */
+  #app { display: none; }
+  header {
+    position: sticky; top: 0; z-index: 10; background: rgba(250,248,244,0.97);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
+    padding: 14px 24px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap;
+  }
+  header .brand { font-family: var(--serif); font-size: 1.25rem; }
+  header .spacer { flex: 1; }
+  .sm { background: transparent; border: 1px solid var(--border); border-radius: 999px; padding: 7px 14px; font-family: var(--sans); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream-dim); cursor: pointer; }
+  .sm:hover { border-color: var(--gold-fill); color: var(--cream); }
+  .sm:disabled { opacity: 0.4; cursor: default; }
+
+  main { max-width: 860px; margin: 0 auto; padding: 40px 24px 120px; }
+
+  /* ---- index ---- */
+  .index-head { font-family: var(--serif); font-size: 2rem; font-weight: 300; margin-bottom: 6px; }
+  .index-sub { font-size: 0.85rem; color: var(--cream-dim); margin-bottom: 28px; }
+  .sheet-card { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px; margin-bottom: 12px; cursor: pointer; font-family: var(--sans); transition: border-color 0.15s, transform 0.15s; }
+  .sheet-card:hover { border-color: var(--gold-fill); transform: translateY(-2px); }
+  .sheet-card .t { font-family: var(--serif); font-size: 1.4rem; color: var(--cream); margin-bottom: 6px; }
+  .sheet-card .m { font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+  .empty { color: var(--cream-dim); font-size: 0.9rem; padding: 40px 0; }
+
+  /* ---- the sheet, set for reading aloud ---- */
+  .sheet-title { font-family: var(--serif); font-size: clamp(1.9rem, 4vw, 2.7rem); font-weight: 300; line-height: 1.15; margin-bottom: 10px; }
+  .sheet-meta { font-size: 0.72rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold); margin-bottom: 22px; }
+  .sheet-meta a { color: var(--gold); }
+  .premise { font-family: var(--serif); font-size: 1.25rem; font-style: italic; line-height: 1.55; color: var(--cream-dim); border-left: 3px solid var(--gold-fill); padding-left: 18px; margin-bottom: 44px; }
+
+  .segment { margin-bottom: 52px; }
+  .segment h2 {
+    font-family: var(--sans); font-size: 0.78rem; font-weight: 600; letter-spacing: 0.18em;
+    text-transform: uppercase; color: var(--gold); padding-bottom: 10px;
+    border-bottom: 1px solid var(--border); margin-bottom: 26px;
+  }
+  /* A beat is the thing being said — the largest text on the page. */
+  .beat { display: flex; gap: 16px; margin-bottom: 24px; align-items: baseline; }
+  .beat::before { content: ""; flex: 0 0 8px; height: 8px; margin-top: 0.55em; border-radius: 50%; background: var(--gold-fill); }
+  .beat p { font-size: var(--beat); line-height: 1.5; font-weight: 300; }
+  /* Scripture sits in the flow, where it is read, and looks unmistakably different. */
+  .scripture { background: #fff; border-left: 4px solid var(--gold-fill); border-radius: 4px; padding: 22px 26px; margin: 0 0 26px 24px; }
+  .scripture p { font-family: var(--serif); font-size: calc(var(--beat) * 1.06); font-style: italic; line-height: 1.5; color: var(--cream); margin-bottom: 10px; }
+  .scripture .ref { font-family: var(--sans); font-style: normal; font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0; }
+  /* A note is never spoken — deliberately small and quiet so the eye skips it while talking. */
+  .note { display: flex; gap: 10px; margin: 0 0 24px 24px; font-size: 0.8rem; color: var(--cream-dim); font-style: italic; line-height: 1.6; }
+  .note::before { content: "\25B8"; font-style: normal; color: var(--gold-fill); }
+
+  @media (max-width: 640px) {
+    header { padding: 12px 16px; }
+    main { padding: 28px 16px 90px; }
+    .scripture, .note { margin-left: 0; }
+    .scripture { padding: 18px 20px; }
+  }
+  @media print {
+    header { position: static; } .sm, #back-btn { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <h1>Prep Sheets</h1>
+    <p>The Kiln</p>
+    <form id="login-form">
+      <input type="password" id="pw-input" name="password" placeholder="Password" autocomplete="current-password" />
+      <button type="submit" class="btn" id="login-btn">Sign In</button>
+    </form>
+    <div class="err-msg" id="login-err"></div>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <span class="brand">Prep Sheets</span>
+    <button class="sm" id="back-btn" style="display:none">&larr; All sheets</button>
+    <span class="spacer"></span>
+    <button class="sm" id="smaller">A &minus;</button>
+    <button class="sm" id="bigger">A &plus;</button>
+    <button class="sm" id="logout-btn">Sign out</button>
+  </header>
+  <main id="view"></main>
+</div>
+
+<script>
+(function () {
+  // Held in memory only, exactly as admin.html does it — never localStorage.
+  let password = '';
+  let sheets = [];
+
+  const $ = (id) => document.getElementById(id);
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+
+  function fmtDate(iso) {
+    if (!iso) return '';
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const [y, m, d] = String(iso).split('-').map(Number);
+    return (y && m && d) ? months[m - 1] + ' ' + d + ', ' + y : iso;
+  }
+
+  async function api(action, extra) {
+    const res = await fetch('/api/prep', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ password: password, action: action }, extra || {})),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+    return data;
+  }
+
+  // ---- reading size, the one thing worth remembering per device ----
+  const MIN = 1.1, MAX = 2.6, STEP = 0.15;
+  function readSize() {
+    try { return parseFloat(localStorage.getItem('prep-beat')) || 1.55; } catch (e) { return 1.55; }
+  }
+  function applySize(v) {
+    // Rounded: repeated stepping otherwise drifts to 1.8499999999999999rem.
+    const clamped = Math.round(Math.min(MAX, Math.max(MIN, v)) * 100) / 100;
+    document.documentElement.style.setProperty('--beat', clamped + 'rem');
+    try { localStorage.setItem('prep-beat', String(clamped)); } catch (e) { /* private window */ }
+    $('smaller').disabled = clamped <= MIN;
+    $('bigger').disabled = clamped >= MAX;
+  }
+  function currentSize() {
+    return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--beat')) || 1.55;
+  }
+
+  // ---- views ----
+  function renderIndex() {
+    $('back-btn').style.display = 'none';
+    if (!sheets.length) {
+      $('view').innerHTML = '<p class="index-head">Prep Sheets</p><p class="empty">No prep sheets yet.</p>';
+      return;
+    }
+    $('view').innerHTML =
+      '<h1 class="index-head">Prep Sheets</h1>' +
+      '<p class="index-sub">' + sheets.length + ' ' + (sheets.length === 1 ? 'sheet' : 'sheets') + ' &middot; newest first</p>' +
+      sheets.map(function (s) {
+        return '<button class="sheet-card" data-slug="' + esc(s.slug) + '">' +
+                 '<div class="t">' + esc(s.title) + '</div>' +
+                 '<div class="m">' + esc(fmtDate(s.date)) + (s.runtime ? ' &middot; ' + esc(s.runtime) : '') + '</div>' +
+               '</button>';
+      }).join('');
+    Array.prototype.forEach.call($('view').querySelectorAll('.sheet-card'), function (btn) {
+      btn.addEventListener('click', function () { openSheet(btn.getAttribute('data-slug')); });
+    });
+  }
+
+  function renderFlow(item) {
+    if (item.t === 'scripture') {
+      return '<div class="scripture"><p>' + esc(item.text) + '</p>' +
+             '<p class="ref">' + esc(item.ref) + '</p></div>';
+    }
+    if (item.t === 'note') {
+      return '<div class="note"><span>' + esc(item.text) + '</span></div>';
+    }
+    return '<div class="beat"><p>' + esc(item.text) + '</p></div>';
+  }
+
+  function renderSheet(sheet) {
+    $('back-btn').style.display = '';
+    const meta = [fmtDate(sheet.date), sheet.runtime].filter(Boolean).map(esc).join(' &middot; ');
+    const link = sheet.article
+      ? ' &middot; <a href="' + esc(sheet.article) + '" target="_blank" rel="noopener">Read the article &rarr;</a>'
+      : '';
+    $('view').innerHTML =
+      '<h1 class="sheet-title">' + esc(sheet.title) + '</h1>' +
+      '<p class="sheet-meta">' + meta + link + '</p>' +
+      (sheet.premise ? '<p class="premise">' + esc(sheet.premise) + '</p>' : '') +
+      (sheet.segments || []).map(function (seg) {
+        return '<section class="segment"><h2>' + esc(seg.heading) + '</h2>' +
+               (seg.flow || []).map(renderFlow).join('') + '</section>';
+      }).join('');
+    window.scrollTo(0, 0);
+  }
+
+  async function openSheet(slug) {
+    try {
+      const data = await api('get', { slug: slug });
+      renderSheet(data.sheet);
+    } catch (err) {
+      $('view').innerHTML = '<p class="empty">Could not load that sheet: ' + esc(err.message) + '</p>';
+    }
+  }
+
+  async function login() {
+    const btn = $('login-btn');
+    const err = $('login-err');
+    err.textContent = '';
+    password = $('pw-input').value;
+    if (!password) { err.textContent = 'Enter the password.'; return; }
+    btn.disabled = true;
+    btn.textContent = 'Signing in…';
+    try {
+      const data = await api('list');
+      sheets = data.sheets || [];
+      $('login-screen').style.display = 'none';
+      $('app').style.display = 'block';
+      applySize(readSize());
+      renderIndex();
+    } catch (e) {
+      password = '';
+      err.textContent = e.message === 'Unauthorized' ? 'That password is not right.' : e.message;
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    }
+  }
+
+  $('login-form').addEventListener('submit', function (e) { e.preventDefault(); login(); });
+  $('back-btn').addEventListener('click', renderIndex);
+  $('bigger').addEventListener('click', function () { applySize(currentSize() + STEP); });
+  $('smaller').addEventListener('click', function () { applySize(currentSize() - STEP); });
+  $('logout-btn').addEventListener('click', function () {
+    password = '';
+    sheets = [];
+    $('pw-input').value = '';
+    $('app').style.display = 'none';
+    $('login-screen').style.display = 'flex';
+  });
+})();
+</script>
+
+</body>
+</html>
