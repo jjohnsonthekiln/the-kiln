@@ -221,4 +221,108 @@ export const SHEETS = [
       },
     ],
   },
+  {
+    slug: 'gospel-centered-counseling',
+    title: 'Gospel-Centered Counseling',
+    date: '2026-09-16',
+    runtime: '15–18 min',
+    article: 'https://thegreatphysician.ai/post?slug=gospel-centered-counseling',
+    premise:
+      'Christ-centered counseling and gospel-centered counseling are two names for one thing. The Gospel ' +
+      'is not the entryway to the help — it is the help. And because nothing brings it to mind on its ' +
+      'own, remembering it has to be trained.',
+    segments: [
+      {
+        heading: 'Open — two names, one thing',
+        flow: [
+          { t: 'beat', text: 'People ask me whether Christ-centered counseling is a different thing from what others call gospel-centered counseling. It is not. Two names for one thing — and the second may be the more useful of the two, because it says out loud where the center sits.' },
+          { t: 'beat', text: 'You cannot have Christ without His work. A Christ who did not die and did not rise is a teacher, an example, a moral influence — and not one of those can save anybody.' },
+          { t: 'beat', text: 'Strip the cross and the empty tomb out of Christ-centered counseling and what is left is ordinary advice with His name attached to it.' },
+          { t: 'note', text: 'Do not rush this. The whole episode is the unpacking of the next sentence.' },
+          { t: 'beat', text: 'The Gospel is not the entryway to the help. The Gospel IS the help.' },
+        ],
+      },
+      {
+        heading: '1. What the Gospel actually is',
+        flow: [
+          { t: 'beat', text: 'Be precise here, because the word has gone soft with use. The Gospel is not a mood. It is not a general impression that God is kindly disposed toward you.' },
+          { t: 'beat', text: 'Paul defines it — and he defines it as news. As events that happened.' },
+          { t: 'scripture', ref: '1 Corinthians 15:3–4', text: 'For I delivered to you as of first importance what I also received: that Christ died for our sins in accordance with the Scriptures, that he was buried, that he was raised on the third day in accordance with the Scriptures.' },
+          { t: 'beat', text: 'Of first importance. He died for our sins. He was buried. He was raised on the third day.' },
+          { t: 'beat', text: 'Those are not sentiments to be worked up. They are facts to be believed — and every one of them was true this morning, before you felt anything whatsoever about them.' },
+          { t: 'note', text: 'The load-bearing distinction of the episode. Say it slowly, then stop.' },
+          { t: 'beat', text: 'That is exactly what makes the Gospel useful to a person in trouble. A mood cannot hold weight. An event can.' },
+        ],
+      },
+      {
+        heading: '2. It is the core of who you are',
+        flow: [
+          { t: 'beat', text: 'I tell counselees the Gospel is not one chapter of their story. It is the ground the whole story is standing on.' },
+          { t: 'scripture', ref: 'Galatians 2:20', text: 'I have been crucified with Christ. It is no longer I who live, but Christ who lives in me. And the life I now live in the flesh I live by faith in the Son of God, who loved me and gave himself for me.' },
+          { t: 'beat', text: 'Read the last clause slowly. Who loved ME, and gave himself FOR ME. Paul will not leave the cross as a general provision for humanity in the abstract. He puts himself inside the sentence.' },
+          { t: 'scripture', ref: 'Colossians 3:3', text: 'For you have died, and your life is hidden with Christ in God.' },
+          { t: 'beat', text: 'Hidden with Christ. Not hidden in your performance this week, or your feelings this morning, or the state of your marriage, or your record as a parent. All of those move. This one does not.' },
+        ],
+      },
+      {
+        heading: '3. The counseling room is full of daunting things',
+        flow: [
+          { t: 'note', text: 'Slow down. Name them one at a time, with a beat between each. Someone listening is living inside one of these right now.' },
+          { t: 'beat', text: 'A marriage that has gone cold, or gone to war. A child who has walked away and will not answer the phone. Despair that is still sitting on the end of the bed when you wake up. Depression. The quiet, settled conviction that you are worthless. Sexual temptation that has beaten you so many times you have stopped believing you could ever win.' },
+          { t: 'beat', text: 'I am not going to tell you the Gospel makes any of that weightless. It does not — and a counselor who says otherwise has not sat with many people.' },
+          { t: 'beat', text: 'Betsie ten Boom died in Ravensbrück. The Gospel did not make the camp stop being a camp.' },
+          { t: 'beat', text: 'But not one of those things reaches the bottom. The Gospel is underneath all of them.' },
+          { t: 'scripture', ref: '2 Corinthians 4:8–9', text: 'We are afflicted in every way, but not crushed; perplexed, but not driven to despair; persecuted, but not forsaken; struck down, but not destroyed.' },
+          { t: 'beat', text: 'Paul concedes every one of them. And after each one he sets a limit — not crushed, not driven to despair, not forsaken, not destroyed. The pressure is entirely real. The floor holds.' },
+        ],
+      },
+      {
+        heading: '4. Train your heart to remember',
+        flow: [
+          { t: 'beat', text: 'Here is where the work comes in — and it is work.' },
+          { t: 'beat', text: 'Nothing about your circumstances brings the Gospel to mind automatically. Grief does not do it. Exhaustion does not do it. Three o’clock in the morning certainly does not do it.' },
+          { t: 'beat', text: 'Left to itself the mind runs to the trouble and stays there. Remembering has to be trained, the way any other discipline is trained.' },
+          { t: 'beat', text: 'Jeremiah shows us how. He has just spent two chapters cataloguing misery in unflinching detail — he is minimizing nothing. And then he does something deliberate.' },
+          { t: 'scripture', ref: 'Lamentations 3:21–23', text: 'But this I call to mind, and therefore I have hope: The steadfast love of the LORD never ceases; his mercies never come to an end; they are new every morning; great is your faithfulness.' },
+          { t: 'beat', text: 'THIS I call to mind. That is an act of the will, performed against the current of his own feelings. He does not wait until he feels God’s mercies. He calls them to mind, and the hope follows after.' },
+          { t: 'note', text: 'Define “appropriate” here — most listeners will not have heard it used this way.' },
+          { t: 'beat', text: 'That is what I mean when I tell a counselee to appropriate the Gospel. Not to manufacture it — it is already true, already theirs, purchased and finished and signed. To appropriate it is to take what you already own and put it to use today.' },
+        ],
+      },
+      {
+        heading: '5. Fleas, soldiers, and solace',
+        flow: [
+          { t: 'note', text: 'Tell this as a story. No dates, no history lecture.' },
+          { t: 'beat', text: 'Corrie ten Boom and her sister Betsie were arrested for hiding Jews in their home in Haarlem, and were eventually sent to Ravensbrück. Their barracks was filthy and overrun with fleas.' },
+          { t: 'beat', text: 'Corrie’s reaction was the human one — she wanted out. Betsie’s was to take Paul at his word and give thanks, fleas included. Corrie thought it absurd at the time.' },
+          { t: 'scripture', ref: '1 Thessalonians 5:16–18', text: 'Rejoice always, pray without ceasing, give thanks in all circumstances; for this is the will of God in Christ Jesus for you.' },
+          { t: 'beat', text: 'Weeks later they understood. The guards would not set foot in that barracks — because of the fleas. And because the guards stayed out, the sisters could open the Bible they had smuggled in and read it aloud to the women there, night after night, unhindered.' },
+          { t: 'note', text: 'Guard hard against the sentimental reading. The next two beats are the correction — say them plainly, no warmth in the voice.' },
+          { t: 'beat', text: 'I do not tell that story to suggest the fleas were secretly pleasant, or that the camp was a blessing in disguise. Betsie died there. It is not a story about suffering quietly turning out to be fine.' },
+          { t: 'beat', text: 'It is a story about where a believer’s solace is located. Corrie had nothing left — no home, no freedom, no safety, and soon no sister. She had the Gospel.' },
+          { t: 'beat', text: 'And it proved strong enough to hold a woman upright in Ravensbrück, surrounded by fleas, guarded by men who meant her harm.' },
+          { t: 'beat', text: 'If it will hold there, it will hold in your marriage. It will hold in your depression. It will hold at three in the morning.' },
+        ],
+      },
+      {
+        heading: '6. What cannot be taken from you',
+        flow: [
+          { t: 'beat', text: 'Paul asks the question outright, and then answers it with a list that leaves nothing out.' },
+          { t: 'scripture', ref: 'Romans 8:35, 37', text: 'Who shall separate us from the love of Christ? Shall tribulation, or distress, or persecution, or famine, or nakedness, or danger, or sword? … No, in all these things we are more than conquerors through him who loved us.' },
+          { t: 'scripture', ref: 'Romans 8:38–39', text: 'For I am sure that neither death nor life, nor angels nor rulers, nor things present nor things to come, nor powers, nor height nor depth, nor anything else in all creation, will be able to separate us from the love of God in Christ Jesus our Lord.' },
+          { t: 'beat', text: 'Notice how much Paul is willing to let into that list. Tribulation. Persecution. Famine. Sword. He never denies that these come to Christians — he assumes they do.' },
+          { t: 'beat', text: 'What he denies is that any one of them can reach the love of God in Christ Jesus.' },
+        ],
+      },
+      {
+        heading: 'Close',
+        flow: [
+          { t: 'beat', text: 'That is the believer’s hope and solace — and it is why I would as gladly call this work gospel-centered counseling as Christ-centered counseling. Both names point at the same Person and the same finished work.' },
+          { t: 'beat', text: 'Nothing in your life this week is bigger than the cross, and nothing is more certain than the empty tomb.' },
+          { t: 'beat', text: 'Train your heart to remember it — and then live today on what you remembered.' },
+          { t: 'note', text: 'Point listeners to the full article, and name the Christ-Centered episode as the companion piece.' },
+        ],
+      },
+    ],
+  },
 ]
