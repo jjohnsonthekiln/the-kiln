@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Cue Cards — The Kiln</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Cream theme — same tokens as admin.html. */
+    --navy: #faf8f4; --navy-2: #f0ebe0; --navy-3: #e8dfd0;
+    --gold: #8b5e1a; --gold-fill: #c9a84c; --gold-dim: #7a6a58;
+    --cream: #2c1a0e; --cream-dim: #7a6a58;
+    --border: #e0d8cc;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+    --sans: 'Montserrat', sans-serif;
+    /* Cue size, driven by A-/A+ and remembered per device. */
+    --cue: 2rem;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--sans); background: var(--navy); color: var(--cream); -webkit-text-size-adjust: 100%; }
+
+  /* ---- login ---- */
+  #login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 24px; }
+  .login-card { background: #fff; border: 1px solid var(--border); border-radius: 16px; padding: 40px; width: 100%; max-width: 360px; text-align: center; box-shadow: 0 4px 24px rgba(44,26,14,0.06); }
+  .login-card h1 { font-family: var(--serif); font-weight: 400; font-size: 1.6rem; margin-bottom: 6px; }
+  .login-card p { font-size: 0.78rem; color: var(--cream-dim); margin-bottom: 22px; letter-spacing: 0.04em; }
+  .login-card input { width: 100%; background: var(--navy); border: 1px solid var(--border); border-radius: 8px; padding: 12px 14px; color: var(--cream); font-family: var(--sans); font-size: 15px; outline: none; margin-bottom: 14px; }
+  .login-card input:focus { border-color: var(--gold-fill); }
+  .btn { background: var(--gold); color: #fff; border: none; border-radius: 8px; padding: 12px 20px; font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.12em; text-transform: uppercase; cursor: pointer; width: 100%; }
+  .btn:hover { background: var(--cream); }
+  .btn:disabled { opacity: 0.5; cursor: default; }
+  .err-msg { color: #a3312a; font-size: 0.8rem; margin-top: 12px; min-height: 1em; }
+
+  /* ---- shell ---- */
+  #app { display: none; }
+  header {
+    position: sticky; top: 0; z-index: 10; background: rgba(250,248,244,0.97);
+    backdrop-filter: blur(10px); border-bottom: 1px solid var(--border);
+    padding: 12px 24px; display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  }
+  header .brand { font-family: var(--serif); font-size: 1.25rem; }
+  header .deck-name { font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--gold); min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 34ch; }
+  header .spacer { flex: 1; }
+  .sm { background: transparent; border: 1px solid var(--border); border-radius: 999px; padding: 7px 14px; font-family: var(--sans); font-size: 0.7rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--cream-dim); cursor: pointer; }
+  .sm:hover { border-color: var(--gold-fill); color: var(--cream); }
+  .sm.on { background: var(--gold); border-color: var(--gold); color: #fff; }
+  .sm:disabled { opacity: 0.4; cursor: default; }
+
+  main { max-width: 1000px; margin: 0 auto; padding: 36px 32px 140px; }
+
+  /* ---- deck index ---- */
+  .index-head { font-family: var(--serif); font-size: 2rem; font-weight: 300; margin-bottom: 6px; }
+  .index-sub { font-size: 0.85rem; color: var(--cream-dim); margin-bottom: 28px; }
+  .deck-card { display: block; width: 100%; text-align: left; background: #fff; border: 1px solid var(--border); border-radius: 12px; padding: 22px 24px; margin-bottom: 12px; cursor: pointer; font-family: var(--sans); transition: border-color 0.15s, transform 0.15s; }
+  .deck-card:hover { border-color: var(--gold-fill); transform: translateY(-2px); }
+  .deck-card .t { font-family: var(--serif); font-size: 1.5rem; color: var(--cream); margin-bottom: 6px; }
+  .deck-card .m { font-size: 0.72rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold); }
+  .empty { color: var(--cream-dim); font-size: 0.9rem; padding: 40px 0; }
+
+  /* ---- a cue card ---- */
+  .card-num { font-size: 0.75rem; letter-spacing: 0.22em; text-transform: uppercase; color: var(--gold); margin-bottom: 10px; }
+  .card-heading { font-family: var(--serif); font-size: clamp(2.2rem, 5vw, 3.4rem); font-weight: 400; line-height: 1.1; margin-bottom: 34px; }
+  /* A point is the cue — the biggest, boldest thing on the card. */
+  .point { display: flex; gap: 18px; align-items: baseline; margin-bottom: 22px; }
+  .point::before { content: ""; flex: 0 0 10px; height: 10px; margin-top: 0.5em; border-radius: 50%; background: var(--gold-fill); }
+  .point p { font-size: var(--cue); line-height: 1.3; font-weight: 400; }
+  /* Scripture backs the point: set apart, readable aloud, slightly smaller than the cue. */
+  .scripture { background: #fff; border-left: 5px solid var(--gold-fill); border-radius: 4px; padding: 20px 26px; margin: 4px 0 24px 28px; }
+  .scripture p { font-family: var(--serif); font-size: calc(var(--cue) * 0.85); font-style: italic; line-height: 1.4; margin-bottom: 10px; }
+  .scripture .ref { font-family: var(--sans); font-style: normal; font-size: 0.8rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--gold); margin-bottom: 0; }
+  /* Any other source: read aloud the same way, never mistaken for Scripture. */
+  .quote { background: var(--navy-2); border-left: 5px dashed var(--gold-dim); border-radius: 4px; padding: 20px 26px; margin: 4px 0 24px 28px; }
+  .quote p { font-family: var(--serif); font-size: calc(var(--cue) * 0.82); font-style: normal; line-height: 1.4; margin-bottom: 10px; }
+  .quote .ref { font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.16em; text-transform: uppercase; color: var(--gold-dim); margin-bottom: 0; }
+
+  /* "All cards" review mode: every card, stacked. */
+  .card-block { padding-bottom: 44px; margin-bottom: 44px; border-bottom: 1px solid var(--border); }
+  .card-block:last-child { border-bottom: none; }
+
+  /* ---- bottom navigation (card mode) ---- */
+  #cardnav {
+    position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; display: none;
+    background: rgba(250,248,244,0.97); backdrop-filter: blur(10px); border-top: 1px solid var(--border);
+    padding: 12px 24px; align-items: center; justify-content: space-between; gap: 12px;
+  }
+  #cardnav .navbtn { background: #fff; border: 1px solid var(--border); border-radius: 10px; padding: 12px 22px; font-family: var(--sans); font-size: 0.8rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--cream); cursor: pointer; min-width: 120px; }
+  #cardnav .navbtn:hover { border-color: var(--gold-fill); }
+  #cardnav .navbtn:disabled { opacity: 0.35; cursor: default; }
+  #cardnav .pos { font-size: 0.8rem; letter-spacing: 0.2em; color: var(--gold); text-transform: uppercase; }
+  #cardnav .hint { font-size: 0.66rem; color: var(--cream-dim); letter-spacing: 0.06em; }
+
+  @media (max-width: 640px) {
+    header { padding: 10px 14px; }
+    main { padding: 24px 16px 130px; }
+    .scripture, .quote { margin-left: 0; padding: 16px 18px; }
+    #cardnav { padding: 10px 14px; }
+    #cardnav .navbtn { min-width: 0; padding: 12px 16px; }
+    #cardnav .hint { display: none; }
+  }
+  @media print {
+    header, #cardnav { display: none !important; }
+    .card-block { page-break-after: always; border: none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <h1>Cue Cards</h1>
+    <p>The Kiln</p>
+    <form id="login-form">
+      <input type="password" id="pw-input" name="password" placeholder="Password" autocomplete="current-password" />
+      <button type="submit" class="btn" id="login-btn">Sign In</button>
+    </form>
+    <div class="err-msg" id="login-err"></div>
+  </div>
+</div>
+
+<div id="app">
+  <header>
+    <span class="brand">Cue Cards</span>
+    <button class="sm" id="decks-btn" style="display:none">&larr; Decks</button>
+    <span class="deck-name" id="deck-name"></span>
+    <span class="spacer"></span>
+    <button class="sm" id="mode-cards" style="display:none">Cards</button>
+    <button class="sm" id="mode-all" style="display:none">All</button>
+    <button class="sm" id="smaller">A &minus;</button>
+    <button class="sm" id="bigger">A &plus;</button>
+    <button class="sm" id="logout-btn">Sign out</button>
+  </header>
+  <main id="view"></main>
+  <nav id="cardnav">
+    <button class="navbtn" id="prev">&larr; Prev</button>
+    <div style="text-align:center">
+      <div class="pos" id="pos"></div>
+      <div class="hint">arrows &middot; space &middot; clicker &middot; swipe</div>
+    </div>
+    <button class="navbtn" id="next">Next &rarr;</button>
+  </nav>
+</div>
+
+<script>
+(function () {
+  // Held in memory only, exactly as admin.html does it — never localStorage.
+  let password = '';
+  let decks = [];
+  let deck = null;      // the open deck
+  let idx = 0;          // current card
+  let mode = 'cards';   // 'cards' | 'all'
+
+  const $ = (id) => document.getElementById(id);
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+  }
+  function fmtDate(iso) {
+    const months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+    const [y, m, d] = String(iso || '').split('-').map(Number);
+    return (y && m && d) ? months[m - 1] + ' ' + d + ', ' + y : (iso || '');
+  }
+
+  async function api(action, extra) {
+    const res = await fetch('/api/cuecards', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ password: password, action: action }, extra || {})),
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) throw new Error(data.error || ('HTTP ' + res.status));
+    return data;
+  }
+
+  // ---- cue size, the one thing worth remembering per device ----
+  const MIN = 1.2, MAX = 3.4, STEP = 0.2, DEFAULT = 2;
+  function readSize() { try { return parseFloat(localStorage.getItem('cue-size')) || DEFAULT; } catch (e) { return DEFAULT; } }
+  function applySize(v) {
+    const s = Math.round(Math.min(MAX, Math.max(MIN, v)) * 100) / 100;
+    document.documentElement.style.setProperty('--cue', s + 'rem');
+    try { localStorage.setItem('cue-size', String(s)); } catch (e) { /* private window */ }
+    $('smaller').disabled = s <= MIN;
+    $('bigger').disabled = s >= MAX;
+  }
+  function currentSize() { return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--cue')) || DEFAULT; }
+
+  // ---- rendering ----
+  function renderItem(item) {
+    if (item.t === 'scripture' || item.t === 'quote') {
+      return '<div class="' + item.t + '"><p>' + esc(item.text) + '</p><p class="ref">' + esc(item.ref) + '</p></div>';
+    }
+    return '<div class="point"><p>' + esc(item.text) + '</p></div>';
+  }
+  function renderCardBody(card, n, total) {
+    return '<div class="card-num">Card ' + n + ' of ' + total + '</div>' +
+           '<h2 class="card-heading">' + esc(card.heading) + '</h2>' +
+           (card.flow || []).map(renderItem).join('');
+  }
+
+  function setChrome(inDeck) {
+    $('decks-btn').style.display = inDeck ? '' : 'none';
+    $('mode-cards').style.display = inDeck ? '' : 'none';
+    $('mode-all').style.display = inDeck ? '' : 'none';
+    $('deck-name').textContent = inDeck ? deck.title : '';
+    $('cardnav').style.display = (inDeck && mode === 'cards') ? 'flex' : 'none';
+    $('mode-cards').classList.toggle('on', mode === 'cards');
+    $('mode-all').classList.toggle('on', mode === 'all');
+  }
+
+  function renderIndex() {
+    deck = null;
+    setChrome(false);
+    if (!decks.length) { $('view').innerHTML = '<h1 class="index-head">Cue Cards</h1><p class="empty">No decks yet.</p>'; return; }
+    $('view').innerHTML =
+      '<h1 class="index-head">Cue Cards</h1>' +
+      '<p class="index-sub">' + decks.length + ' ' + (decks.length === 1 ? 'deck' : 'decks') + ' &middot; newest first</p>' +
+      decks.map(function (d) {
+        return '<button class="deck-card" data-slug="' + esc(d.slug) + '">' +
+                 '<div class="t">' + esc(d.title) + '</div>' +
+                 '<div class="m">' + esc(fmtDate(d.date)) + ' &middot; ' + d.cards + ' cards</div>' +
+               '</button>';
+      }).join('');
+    Array.prototype.forEach.call($('view').querySelectorAll('.deck-card'), function (b) {
+      b.addEventListener('click', function () { openDeck(b.getAttribute('data-slug')); });
+    });
+  }
+
+  function renderCard() {
+    const total = deck.cards.length;
+    idx = Math.min(total - 1, Math.max(0, idx));
+    $('view').innerHTML = renderCardBody(deck.cards[idx], idx + 1, total);
+    $('pos').textContent = (idx + 1) + ' / ' + total;
+    $('prev').disabled = idx === 0;
+    $('next').disabled = idx === total - 1;
+    window.scrollTo(0, 0);
+  }
+
+  function renderAll() {
+    const total = deck.cards.length;
+    $('view').innerHTML = deck.cards.map(function (c, i) {
+      return '<section class="card-block">' + renderCardBody(c, i + 1, total) + '</section>';
+    }).join('');
+    window.scrollTo(0, 0);
+  }
+
+  function render() {
+    setChrome(true);
+    if (mode === 'cards') renderCard(); else renderAll();
+  }
+
+  async function openDeck(slug) {
+    try {
+      const data = await api('get', { slug: slug });
+      deck = data.deck;
+      idx = 0;
+      mode = 'cards';
+      render();
+    } catch (err) {
+      $('view').innerHTML = '<p class="empty">Could not load that deck: ' + esc(err.message) + '</p>';
+    }
+  }
+
+  function go(delta) {
+    if (!deck || mode !== 'cards') return;
+    const next = idx + delta;
+    if (next < 0 || next >= deck.cards.length) return;
+    idx = next;
+    renderCard();
+  }
+
+  // ---- keyboard, presentation clicker (PageUp/PageDown), swipe ----
+  document.addEventListener('keydown', function (e) {
+    if (!deck || mode !== 'cards') return;
+    if (e.target && (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA')) return;
+    const k = e.key;
+    if (k === 'ArrowRight' || k === 'PageDown' || k === ' ' || k === 'Enter') { e.preventDefault(); go(1); }
+    else if (k === 'ArrowLeft' || k === 'PageUp' || k === 'Backspace') { e.preventDefault(); go(-1); }
+    else if (k === 'Home') { e.preventDefault(); idx = 0; renderCard(); }
+    else if (k === 'End') { e.preventDefault(); idx = deck.cards.length - 1; renderCard(); }
+  });
+  let touchX = null, touchY = null;
+  document.addEventListener('touchstart', function (e) {
+    if (!deck || mode !== 'cards') return;
+    touchX = e.touches[0].clientX; touchY = e.touches[0].clientY;
+  }, { passive: true });
+  document.addEventListener('touchend', function (e) {
+    if (touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX, dy = e.changedTouches[0].clientY - touchY;
+    touchX = touchY = null;
+    // A deliberate horizontal swipe only — vertical scrolling must not flip cards.
+    if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.5) go(dx < 0 ? 1 : -1);
+  }, { passive: true });
+
+  // ---- sign in / out ----
+  async function login() {
+    const btn = $('login-btn'), err = $('login-err');
+    err.textContent = '';
+    password = $('pw-input').value;
+    if (!password) { err.textContent = 'Enter the password.'; return; }
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    try {
+      const data = await api('list');
+      decks = data.decks || [];
+      $('login-screen').style.display = 'none';
+      $('app').style.display = 'block';
+      applySize(readSize());
+      renderIndex();
+    } catch (e) {
+      password = '';
+      err.textContent = e.message === 'Unauthorized' ? 'That password is not right.' : e.message;
+    } finally {
+      btn.disabled = false; btn.textContent = 'Sign In';
+    }
+  }
+
+  $('login-form').addEventListener('submit', function (e) { e.preventDefault(); login(); });
+  $('decks-btn').addEventListener('click', renderIndex);
+  $('mode-cards').addEventListener('click', function () { mode = 'cards'; render(); });
+  $('mode-all').addEventListener('click', function () { mode = 'all'; render(); });
+  $('prev').addEventListener('click', function () { go(-1); });
+  $('next').addEventListener('click', function () { go(1); });
+  $('bigger').addEventListener('click', function () { applySize(currentSize() + STEP); });
+  $('smaller').addEventListener('click', function () { applySize(currentSize() - STEP); });
+  $('logout-btn').addEventListener('click', function () {
+    password = ''; decks = []; deck = null;
+    $('pw-input').value = '';
+    $('cardnav').style.display = 'none';
+    $('app').style.display = 'none';
+    $('login-screen').style.display = 'flex';
+  });
+})();
+</script>
+
+</body>
+</html>
