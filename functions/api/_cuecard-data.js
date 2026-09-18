@@ -21,6 +21,12 @@ export const DECKS = [
     article: 'https://thegreatphysician.ai/post?slug=gospel-centered-counseling',
     cards: [
       {
+        heading: 'Believe and confess',
+        flow: [
+          { t: 'scripture', ref: 'Romans 10:9–10', text: 'Because, if you confess with your mouth that Jesus is Lord and believe in your heart that God raised him from the dead, you will be saved. For with the heart one believes and is justified, and with the mouth one confesses and is saved.' },
+        ],
+      },
+      {
         heading: 'Two names, one thing',
         flow: [
           { t: 'point', text: 'Christ-centered = gospel-centered' },
